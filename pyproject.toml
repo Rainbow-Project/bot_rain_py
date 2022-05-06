@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "bot_rain"
+version = "0.1.0"
+description = ""
+authors = ["intmax"]
+
+[tool.poetry.dependencies]
+python = "3.10.3"
+graia-ariadne = "^0.6.16"
+graia-saya = "^0.0.15"
+matplotlib = "^3.5.2"
+lxml = "^4.8.0"
+imageio = "^2.19.0"
+playwright = "^1.21.0"
+scheduler = "^0.7.1"
+graia-scheduler = "^0.0.7"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
