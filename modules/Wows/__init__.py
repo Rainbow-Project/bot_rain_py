@@ -226,6 +226,9 @@ async def wows_get_data(server_data: str, nickname: str):
             return out
 
 
+def get_ship_id(ship_name:str):
+    1+1
+
 def get_me_data(QQID: int):
     dic = read_dic()
     if str(QQID) in dic.keys():
@@ -256,13 +259,17 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                 Image(data_bytes=out.getvalue())]))
 
     elif list_cmd[0] == "me":
-        lis = get_me_data(message.sender.id)
-        if len(lis) == 2:
-            out = await wows_get_data_UID(lis[1], lis[0])
-            await app.sendGroupMessage(group, MessageChain.create([
-                Image(data_bytes=out.getvalue())]))
-        else:
-            await app.sendGroupMessage(group, MessageChain.create("找不到用户"))
+        if len(list_cmd) == 1:
+            lis = get_me_data(message.sender.id)
+            if len(lis) == 2:
+                out = await wows_get_data_UID(lis[1], lis[0])
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Image(data_bytes=out.getvalue())]))
+            else:
+                await app.sendGroupMessage(group, MessageChain.create("找不到用户"))
+        elif len(list_cmd) == 3:
+            if list_cmd[1].lower() == 'ship':
+                1+1
 
 
     elif list_cmd[0] == "set":
