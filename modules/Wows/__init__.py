@@ -228,7 +228,10 @@ async def wows_get_data(server_data: str, nickname: str):
 
 def get_me_data(QQID: int):
     dic = read_dic()
-    return dic[str(QQID)]
+    if str(QQID) in dic.values():
+        return dic[str(QQID)]
+    else:
+        return []
 
 
 @channel.use(ListenerSchema(
