@@ -14,6 +14,7 @@ imageio = "^2.19.0"
 playwright = "^1.21.0"
 scheduler = "^0.7.1"
 graia-scheduler = "^0.0.7"
+pilk = "^0.0.2"
 
 [tool.poetry.dev-dependencies]
 

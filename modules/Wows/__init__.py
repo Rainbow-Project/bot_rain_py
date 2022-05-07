@@ -228,7 +228,7 @@ async def wows_get_data(server_data: str, nickname: str):
 
 def get_me_data(QQID: int):
     dic = read_dic()
-    if str(QQID) in dic.values():
+    if str(QQID) in dic.keys():
         return dic[str(QQID)]
     else:
         return []

@@ -306,6 +306,14 @@ python-versions = ">=3.6"
 pyparsing = ">=2.0.2,<3.0.5 || >3.0.5"
 
 [[package]]
+name = "pilk"
+version = "0.0.2"
+description = "python silk voice library"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "pillow"
 version = "9.1.0"
 description = "Python Imaging Library (Fork)"
@@ -472,7 +480,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "3.10.3"
-content-hash = "d15be42e38c89707b822adfbda25cc1124b9cd0555f328d4338ee0b1a12406fa"
+content-hash = "7123e9138d12a07d3d4ea10c3b561f44f997cc4270c3d38e06e91f3469850e44"
 
 [metadata.files]
 aiohttp = [
@@ -958,6 +966,14 @@ numpy = [
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
     {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
+]
+pilk = [
+    {file = "pilk-0.0.2-cp310-cp310-win_amd64.whl", hash = "sha256:151ea9cca4041773514caeb3272d1d7877b7e042c9e9539edfd6453b931fcfa0"},
+    {file = "pilk-0.0.2-cp36-cp36m-win_amd64.whl", hash = "sha256:6999bb3b60478eb700656e6547831a601b9470879051914f19b77f4cff3fec4d"},
+    {file = "pilk-0.0.2-cp37-cp37m-win_amd64.whl", hash = "sha256:8288d120f7f38efc6d6034aa151cdc25ef70c519fa208967301f7c0dcceb03b4"},
+    {file = "pilk-0.0.2-cp38-cp38-win_amd64.whl", hash = "sha256:50bb1c9c020f8e2e91faf417f9c9f5967d731f1c977cdd98aa6915fd283ce7bb"},
+    {file = "pilk-0.0.2-cp39-cp39-win_amd64.whl", hash = "sha256:029008a4bc6a9143733feea778ecbee15ba26a6e5a629d92890f73f4d55e6faf"},
+    {file = "pilk-0.0.2.tar.gz", hash = "sha256:61c272fe8b7038a0a71486c96435f6b672c667005594a4d80b6581b09287cc96"},
 ]
 pillow = [
     {file = "Pillow-9.1.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:af79d3fde1fc2e33561166d62e3b63f0cc3e47b5a3a2e5fea40d4917754734ea"},
