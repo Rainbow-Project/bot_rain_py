@@ -18,7 +18,7 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def zao(app: Ariadne, group: Group, message: MessageChain):
-    if "早上好" in str(message):
+    if "早上好" in str(message) or "钉宫" in str(message):
         path = "src/dinggong_silk/"
         audios = []
         for x in os.listdir(path):

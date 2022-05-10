@@ -20,11 +20,19 @@ channel.description("发送wows指令来进行查询")
 channel.author("IntMax")
 Dic_ID = {}
 Wows_API_ID = "fc6d975614f91c3d2c87557577f4c60a"
-wows_http_getUID = "https://api.worldofwarships.SERVER/wows/account/list/?search=WOWSUSERNAME&application_id=1145141919810"
-wows_PERSONAL_DATA = "https://api.worldofwarships.SERVER/wows/account/info/?account_id=WOWSUID&application_id=1145141919810"
-wows_cl_Data = "https://api.worldofwarships.SERVER/wows/clans/info/?application_id=fc6d975614f91c3d2c87557577f4c60a&clan_id=CLUID"
-wows_pl_cl = "https://api.worldofwarships.SERVER/wows/clans/accountinfo/?application_id=fc6d975614f91c3d2c87557577f4c60a&account_id=WOWSUID"
+wows_numbers_api = 'https://api.wows-numbers.com/personal/rating/expected/json/'
+wows_http_getUID = "https://api.worldofwarships.SERVER/wows/account/list/?search=WOWSUSERNAME&application_id" \
+                   "=1145141919810 "
+wows_PERSONAL_DATA = "https://api.worldofwarships.SERVER/wows/account/info/?account_id=WOWSUID&application_id" \
+                     "=1145141919810 "
+wows_cl_Data = "https://api.worldofwarships.SERVER/wows/clans/info/?application_id=fc6d975614f91c3d2c87557577f4c60a" \
+               "&clan_id=CLUID "
+wows_pl_cl = "https://api.worldofwarships.SERVER/wows/clans/accountinfo/?application_id" \
+             "=fc6d975614f91c3d2c87557577f4c60a&account_id=WOWSUID "
+wows_pl_ship = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=fc6d975614f91c3d2c87557577f4c60a' \
+               '&language=zh-cn&account_id=WOWSUID&ship_id=SHIP_ID '
 
+wows_pl_ship_data = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=fc6d975614f91c3d2c87557577f4c60a&account_id=WOWS_ID'
 
 async def get_pr(bts: int, wr: int, dmg: int):
     wr = (100 * wr)
@@ -43,6 +51,45 @@ async def get_pr(bts: int, wr: int, dmg: int):
     elif pr >= 3233:
         return "wows_avg.jpg"
     elif pr >= 2500:
+        return "wows_avg-.jpg"
+    else:
+        return "wows_avg--.jpg"
+
+
+async def get_pr_ship(bts: int, wr: int, dmg: int, frags: int, ship_id: str):
+    ship_exp: dict
+    ship_exp = wows_get_numbers_api()
+    ship_exp = ship_exp['data'][ship_id]
+    avg_dmg = ship_exp["average_damage_dealt"]
+    avg_frags = ship_exp["average_frags"]
+    avg_wr = ship_exp["win_rate"]
+    rDmg = dmg / avg_dmg
+    rFrags = frags / avg_frags
+    rWins = wr * 100 / avg_wr
+    nDmg = max(0, (rDmg - 0.4) / (1 - 0.4))
+    nFrags = max(0, (rFrags - 0.1) / (1 - 0.1))
+    nWins = max(0, (rWins - 0.7) / (1 - 0.7))
+    wr = (100 * wr)
+    wr_w = (100 * math.asin(wr / 100)) / 158
+
+    pr = (350 + (350 * wr_w)) * nDmg + 300 * nFrags + (150 + (350 * (1 - wr_w))) * nWins
+    return pr
+
+
+async def get_pr_ship_pic(bts: int, wr: int, dmg: int, frags: int, ship_id: str):
+    pr = await get_pr_ship(bts, wr, dmg, frags, ship_id)
+
+    if pr >= 2450:
+        return "wows_god.jpg"
+    elif pr >= 2100:
+        return "wows_dalao.jpg"
+    elif pr >= 1750:
+        return "wows_verygood.jpg"
+    elif pr >= 1350:
+        return "wows_good.jpg"
+    elif pr >= 1100:
+        return "wows_avg.jpg"
+    elif pr >= 750:
         return "wows_avg-.jpg"
     else:
         return "wows_avg--.jpg"
@@ -110,6 +157,12 @@ def write_dic(dic: dict):
     file.close()
 
 
+def wows_get_numbers_api():
+    data: json
+    with open("src/wows_data/wows_exp.json", "r") as f:
+        return json.load(f)
+
+
 async def wows_getUID(nickName: str, server: str):
     data: json
     async with aiohttp.ClientSession() as s:
@@ -124,6 +177,13 @@ async def wows_c(ser: str, WOWS_UID: str):
         async with s.get(wows_PERSONAL_DATA.replace("SERVER", ser).replace("WOWSUID", WOWS_UID)
                                  .replace("1145141919810", Wows_API_ID)) as res:
             return await res.json()
+
+
+async def wows_c_pl_ship(ser: str, wows_id: str, ship_id: str):
+    async with aiohttp.ClientSession() as s:
+        async with s.get(wows_pl_ship.replace("SERVER", ser).replace("WOWSUID", wows_id)
+                                 .replace("SHIP_ID", ship_id)) as res:
+            return res.json()
 
 
 async def wows_get_pl_cl(WOWS_UID: str, ser: str):
@@ -150,6 +210,20 @@ async def wows_get_cl_tag(wows_UID_tmp: str, ser: str):
         except:
             return ""
 
+
+async def wows_get_ship_data(ser: str, wowsUID: str, ship_id: str):
+    data: json
+    async with aiohttp.ClientSession() as s:
+        api = wows_pl_ship.replace("SERVER", ser).replace("WOWSUID", wowsUID).replace("SHIP_ID", ship_id)
+        async with s.get(api) as res:
+            return await res.json()
+
+async def wows_get_pl_ship_data(ser:str,wows_id:str):
+    data: json
+    async with aiohttp.ClientSession() as s:
+        api = wows_pl_ship_data.replace("SERVER",ser).replace("WOWS_ID",wows_id)
+        async with s.get(api) as res:
+            return await res.json()
 
 async def wows_get_data_UID(server_data: str, wows_UID_tmp: str):
     data_PD = await wows_c(server_data, wows_UID_tmp)
@@ -185,6 +259,21 @@ async def wows_get_data_UID(server_data: str, wows_UID_tmp: str):
         wows_img.save(out := BytesIO(), format='JPEG')
         return out
 
+'''async def get_pr_v2(wows_id:str,ser:str):
+    ls_ship = []
+    c = 0
+    t_pr = 0
+    data = await wows_get_pl_ship_data(ser,wows_id)
+    if data['status'] == 'ok':
+        data = data['data'][wows_id]
+        for i in data:
+            try:
+                ls_ship.append(i['ship_id'])
+            except:
+                ""
+        '''
+
+
 
 async def wows_get_data(server_data: str, nickname: str):
     data_json = await wows_getUID(nickname, server_data)
@@ -202,6 +291,7 @@ async def wows_get_data(server_data: str, nickname: str):
             PVP_AvgXP = round(data['statistics']['pvp']['xp'] / PVP_battles)
             PVP_KD = round((data['statistics']['pvp']['frags'] / (PVP_battles - data['statistics']
             ['pvp']['survived_battles'])), 2)
+            PVP_KILL = round(data['statistics']['pvp']['frags'] / PVP_battles, 2)
             PVP_Main_Battery_Hit_Rate = round((data['statistics']['pvp']['main_battery']
                                                ['hits'] / data['statistics']['pvp']['main_battery']['shots']),
                                               6)
@@ -226,8 +316,51 @@ async def wows_get_data(server_data: str, nickname: str):
             return out
 
 
-def get_ship_id(ship_name:str):
-    1+1
+async def wows_get_pl_ship(wows_id: str, ship_id: str, ser: str, ship_name_give: str):
+    data = await wows_get_ship_data(ser, wows_id, ship_id)
+    if data['status'] == 'ok':
+        data = data['data'][wows_id][0]['pvp']
+        bats = data['battles']
+        WR = data['wins'] / bats
+        frags = data['frags'] / bats
+        dmg = round(data['damage_dealt'] / bats)
+        XP = round(data['xp'] / bats)
+        try:
+            accu = data['main_battery']['hits'] / data['main_battery']['shots']
+            accu = format(accu, ".2%")
+        except:
+            accu = "N/A"
+        KD = round(data['frags'] / (max(bats - data['survived_battles'], 1)), 2)
+        PR = await get_pr_ship_pic(int(bats), WR, dmg, frags, ship_id)
+        WR = format(WR, ".2%")
+        data_PD = await wows_c(ser, wows_id)
+        if data_PD["status"] == "ok":
+            cl_tag = await wows_get_cl_tag(wows_id, ser)
+            data = data_PD['data'][wows_id]
+            date_create = data['created_at']
+            tier = data['leveling_tier']
+            name = data['nickname']
+            wows_img = await gen_img(ship_name_give, cl_tag, name, str(bats), str(WR),
+                                     str(dmg),
+                                     str(XP), str(KD), str(accu), date_create,
+                                     PR)
+            wows_img.save(out := BytesIO(), format='JPEG')
+            return out
+
+
+def get_ship_id(ship_name: str):
+    dict_temp = {}
+    with open("src/wows_data/wows_ship_v1.txt", 'r') as f:
+        for line in f.readlines():
+            line = line.strip()
+            k = line.split(' ')[0]
+            v = line.split(' ')[1]
+            dict_temp[k] = v
+    if ship_name in dict_temp.keys():
+        return dict_temp[ship_name]
+    else:
+        return ''
+
 
 def get_me_data(QQID: int):
     dic = read_dic()
@@ -249,7 +382,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
     list_cmd = int_str.split()
     Server_list = ["asia", "eu", "na", "ru"]
     cm_0 = list_cmd[0].lower()
-    if cm_0 in Server_list:
+    if cm_0 in Server_list and list_cmd[-1] != 'ship':
         server_data = list_cmd[0]
         if list_cmd[1] == "me":
             await app.sendGroupMessage(group, MessageChain.create("非法操作"))
@@ -257,7 +390,6 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             out = await wows_get_data(cm_0, list_cmd[1])
             await app.sendGroupMessage(group, MessageChain.create([
                 Image(data_bytes=out.getvalue())]))
-
     elif list_cmd[0] == "me":
         if len(list_cmd) == 1:
             lis = get_me_data(message.sender.id)
@@ -268,10 +400,20 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             else:
                 await app.sendGroupMessage(group, MessageChain.create("找不到用户"))
         elif len(list_cmd) == 3:
-            if list_cmd[1].lower() == 'ship':
-                1+1
-
-
+            lis = get_me_data(message.sender.id)
+            if len(lis) == 2:
+                if list_cmd[1].lower() == 'ship':
+                    ship_id = get_ship_id(list_cmd[2])
+                    if ship_id != '':
+                        lis = get_me_data(message.sender.id)
+                        out = await wows_get_pl_ship(lis[0], ship_id, lis[1], list_cmd[2])
+                        # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
+                        await app.sendGroupMessage(group, MessageChain.create([
+                            Image(data_bytes=out.getvalue())]))
+                    else:
+                        await app.sendGroupMessage(group, MessageChain.create("找不到船，可能是作者还没有反和谐"))
+                else:
+                    await app.sendGroupMessage(group, MessageChain.create("找不到用户"))
     elif list_cmd[0] == "set":
         server_data = list_cmd[1]
         nickname = list_cmd[2]
@@ -280,6 +422,27 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             data = data_json['data'][0]
             wows_UID_tmp = str(data['account_id'])
             add_dic(message.sender.id, wows_UID_tmp, server_data)
+            await app.sendGroupMessage(group, MessageChain.create("绑定成功"))
+    elif list_cmd[-2] == "ship":
+        if list_cmd[1] in Server_list:
+            name = list_cmd[1]
+            server = list_cmd[0]
+        else:
+            name = list_cmd[0]
+            server = "asia"
+        ship = list_cmd[-1]
+        data_json = await wows_getUID(name, server)
+        if data_json["status"] == "ok":
+            data = data_json['data'][0]
+            wows_id = str(data['account_id'])
+            ship_id = get_ship_id(ship)
+            if ship_id != '':
+                out = await wows_get_pl_ship(str(wows_id), str(ship_id), server, list_cmd[-1])
+                # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
+                await app.sendGroupMessage(group, MessageChain.create([
+                    Image(data_bytes=out.getvalue())]))
+            else:
+                await app.sendGroupMessage(group, MessageChain.create("找不到船，可能是作者还没有反和谐"))
     else:
         out = await wows_get_data("asia", list_cmd[0])
         await app.sendGroupMessage(group, MessageChain.create([
