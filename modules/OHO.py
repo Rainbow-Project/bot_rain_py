@@ -24,3 +24,7 @@ async def gm(app: Ariadne, group: Group, message: MessageChain):
         async with session.get("https://intmax.top/img/pic_src/pic/OHO2.jpg") as resp:  # type: ignore
             img_bytes = await resp.read()
         bot_message = await app.sendMessage(group, MessageChain.create(Image(data_bytes=img_bytes)))
+        await asyncio.sleep(2)
+        async with session.get("https://intmax.top/img/pic_src/pic/OHO3.png") as resp:  # type: ignore
+            img_bytes = await resp.read()
+        bot_message = await app.sendMessage(group, MessageChain.create(Image(data_bytes=img_bytes)))

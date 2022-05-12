@@ -17,32 +17,9 @@ from PIL import Image as IMG
 
 channel = Channel.current()
 
-channel.name("petpet")
-channel.description("发送'摸头@某人'制作摸头GIF")
-channel.author("IMTMAX")
-
-import asyncio
-from io import BytesIO
-from pathlib import Path
-
-import aiohttp
-import imageio
-from graia.ariadne.app import Ariadne
-from graia.ariadne.event.message import GroupMessage
-from graia.ariadne.message.chain import MessageChain
-from graia.ariadne.message.element import *
-from graia.ariadne.message.parser.twilight import (FullMatch, MatchResult,
-                                                   Twilight, WildcardMatch)
-from graia.ariadne.model import Group, Member
-from graia.saya import Channel
-from graia.saya.builtins.broadcast.schema import ListenerSchema
-from PIL import Image as IMG
-
-channel = Channel.current()
-
 channel.name("support")
-channel.description("发送'精神支柱@某人'制作摸头GIF")
-channel.author("IMTMAX")
+channel.description("发送'精神支柱@某人'制作精神支柱.jpg")
+channel.author("IMT_MAX")
 
 
 async def support(file, squish=0):
@@ -60,7 +37,7 @@ async def support(file, squish=0):
     listening_events=[GroupMessage],
     inline_dispatchers=[Twilight([FullMatch("精神支柱"), WildcardMatch() @ "para"])]
 ))
-async def petpet(app: Ariadne, group: Group, member: Member, para: MatchResult):
+async def support_main(app: Ariadne, group: Group, member: Member, para: MatchResult):
     user = para.result.getFirst(At).target if para.matched and para.result.has(At) else member.id
     profile_url = f"http://q1.qlogo.cn/g?b=qq&nk={user}&s=640"
     async with aiohttp.request("GET", profile_url) as r:

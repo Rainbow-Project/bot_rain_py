@@ -14,6 +14,8 @@ from PIL import Image as IMG
 from PIL import ImageDraw, ImageFont
 import math
 
+dev = True
+
 channel = Channel.current()
 channel.name("Wows_checker")
 channel.description("发送wows指令来进行查询")
@@ -415,14 +417,17 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                 else:
                     await app.sendGroupMessage(group, MessageChain.create("找不到用户"))
     elif list_cmd[0] == "set":
-        server_data = list_cmd[1]
-        nickname = list_cmd[2]
-        data_json = await wows_getUID(nickname, server_data)
-        if data_json["status"] == "ok":
-            data = data_json['data'][0]
-            wows_UID_tmp = str(data['account_id'])
-            add_dic(message.sender.id, wows_UID_tmp, server_data)
-            await app.sendGroupMessage(group, MessageChain.create("绑定成功"))
+        if not dev:
+            server_data = list_cmd[1]
+            nickname = list_cmd[2]
+            data_json = await wows_getUID(nickname, server_data)
+            if data_json["status"] == "ok":
+                data = data_json['data'][0]
+                wows_UID_tmp = str(data['account_id'])
+                add_dic(message.sender.id, wows_UID_tmp, server_data)
+                await app.sendGroupMessage(group, MessageChain.create("绑定成功"))
+        else:
+            await app.sendGroupMessage(group, MessageChain.create("无法在开发状态下绑定"))
     elif list_cmd[-2] == "ship":
         if list_cmd[1] in Server_list:
             name = list_cmd[1]
