@@ -13,6 +13,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 from PIL import Image as IMG
 from PIL import ImageDraw, ImageFont
 import math
+import modules.Wows.wows_sql_data
 
 dev = True
 
@@ -35,6 +36,7 @@ wows_pl_ship = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application
                '&language=zh-cn&account_id=WOWSUID&ship_id=SHIP_ID '
 
 wows_pl_ship_data = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=fc6d975614f91c3d2c87557577f4c60a&account_id=WOWS_ID'
+
 
 async def get_pr(bts: int, wr: int, dmg: int):
     wr = (100 * wr)
@@ -220,12 +222,14 @@ async def wows_get_ship_data(ser: str, wowsUID: str, ship_id: str):
         async with s.get(api) as res:
             return await res.json()
 
-async def wows_get_pl_ship_data(ser:str,wows_id:str):
+
+async def wows_get_pl_ship_data(ser: str, wows_id: str):
     data: json
     async with aiohttp.ClientSession() as s:
-        api = wows_pl_ship_data.replace("SERVER",ser).replace("WOWS_ID",wows_id)
+        api = wows_pl_ship_data.replace("SERVER", ser).replace("WOWS_ID", wows_id)
         async with s.get(api) as res:
             return await res.json()
+
 
 async def wows_get_data_UID(server_data: str, wows_UID_tmp: str):
     data_PD = await wows_c(server_data, wows_UID_tmp)
@@ -261,6 +265,7 @@ async def wows_get_data_UID(server_data: str, wows_UID_tmp: str):
         wows_img.save(out := BytesIO(), format='JPEG')
         return out
 
+
 '''async def get_pr_v2(wows_id:str,ser:str):
     ls_ship = []
     c = 0
@@ -274,7 +279,6 @@ async def wows_get_data_UID(server_data: str, wows_UID_tmp: str):
             except:
                 ""
         '''
-
 
 
 async def wows_get_data(server_data: str, nickname: str):
@@ -387,6 +391,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
     if cm_0 in Server_list and list_cmd[-1] != 'ship':
         server_data = list_cmd[0]
         if list_cmd[1] == "me":
+            wows_sql_data.update()
             await app.sendGroupMessage(group, MessageChain.create("非法操作"))
         else:
             out = await wows_get_data(cm_0, list_cmd[1])
