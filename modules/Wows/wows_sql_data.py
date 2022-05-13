@@ -2,6 +2,7 @@ import json
 import requests
 import sqlite3
 
+
 api_user = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=fc6d975614f91c3d2c87557577f4c60a' \
       '&account_id=WOWS_USER_ID '
 

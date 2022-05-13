@@ -4,6 +4,8 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.model import MiraiSession
 from graia.saya import Saya
 from graia.saya.builtins.broadcast import BroadcastBehaviour
+from graia.scheduler import GraiaScheduler
+from graia.scheduler.saya import GraiaSchedulerBehaviour
 
 app = Ariadne(
     MiraiSession(
@@ -13,9 +15,11 @@ app = Ariadne(
         account=214047076,  # 机器人 QQ 账号
     ),
 )
+app.create(GraiaScheduler)
 saya = app.create(Saya)
 saya.install_behaviours(
     app.create(BroadcastBehaviour),
+    app.create(GraiaSchedulerBehaviour),
 )
 
 with saya.module_context():

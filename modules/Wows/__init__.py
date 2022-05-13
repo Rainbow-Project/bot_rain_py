@@ -1,18 +1,19 @@
 import json
-from PIL import Image, ImageDraw, ImageFont
+import math
+
 import aiohttp
+from PIL import Image
+from PIL import Image as IMG
+from PIL import ImageDraw, ImageFont
 from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage
-from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import *
 from graia.ariadne.message.parser.twilight import (FullMatch, MatchResult,
                                                    Twilight, WildcardMatch)
-from graia.ariadne.model import Group, Member
+from graia.ariadne.model import Group
 from graia.saya import Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from PIL import Image as IMG
-from PIL import ImageDraw, ImageFont
-import math
+
 import modules.Wows.wows_sql_data
 
 dev = True
@@ -35,13 +36,14 @@ wows_pl_cl = "https://api.worldofwarships.SERVER/wows/clans/accountinfo/?applica
 wows_pl_ship = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=fc6d975614f91c3d2c87557577f4c60a' \
                '&language=zh-cn&account_id=WOWSUID&ship_id=SHIP_ID '
 
-wows_pl_ship_data = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=fc6d975614f91c3d2c87557577f4c60a&account_id=WOWS_ID'
+wows_pl_ship_data = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id' \
+                    '=fc6d975614f91c3d2c87557577f4c60a&account_id=WOWS_ID '
 
 
 async def get_pr(bts: int, wr: int, dmg: int):
     wr = (100 * wr)
     if bts <= 70:
-        (100 * math.atan(bts / 40) * wr + 100 * math.asin(wr / 100) * dmg + 100 * math.acos(bts / 70)) / 1000
+        pr = (100 * math.atan(bts / 40) * wr + 100 * math.asin(wr / 100) * dmg + 100 * math.acos(bts / 70)) / 1000
     else:
         pr = (10000 * math.atan(bts / 40) * wr + (1 * 100 * math.asin(wr / 100) * dmg)) / 1000
     if pr >= 6766:
@@ -133,7 +135,7 @@ async def gen_img(LV: str, cl: str, name: str, bats: str, wr: str, dmg: str, XP:
     return img
 
 
-def add_dic(QQ_ID: int, WowsID: int, ser: str):
+def add_dic(QQ_ID: int, WowsID: str, ser: str):
     dic = read_dic()
     lis = []
     lis += [str(WowsID)]
