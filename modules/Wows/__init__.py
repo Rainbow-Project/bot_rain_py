@@ -1,6 +1,6 @@
 import json
 import math
-
+from graia.ariadne.message.chain import MessageChain
 import aiohttp
 from PIL import Image
 from PIL import Image as IMG
@@ -85,6 +85,23 @@ async def get_pr_ship(bts: int, wr: int, dmg: int, frags: int, ship_id: str):
 async def get_pr_ship_pic(bts: int, wr: int, dmg: int, frags: int, ship_id: str):
     pr = await get_pr_ship(bts, wr, dmg, frags, ship_id)
 
+    if pr >= 2450:
+        return "wows_god.jpg"
+    elif pr >= 2100:
+        return "wows_dalao.jpg"
+    elif pr >= 1750:
+        return "wows_verygood.jpg"
+    elif pr >= 1350:
+        return "wows_good.jpg"
+    elif pr >= 1100:
+        return "wows_avg.jpg"
+    elif pr >= 750:
+        return "wows_avg-.jpg"
+    else:
+        return "wows_avg--.jpg"
+
+
+def get_pr_img(pr: int):
     if pr >= 2450:
         return "wows_god.jpg"
     elif pr >= 2100:
@@ -268,19 +285,50 @@ async def wows_get_data_UID(server_data: str, wows_UID_tmp: str):
         return out
 
 
-'''async def get_pr_v2(wows_id:str,ser:str):
-    ls_ship = []
-    c = 0
-    t_pr = 0
-    data = await wows_get_pl_ship_data(ser,wows_id)
-    if data['status'] == 'ok':
-        data = data['data'][wows_id]
+async def get_pr_v2(ser: str, wows_id: str):
+    tpr = 0
+    total_cont = 0
+    data_ini = wows_sql_data.get_user_data_wg_api(wows_id, ser)
+    if data_ini['status'] == 'ok':
+        data = data_ini['data'][wows_id]
         for i in data:
+            dic_tmp = {}
+            ship_id = i['ship_id']
+            i = i['pvp']
+            battles = i['battles']
+            damage_dealt = i['damage_dealt']
+            wins = i['wins']
+            frags = i['frags']
             try:
-                ls_ship.append(i['ship_id'])
+                tpr += await get_pr_ship(battles, wins / battles, damage_dealt / battles, frags / battles, str(ship_id))
+                total_cont += 1
             except:
-                ""
-        '''
+                None
+        data_PD = await wows_c(ser, wows_id)
+        if data_PD["status"] == "ok":
+            cl_tag = await wows_get_cl_tag(wows_id, ser)
+            data = data_PD['data'][wows_id]
+            PVP_battles = data['statistics']['pvp']['battles']
+            PVP_WinRate = round((data['statistics']['pvp']['wins'] / PVP_battles), 6)
+            PVP_AvgDmg = round(data['statistics']['pvp']['damage_dealt'] / PVP_battles)
+            PVP_AvgXP = round(data['statistics']['pvp']['xp'] / PVP_battles)
+            PVP_KD = round((data['statistics']['pvp']['frags'] / (PVP_battles - data['statistics']
+            ['pvp']['survived_battles'])), 2)
+            PVP_Main_Battery_Hit_Rate = round((data['statistics']['pvp']['main_battery']
+                                               ['hits'] / data['statistics']['pvp']['main_battery']['shots']),
+                                              6)
+            date_create = data['created_at']
+            tier = data['leveling_tier']
+            pr = tpr / total_cont
+            PVP_WinRate = format(PVP_WinRate, ".2%")
+            PVP_Main_Battery_Hit_Rate = format(PVP_Main_Battery_Hit_Rate, ".2%")
+            pr_img = get_pr_img(pr)
+            wows_img = await gen_img("LV" + str(tier), cl_tag, data['nickname'], str(PVP_battles), str(PVP_WinRate),
+                                     str(PVP_AvgDmg),
+                                     str(PVP_AvgXP), str(PVP_KD), str(PVP_Main_Battery_Hit_Rate), date_create,
+                                     pr_img)
+            wows_img.save(out := BytesIO(), format='JPEG')
+            return out
 
 
 async def wows_get_data(server_data: str, nickname: str):
@@ -356,6 +404,63 @@ async def wows_get_pl_ship(wows_id: str, ship_id: str, ser: str, ship_name_give:
             return out
 
 
+async def wows_recent(user_wows_id: str, user_server: str, user_past_data: dict):
+    data_ini = wows_sql_data.get_user_data_wg_api(user_wows_id, user_server)
+    dic_user_recent = {}
+    if data_ini['status'] == 'ok':
+        data = data_ini['data'][user_wows_id]
+        for i in data:
+            ship_id = i['ship_id']
+            i = i['pvp']
+            battles = i['battles']
+            damage_dealt = i['damage_dealt']
+            wins = i['wins']
+            frags = i['frags']
+            user_past_data_ship = user_past_data[str(ship_id)]
+            if battles != user_past_data_ship['battles']:
+                dic_user_recent[ship_id] = {'battles': battles - user_past_data_ship['battles'],
+                                            'wins': wins - user_past_data_ship['wins'],
+                                            'frags': frags - user_past_data_ship['frags'],
+                                            'damage_dealt': damage_dealt - user_past_data_ship['damage_dealt']}
+        if dic_user_recent == {}:
+            return MessageChain.create("可能最近没有战斗或无法访问数据")
+        else:
+            tpr = 0
+            total_cont = 0
+            tw = 0
+            td = 0
+            tb = 0
+            for i in dic_user_recent:
+                dic_tmp = {}
+                ship_id = i
+                battles = dic_user_recent[ship_id]['battles']
+                tb += battles
+                damage_dealt = dic_user_recent[ship_id]['damage_dealt']
+                td += damage_dealt
+                wins = dic_user_recent[ship_id]['wins']
+                tw += wins
+                frags = dic_user_recent[ship_id]['frags']
+                try:
+                    tpr += await get_pr_ship(battles, wins / battles, damage_dealt / battles, frags / battles,
+                                             str(ship_id))
+                    total_cont += 1
+                except:
+                    None
+            pr_img = get_pr_img(tpr/total_cont)
+            data_PD = await wows_c(user_server, user_wows_id)
+            if data_PD["status"] == "ok":
+                cl_tag = await wows_get_cl_tag(user_wows_id, user_server)
+                data = data_PD['data'][user_wows_id]
+                date_create = data['created_at']
+                tier = data['leveling_tier']
+                wr = format(round((tw / tb), 6), ".2%")
+                name = data['nickname']
+                dmg = str(round(td/tb))
+                wows_img = await gen_img("LV"+str(tier),cl_tag,name,str(tb),wr,dmg,"N/A","N/A",'N/A',date_create,pr_img)
+                wows_img.save(out := BytesIO(), format='JPEG')
+                return MessageChain.create([Image(data_bytes=out.getvalue())])
+
+
 def get_ship_id(ship_name: str):
     dict_temp = {}
     with open("src/wows_data/wows_ship_v1.txt", 'r') as f:
@@ -393,7 +498,6 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
     if cm_0 in Server_list and list_cmd[-1] != 'ship':
         server_data = list_cmd[0]
         if list_cmd[1] == "me":
-            wows_sql_data.update()
             await app.sendGroupMessage(group, MessageChain.create("非法操作"))
         else:
             out = await wows_get_data(cm_0, list_cmd[1])
@@ -403,12 +507,12 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
         if len(list_cmd) == 1:
             lis = get_me_data(message.sender.id)
             if len(lis) == 2:
-                out = await wows_get_data_UID(lis[1], lis[0])
+                out = await get_pr_v2(lis[1], lis[0])
                 await app.sendGroupMessage(group, MessageChain.create([
                     Image(data_bytes=out.getvalue())]))
             else:
                 await app.sendGroupMessage(group, MessageChain.create("找不到用户"))
-        elif len(list_cmd) == 3:
+        elif list_cmd[1].lower() == 'ship':
             lis = get_me_data(message.sender.id)
             if len(lis) == 2:
                 if list_cmd[1].lower() == 'ship':
@@ -423,6 +527,16 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                         await app.sendGroupMessage(group, MessageChain.create("找不到船，可能是作者还没有反和谐"))
                 else:
                     await app.sendGroupMessage(group, MessageChain.create("找不到用户"))
+        elif list_cmd[-1] == "recent":
+            lis = get_me_data(message.sender.id)
+            user_wows_id = lis[0]
+            user_recent_data = wows_sql_data.read_sql_data(user_wows_id)
+            if user_recent_data == {}:
+                await app.sendGroupMessage(group, MessageChain.create("正在更新或暂时无法查询"))
+            else:
+                out = await wows_recent(user_wows_id, lis[1], user_recent_data)
+                await app.sendGroupMessage(group, out)
+
     elif list_cmd[0] == "set":
         if not dev:
             server_data = list_cmd[1]

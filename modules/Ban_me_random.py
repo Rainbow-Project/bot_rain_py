@@ -15,12 +15,13 @@ channel.name("BanMe")
 channel.description("发送'禁言我'禁言(前提是有权限)")
 channel.author("INT_MAX")
 
+
 @channel.use(ListenerSchema(
     listening_events=[GroupMessage],
     inline_dispatchers=[Twilight([RegexMatch(".?禁言我.?")])]
 ))
 async def auto_ban(app: Ariadne, group: Group, member: Member):
-    Ban_time_random = await random.Random()
+    Ban_time_random = random.randrange(1, 114514)
     try:
         await app.muteMember(group, member, Ban_time_random)
         await app.sendGroupMessage(group, MessageChain.create('那我就来实现你的愿望吧！'))

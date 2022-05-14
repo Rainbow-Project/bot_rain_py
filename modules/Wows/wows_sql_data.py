@@ -4,7 +4,7 @@ import sqlite3
 
 
 api_user = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=fc6d975614f91c3d2c87557577f4c60a' \
-      '&account_id=WOWS_USER_ID '
+           '&account_id=WOWS_USER_ID '
 
 
 def read_dic():
@@ -20,7 +20,7 @@ def read_dic():
 
 
 def get_user_data_wg_api(user_wows_id: str, user_server: str):
-    dataini = requests.get(api_user.replace('SERVER',user_server).replace('WOWS_USER_ID',user_wows_id))
+    dataini = requests.get(api_user.replace('SERVER', user_server).replace('WOWS_USER_ID', user_wows_id))
     data = dataini.json()
     return data
 
@@ -63,21 +63,24 @@ def update():
     return
 
 
-def read_sql_data(user_wows_id:str):
-    con = sqlite3.connect("user_recent_data.db")
+def read_sql_data(user_wows_id: str):
+    con = sqlite3.connect('src/wows_data/user_recent_data.db')
     c = con.cursor()
     dic = {}
-    cursor = c.execute("SELECT ship_id, battles, damage_dealt, wins, frags  from '%s'" % user_wows_id)
-    for row in cursor:
-        dic_tmp = {}
-        ship_id = row[0]
-        battles = row[1]
-        damage_dealt = row[2]
-        wins = row[3]
-        frags = row[4]
-        dic_tmp['battles'] = battles
-        dic_tmp['damage_dealt'] = damage_dealt
-        dic_tmp['wins'] = wins
-        dic_tmp['frags'] = frags
-        dic[str(ship_id)] = dic_tmp
+    try:
+        cursor = c.execute("SELECT ship_id, battles, damage_dealt, wins, frags  from '%s'" % user_wows_id)
+        for row in cursor:
+            dic_tmp = {}
+            ship_id = row[0]
+            battles = row[1]
+            damage_dealt = row[2]
+            wins = row[3]
+            frags = row[4]
+            dic_tmp['battles'] = battles
+            dic_tmp['damage_dealt'] = damage_dealt
+            dic_tmp['wins'] = wins
+            dic_tmp['frags'] = frags
+            dic[str(ship_id)] = dic_tmp
+    except:
+        return {}
     return dic

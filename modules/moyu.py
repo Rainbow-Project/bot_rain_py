@@ -14,7 +14,7 @@ from itertools import takewhile, dropwhile
 saya = Saya.current()
 channel = Channel.current()
 
-groups = (964132418, 429463785, 696443646)
+groups = (964132418, 429463785, 696443646, 565540208)
 
 # 来自《国务院办公厅关于2022年部分节假日安排的通知》
 holiday = {
