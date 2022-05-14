@@ -16,7 +16,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 import modules.Wows.wows_sql_data
 
-dev = True
+dev = False
 
 channel = Channel.current()
 channel.name("Wows_checker")
