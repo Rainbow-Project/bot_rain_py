@@ -15,6 +15,7 @@ saya = Saya.current()
 channel = Channel.current()
 
 groups = (964132418, 429463785, 696443646, 565540208)
+groups = (964132418, )
 
 # 来自《国务院办公厅关于2022年部分节假日安排的通知》
 holiday = {
@@ -77,7 +78,7 @@ def in_holiday() -> bool:
     return False
 
 
-@channel.use(SchedulerSchema(timers.crontabify("0 8 * * * *")))
+@channel.use(SchedulerSchema(timers.crontabify("0 8 * * * 0")))
 async def moyu(app: Ariadne):
     today = date.today()
     msg = MessageChain.create(
