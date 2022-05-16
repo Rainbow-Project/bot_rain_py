@@ -407,6 +407,7 @@ async def wows_get_pl_ship(wows_id: str, ship_id: str, ser: str, ship_name_give:
 async def wows_recent(user_wows_id: str, user_server: str, user_past_data: dict):
     data_ini = wows_sql_data.get_user_data_wg_api(user_wows_id, user_server)
     dic_user_recent = {}
+    dic_emp = {'battles': 0, 'damage_dealt': 0, 'wins': 0, 'frags': 0}
     if data_ini['status'] == 'ok':
         data = data_ini['data'][user_wows_id]
         for i in data:
@@ -416,7 +417,10 @@ async def wows_recent(user_wows_id: str, user_server: str, user_past_data: dict)
             damage_dealt = i['damage_dealt']
             wins = i['wins']
             frags = i['frags']
-            user_past_data_ship = user_past_data[str(ship_id)]
+            if str(ship_id) in user_past_data.keys():
+                user_past_data_ship = user_past_data[str(ship_id)]
+            else:
+                user_past_data_ship = dic_emp
             if battles != user_past_data_ship['battles']:
                 dic_user_recent[ship_id] = {'battles': battles - user_past_data_ship['battles'],
                                             'wins': wins - user_past_data_ship['wins'],
