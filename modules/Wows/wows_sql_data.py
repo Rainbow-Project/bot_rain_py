@@ -3,6 +3,17 @@ import requests
 import sqlite3
 
 
+def updata_ship_data():
+    api = 'https://api.wows-numbers.com/personal/rating/expected/json/'
+
+    dataini = requests.get(api)
+    data = dataini.json()
+    data
+    data
+    with open("src/wows_data/wows_exp.json", 'w') as f:
+        f.write(json.dumps(data))
+
+
 api_user = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=fc6d975614f91c3d2c87557577f4c60a' \
            '&account_id=WOWS_USER_ID '
 
@@ -26,6 +37,7 @@ def get_user_data_wg_api(user_wows_id: str, user_server: str):
 
 
 def update():
+    updata_ship_data()
     con = sqlite3.connect('src/wows_data/user_recent_data.db')
     c = con.cursor()
     dic = read_dic()
