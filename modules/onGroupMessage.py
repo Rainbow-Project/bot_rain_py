@@ -17,6 +17,17 @@ async def gm(app: Ariadne, group: Group, message: MessageChain,message2: GroupMe
             group,
             MessageChain.create(f"不要说{message.asDisplay()}"),
          )
+         ''''
+                                                            ｜        ｜
+                                                            ｜        ｜
+                                                            ｜        ｜
+                                                            ｜        ｜
+                                                             \        /
+                                                              \      /
+                                                               \    /
+                                                                \  /
+                                                                 \/
+         '''
     elif str(message) == "强制更新" and message2.sender.id == 563748846:
         update()
         await app.sendMessage(

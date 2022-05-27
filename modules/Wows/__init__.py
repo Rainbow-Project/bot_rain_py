@@ -23,21 +23,34 @@ channel.name("Wows_checker")
 channel.description("发送wows指令来进行查询")
 channel.author("IntMax")
 Dic_ID = {}
-Wows_API_ID = "fc6d975614f91c3d2c87557577f4c60a"
+''''
+
+看下面千万要记得改自己的wows api id
+                ｜        ｜
+                ｜        ｜
+                ｜        ｜
+                ｜        ｜
+                 \        /
+                  \      /
+                   \    /
+                    \  /
+                     \/
+'''
+Wows_API_ID = "1145141919810"
 wows_numbers_api = 'https://api.wows-numbers.com/personal/rating/expected/json/'
 wows_http_getUID = "https://api.worldofwarships.SERVER/wows/account/list/?search=WOWSUSERNAME&application_id" \
                    "=1145141919810 "
 wows_PERSONAL_DATA = "https://api.worldofwarships.SERVER/wows/account/info/?account_id=WOWSUID&application_id" \
                      "=1145141919810 "
-wows_cl_Data = "https://api.worldofwarships.SERVER/wows/clans/info/?application_id=Wows_API_ID" \
+wows_cl_Data = "https://api.worldofwarships.SERVER/wows/clans/info/?application_id=1145141919810" \
                "&clan_id=CLUID "
 wows_pl_cl = "https://api.worldofwarships.SERVER/wows/clans/accountinfo/?application_id" \
-             "=Wows_API_ID&account_id=WOWSUID "
-wows_pl_ship = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=Wows_API_ID' \
+             "=1145141919810&account_id=WOWSUID "
+wows_pl_ship = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=1145141919810' \
                '&language=zh-cn&account_id=WOWSUID&ship_id=SHIP_ID '
 
 wows_pl_ship_data = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id' \
-                    '=Wows_API_ID&account_id=WOWS_ID '
+                    '=1145141919810&account_id=WOWS_ID '
 
 
 async def get_pr(bts: int, wr: int, dmg: int):
@@ -205,13 +218,13 @@ async def wows_c(ser: str, WOWS_UID: str):
 async def wows_c_pl_ship(ser: str, wows_id: str, ship_id: str):
     async with aiohttp.ClientSession() as s:
         async with s.get(wows_pl_ship.replace("SERVER", ser).replace("WOWSUID", wows_id)
-                                 .replace("SHIP_ID", ship_id).replace('Wows_API_ID', Wows_API_ID)) as res:
+                                 .replace("SHIP_ID", ship_id).replace('1145141919810', Wows_API_ID)) as res:
             return res.json()
 
 
 async def wows_get_pl_cl(WOWS_UID: str, ser: str):
     async with aiohttp.ClientSession() as s:
-        async with s.get(wows_pl_cl.replace("SERVER", ser).replace("WOWSUID", WOWS_UID).replace('Wows_API_ID',
+        async with s.get(wows_pl_cl.replace("SERVER", ser).replace("WOWSUID", WOWS_UID).replace('1145141919810',
                                                                                                 Wows_API_ID)) as res:
             return await res.json()
 
@@ -219,7 +232,8 @@ async def wows_get_pl_cl(WOWS_UID: str, ser: str):
 async def wows_get_cl(CLUID: str, ser: str):
     async with aiohttp.ClientSession() as s:
         async with s.get(
-                wows_cl_Data.replace("SERVER", ser).replace("CLUID", CLUID).replace('Wows_API_ID', Wows_API_ID)) as res:
+                wows_cl_Data.replace("SERVER", ser).replace("CLUID", CLUID).replace('1145141919810',
+                                                                                    Wows_API_ID)) as res:
             return await res.json()
 
 
@@ -240,7 +254,7 @@ async def wows_get_ship_data(ser: str, wowsUID: str, ship_id: str):
     data: json
     async with aiohttp.ClientSession() as s:
         api = wows_pl_ship.replace("SERVER", ser).replace("WOWSUID", wowsUID).replace("SHIP_ID", ship_id).replace(
-            'Wows_API_ID', Wows_API_ID)
+            '1145141919810', Wows_API_ID)
         async with s.get(api) as res:
             return await res.json()
 
@@ -248,7 +262,7 @@ async def wows_get_ship_data(ser: str, wowsUID: str, ship_id: str):
 async def wows_get_pl_ship_data(ser: str, wows_id: str):
     data: json
     async with aiohttp.ClientSession() as s:
-        api = wows_pl_ship_data.replace("SERVER", ser).replace("WOWS_ID", wows_id).replace('Wows_API_ID', Wows_API_ID)
+        api = wows_pl_ship_data.replace("SERVER", ser).replace("WOWS_ID", wows_id).replace('1145141919810', Wows_API_ID)
         async with s.get(api) as res:
             return await res.json()
 

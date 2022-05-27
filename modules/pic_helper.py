@@ -15,7 +15,20 @@ channel.name("Saucenao")
 channel.description("以图搜图")
 channel.author("I_love_study，intmax")
 
-apikey = "c83dbd115d69c076f528676c572eea4093416c4f"
+'''              
+去申请自己的           
+           ｜        ｜
+           ｜        ｜
+           ｜        ｜
+           ｜        ｜
+            \        /
+             \      /
+              \    /
+               \  /
+                \/                                 
+'''
+
+apikey = "1145141919810"
 
 
 @channel.use(
