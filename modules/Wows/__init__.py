@@ -16,7 +16,7 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 import modules.Wows.wows_sql_data
 
-dev = False
+dev = True
 
 channel = Channel.current()
 channel.name("Wows_checker")
@@ -29,15 +29,15 @@ wows_http_getUID = "https://api.worldofwarships.SERVER/wows/account/list/?search
                    "=1145141919810 "
 wows_PERSONAL_DATA = "https://api.worldofwarships.SERVER/wows/account/info/?account_id=WOWSUID&application_id" \
                      "=1145141919810 "
-wows_cl_Data = "https://api.worldofwarships.SERVER/wows/clans/info/?application_id=fc6d975614f91c3d2c87557577f4c60a" \
+wows_cl_Data = "https://api.worldofwarships.SERVER/wows/clans/info/?application_id=Wows_API_ID" \
                "&clan_id=CLUID "
 wows_pl_cl = "https://api.worldofwarships.SERVER/wows/clans/accountinfo/?application_id" \
-             "=fc6d975614f91c3d2c87557577f4c60a&account_id=WOWSUID "
-wows_pl_ship = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=fc6d975614f91c3d2c87557577f4c60a' \
+             "=Wows_API_ID&account_id=WOWSUID "
+wows_pl_ship = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=Wows_API_ID' \
                '&language=zh-cn&account_id=WOWSUID&ship_id=SHIP_ID '
 
 wows_pl_ship_data = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id' \
-                    '=fc6d975614f91c3d2c87557577f4c60a&account_id=WOWS_ID '
+                    '=Wows_API_ID&account_id=WOWS_ID '
 
 
 async def get_pr(bts: int, wr: int, dmg: int):
@@ -205,19 +205,21 @@ async def wows_c(ser: str, WOWS_UID: str):
 async def wows_c_pl_ship(ser: str, wows_id: str, ship_id: str):
     async with aiohttp.ClientSession() as s:
         async with s.get(wows_pl_ship.replace("SERVER", ser).replace("WOWSUID", wows_id)
-                                 .replace("SHIP_ID", ship_id)) as res:
+                                 .replace("SHIP_ID", ship_id).replace('Wows_API_ID', Wows_API_ID)) as res:
             return res.json()
 
 
 async def wows_get_pl_cl(WOWS_UID: str, ser: str):
     async with aiohttp.ClientSession() as s:
-        async with s.get(wows_pl_cl.replace("SERVER", ser).replace("WOWSUID", WOWS_UID)) as res:
+        async with s.get(wows_pl_cl.replace("SERVER", ser).replace("WOWSUID", WOWS_UID).replace('Wows_API_ID',
+                                                                                                Wows_API_ID)) as res:
             return await res.json()
 
 
 async def wows_get_cl(CLUID: str, ser: str):
     async with aiohttp.ClientSession() as s:
-        async with s.get(wows_cl_Data.replace("SERVER", ser).replace("CLUID", CLUID)) as res:
+        async with s.get(
+                wows_cl_Data.replace("SERVER", ser).replace("CLUID", CLUID).replace('Wows_API_ID', Wows_API_ID)) as res:
             return await res.json()
 
 
@@ -231,13 +233,14 @@ async def wows_get_cl_tag(wows_UID_tmp: str, ser: str):
                 cl_tag = data_cl['data'][str(cl_id)]['tag']
                 return "[" + cl_tag + "]"
         except:
-            return ""
+            return "「 」"
 
 
 async def wows_get_ship_data(ser: str, wowsUID: str, ship_id: str):
     data: json
     async with aiohttp.ClientSession() as s:
-        api = wows_pl_ship.replace("SERVER", ser).replace("WOWSUID", wowsUID).replace("SHIP_ID", ship_id)
+        api = wows_pl_ship.replace("SERVER", ser).replace("WOWSUID", wowsUID).replace("SHIP_ID", ship_id).replace(
+            'Wows_API_ID', Wows_API_ID)
         async with s.get(api) as res:
             return await res.json()
 
@@ -245,7 +248,7 @@ async def wows_get_ship_data(ser: str, wowsUID: str, ship_id: str):
 async def wows_get_pl_ship_data(ser: str, wows_id: str):
     data: json
     async with aiohttp.ClientSession() as s:
-        api = wows_pl_ship_data.replace("SERVER", ser).replace("WOWS_ID", wows_id)
+        api = wows_pl_ship_data.replace("SERVER", ser).replace("WOWS_ID", wows_id).replace('Wows_API_ID', Wows_API_ID)
         async with s.get(api) as res:
             return await res.json()
 
@@ -450,7 +453,7 @@ async def wows_recent(user_wows_id: str, user_server: str, user_past_data: dict)
                     total_cont += 1
                 except:
                     None
-            pr_img = get_pr_img(tpr/total_cont)
+            pr_img = get_pr_img(tpr / total_cont)
             data_PD = await wows_c(user_server, user_wows_id)
             if data_PD["status"] == "ok":
                 cl_tag = await wows_get_cl_tag(user_wows_id, user_server)
@@ -459,8 +462,9 @@ async def wows_recent(user_wows_id: str, user_server: str, user_past_data: dict)
                 tier = data['leveling_tier']
                 wr = format(round((tw / tb), 6), ".2%")
                 name = data['nickname']
-                dmg = str(round(td/tb))
-                wows_img = await gen_img("LV"+str(tier),cl_tag,name,str(tb),wr,dmg,"N/A","N/A",'N/A',date_create,pr_img)
+                dmg = str(round(td / tb))
+                wows_img = await gen_img("LV" + str(tier), cl_tag, name, str(tb), wr, dmg, "N/A", "N/A", 'N/A',
+                                         date_create, pr_img)
                 wows_img.save(out := BytesIO(), format='JPEG')
                 return MessageChain.create([Image(data_bytes=out.getvalue())])
 
@@ -498,17 +502,16 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
     int_str = para.result.asDisplay().strip() if para.matched else ''
     list_cmd = int_str.split()
     Server_list = ["asia", "eu", "na", "ru"]
-    cm_0 = list_cmd[0].lower()
-    if cm_0 in Server_list and list_cmd[-1] != 'ship':
-        server_data = list_cmd[0]
-        if list_cmd[1] == "me":
-            await app.sendGroupMessage(group, MessageChain.create("非法操作"))
-        else:
-            out = await wows_get_data(cm_0, list_cmd[1])
-            await app.sendGroupMessage(group, MessageChain.create([
-                Image(data_bytes=out.getvalue())]))
-    elif list_cmd[0] == "me":
-        if len(list_cmd) == 1:
+    '''
+    wows指令判断
+    '''
+    if len(list_cmd) == 1:
+        '''当指令长度为1时只有wows me 和wows exboom两种情况'''
+        if list_cmd[0] == 'me':
+            '''
+            wows me
+            直接去找me 并且判断是否含有服务器和UID信息
+            '''
             lis = get_me_data(message.sender.id)
             if len(lis) == 2:
                 out = await get_pr_v2(lis[1], lis[0])
@@ -516,64 +519,112 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                     Image(data_bytes=out.getvalue())]))
             else:
                 await app.sendGroupMessage(group, MessageChain.create("找不到用户"))
-        elif list_cmd[1].lower() == 'ship':
-            lis = get_me_data(message.sender.id)
-            if len(lis) == 2:
-                if list_cmd[1].lower() == 'ship':
-                    ship_id = get_ship_id(list_cmd[2])
-                    if ship_id != '':
-                        lis = get_me_data(message.sender.id)
-                        out = await wows_get_pl_ship(lis[0], ship_id, lis[1], list_cmd[2])
-                        # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
-                        await app.sendGroupMessage(group, MessageChain.create([
-                            Image(data_bytes=out.getvalue())]))
-                    else:
-                        await app.sendGroupMessage(group, MessageChain.create("找不到船，可能是作者还没有反和谐"))
+        else:
+            '''wows exboom 默认去找亚服当exboom'''
+            out = await wows_get_data("asia", list_cmd[0])
+            await app.sendGroupMessage(group, MessageChain.create([
+                Image(data_bytes=out.getvalue())]))
+    elif len(list_cmd) == 2:
+        '''
+        当指令长度为2时
+        会出现wows me recent和wows asia exboom
+        '''
+        if list_cmd[-1] == 'recent':
+            '''
+            当有人尝试查询recent
+            先看看他是否在查自己
+            随后找出数据
+            '''
+            if list_cmd[0] == 'me':
+                lis = get_me_data(message.sender.id)
+                user_wows_id = lis[0]
+                user_recent_data = wows_sql_data.read_sql_data(user_wows_id)
+                if user_recent_data == {}:
+                    await app.sendGroupMessage(group, MessageChain.create("正在更新或暂时无法查询"))
                 else:
-                    await app.sendGroupMessage(group, MessageChain.create("找不到用户"))
-        elif list_cmd[-1] == "recent":
-            lis = get_me_data(message.sender.id)
-            user_wows_id = lis[0]
-            user_recent_data = wows_sql_data.read_sql_data(user_wows_id)
-            if user_recent_data == {}:
-                await app.sendGroupMessage(group, MessageChain.create("正在更新或暂时无法查询"))
+                    out = await wows_recent(user_wows_id, lis[1], user_recent_data)
+                    await app.sendGroupMessage(group, out)
             else:
-                out = await wows_recent(user_wows_id, lis[1], user_recent_data)
-                await app.sendGroupMessage(group, out)
-
-    elif list_cmd[0] == "set":
-        if not dev:
-            server_data = list_cmd[1]
-            nickname = list_cmd[2]
-            data_json = await wows_getUID(nickname, server_data)
-            if data_json["status"] == "ok":
-                data = data_json['data'][0]
-                wows_UID_tmp = str(data['account_id'])
-                add_dic(message.sender.id, wows_UID_tmp, server_data)
-                await app.sendGroupMessage(group, MessageChain.create("绑定成功"))
+                await app.sendGroupMessage(group, MessageChain.create("不支持非绑定查询"))
+        elif list_cmd[0] in Server_list:
+            '''
+            当有人查wows asia exboom
+            找亚服中当exboom
+            '''
+            out = await wows_get_data(list_cmd[0], list_cmd[1])
+            await app.sendGroupMessage(group, MessageChain.create([
+                Image(data_bytes=out.getvalue())]))
         else:
-            await app.sendGroupMessage(group, MessageChain.create("无法在开发状态下绑定"))
-    elif list_cmd[-2] == "ship":
-        if list_cmd[1] in Server_list:
-            name = list_cmd[1]
-            server = list_cmd[0]
-        else:
-            name = list_cmd[0]
-            server = "asia"
-        ship = list_cmd[-1]
-        data_json = await wows_getUID(name, server)
-        if data_json["status"] == "ok":
-            data = data_json['data'][0]
-            wows_id = str(data['account_id'])
-            ship_id = get_ship_id(ship)
+            await app.sendGroupMessage(group, MessageChain.create("未知指令"))
+    elif len(list_cmd) == 3:
+        '''
+        当指令为3时可能出现
+        wows me ship 大胆
+        wows exboom ship 大胆
+        wows set asia exboom
+        '''
+        if list_cmd[0] == 'me' and list_cmd[-2] == 'ship':
+            ship_id = get_ship_id(list_cmd[2])
             if ship_id != '':
-                out = await wows_get_pl_ship(str(wows_id), str(ship_id), server, list_cmd[-1])
+                lis = get_me_data(message.sender.id)
+                out = await wows_get_pl_ship(lis[0], ship_id, lis[1], list_cmd[2])
                 # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
                 await app.sendGroupMessage(group, MessageChain.create([
                     Image(data_bytes=out.getvalue())]))
             else:
                 await app.sendGroupMessage(group, MessageChain.create("找不到船，可能是作者还没有反和谐"))
+        elif list_cmd[0] != 'set' and list_cmd[-2] == 'ship':
+            name = list_cmd[0]
+            server = "asia"
+            ship = list_cmd[-1]
+            data_json = await wows_getUID(name, server)
+            if data_json["status"] == "ok":
+                data = data_json['data'][0]
+                wows_id = str(data['account_id'])
+                ship_id = get_ship_id(ship)
+                if ship_id != '':
+                    out = await wows_get_pl_ship(str(wows_id), str(ship_id), server, list_cmd[-1])
+                    # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
+                    await app.sendGroupMessage(group, MessageChain.create([
+                        Image(data_bytes=out.getvalue())]))
+                else:
+                    await app.sendGroupMessage(group, MessageChain.create("找不到船，可能是作者还没有反和谐"))
+        elif list_cmd[0] == 'set' and list_cmd[-2] in Server_list:
+            if not dev:
+                server_data = list_cmd[1]
+                nickname = list_cmd[2]
+                data_json = await wows_getUID(nickname, server_data)
+                if data_json["status"] == "ok":
+                    data = data_json['data'][0]
+                    wows_UID_tmp = str(data['account_id'])
+                    add_dic(message.sender.id, wows_UID_tmp, server_data)
+                    await app.sendGroupMessage(group, MessageChain.create("绑定成功"))
+            else:
+                await app.sendGroupMessage(group, MessageChain.create("无法在开发状态下绑定"))
+        else:
+            await app.sendGroupMessage(group, MessageChain.create("未知指令"))
+    elif len(list_cmd) == 4:
+        '''
+        当指令为4时可能出现
+        wows asia exboom ship 大胆
+        '''
+        if list_cmd[0] in Server_list and list_cmd[-2] == 'ship':
+            name = list_cmd[1]
+            server = list_cmd[0]
+            ship = list_cmd[-1]
+            data_json = await wows_getUID(name, server)
+            if data_json["status"] == "ok":
+                data = data_json['data'][0]
+                wows_id = str(data['account_id'])
+                ship_id = get_ship_id(ship)
+                if ship_id != '':
+                    out = await wows_get_pl_ship(str(wows_id), str(ship_id), server, list_cmd[-1])
+                    # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
+                    await app.sendGroupMessage(group, MessageChain.create([
+                        Image(data_bytes=out.getvalue())]))
+                else:
+                    await app.sendGroupMessage(group, MessageChain.create("找不到船，可能是作者还没有反和谐"))
+        else:
+            await app.sendGroupMessage(group, MessageChain.create("未知指令"))
     else:
-        out = await wows_get_data("asia", list_cmd[0])
-        await app.sendGroupMessage(group, MessageChain.create([
-            Image(data_bytes=out.getvalue())]))
+        await app.sendGroupMessage(group, MessageChain.create("过多或过少的参数"))

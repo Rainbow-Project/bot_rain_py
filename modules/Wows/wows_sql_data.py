@@ -14,9 +14,9 @@ def updata_ship_data():
         f.write(json.dumps(data))
 
 
-api_user = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=fc6d975614f91c3d2c87557577f4c60a' \
+api_user = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=WOWS_API_ID' \
            '&account_id=WOWS_USER_ID '
-
+wows_API_ID = "fc6d975614f91c3d2c87557577f4c60a"
 
 def read_dic():
     file = open('src/wows_data/user_data.data', 'r')
@@ -31,7 +31,7 @@ def read_dic():
 
 
 def get_user_data_wg_api(user_wows_id: str, user_server: str):
-    dataini = requests.get(api_user.replace('SERVER', user_server).replace('WOWS_USER_ID', user_wows_id))
+    dataini = requests.get(api_user.replace('SERVER', user_server).replace('WOWS_USER_ID', user_wows_id).replace('WOWS_API_ID',wows_API_ID))
     data = dataini.json()
     return data
 
