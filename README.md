@@ -6,7 +6,7 @@
 
 ## 有关wows的指令
 
-`wows 服务器 set 你的wows名字`
+`wows set 服务器 你的wows名字`
 
 服务器从** ["asia", "eu", "na", "ru"] **中选择
 
