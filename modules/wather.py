@@ -24,7 +24,21 @@ async def wather(app: Ariadne, group: Group, message: MessageChain, para: MatchR
     city = para.result.asDisplay().strip() if para.matched else ''
     if city != '':
         session = get_running(Adapter).session
-        async with session.get('https://api.seniverse.com/v3/weather/now.json?key=SNa8raebPtmHocH_p&location=CITY'
+        '''
+        如果不打算用也没事
+                                                                                    ｜        ｜
+                                                                                    ｜        ｜
+                                                                                    ｜        ｜
+                                                                                    ｜        ｜
+                                                                                     \        /
+                                                                                      \      /
+                                                                                       \    /
+                                                                                        \  /
+                                                                                         \/
+        
+        '''
+
+        async with session.get('https://api.seniverse.com/v3/weather/now.json?key=1145141919810&location=CITY'
                                '&language=zh-Hans&unit=c'.replace('CITY',city)) as resp:
             res = await resp.json()
             wather_text = res['results'][0]['now']
