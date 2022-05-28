@@ -66,6 +66,10 @@
 - [`Scheduler`](https://github.com/GraiaProject/Scheduler): 简洁的基于 `asyncio` 的定时任务实现
 - [`Application`](https://github.com/GraiaProject/Application): Ariadne 的前身，一个设计精巧, 协议实现完备的, 基于 mirai-api-http 的即时聊天软件自动化框架
 
+感谢 [`GraiaCommunity`]([https://github.com/GraiaProject](https://github.com/GraiaCommunity)) 提供了优秀的社区教程和样例:
+- [`GraiaX 文档`](https://graiax.cn/): 优秀的社区文档，简单而易懂
+- [`EroEroBot`](https://graiax.cn/): GraiaX 社区文档示例 —— 大家最喜欢的涩图机器人
+
 本 QQ 机器人在开发中还参考了如下项目:
 
 - [`ABot`](https://github.com/djkcyl/ABot-Graia/): 一个使用 [Graia-Ariadne](https://github.com/GraiaProject/Ariadne) 搭建的 QQ 功能性~~究极缝合怪~~机器人
