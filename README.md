@@ -9,8 +9,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/works-for%20me-yellow" alt="works for me" />
   <img src="https://img.shields.io/badge/works-on%20my%20machine-green" alt="works on my machine" />
-  <a href="https://github.com/Redlnn/redbot/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/Redlnn/redbot" alt="Licence" />
   </a>
   </a>
   </a>
