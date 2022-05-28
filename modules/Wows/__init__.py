@@ -36,7 +36,7 @@ Dic_ID = {}
                     \  /
                      \/
 '''
-Wows_API_ID = "1145141919810"
+Wows_API_ID = wows_sql_data.wows_API_ID
 wows_numbers_api = 'https://api.wows-numbers.com/personal/rating/expected/json/'
 wows_http_getUID = "https://api.worldofwarships.SERVER/wows/account/list/?search=WOWSUSERNAME&application_id" \
                    "=1145141919810 "
