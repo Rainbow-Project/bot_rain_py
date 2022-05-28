@@ -16,7 +16,7 @@ def updata_ship_data():
 
 api_user = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=1145141919810' \
            '&account_id=WOWS_USER_ID '
-wows_API_ID = "fc6d975614f91c3d2c87557577f4c60a"
+wows_API_ID = "1145141919810"
 
 def read_dic():
     file = open('src/wows_data/user_data.data', 'r')
