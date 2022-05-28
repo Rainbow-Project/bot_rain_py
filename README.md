@@ -33,7 +33,7 @@
 ### 剩下一张（胜利意志）是我画的禁止商用就好
 
 ## 她能做什么
-[请移步教程](https://github.com/GraiaProject/Saya](https://github.com/Rainbow-Project/bot_rain_py/wiki))
+[请移步教程](https://github.com/Rainbow-Project/bot_rain_py/wiki))
 
 ## 未来要做的功能有
 
