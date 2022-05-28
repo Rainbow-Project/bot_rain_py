@@ -18,6 +18,9 @@
   <img src="https://count.getloli.com/get/@RainBot?theme=rule34" alt="访问次数" />
 </p>
 
+# ！不完善的内容
+当前内容的准确性和可靠性得不到保证
+内容随时可能发生更改
 
 ## 这是什么
 
