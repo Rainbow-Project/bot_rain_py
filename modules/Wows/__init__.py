@@ -137,6 +137,8 @@ def get_pr_img(pr: int):
 
 async def gen_img(LV: str, cl: str, name: str, bats: str, wr: str, dmg: str, XP: str, KD: str, accu: str,
                   timestamp_crate: int, PR: str):
+    if cl is None:
+        cl = "「 」"
     img = IMG.open("wows_pic/" + PR)
     # 新建绘图对象
     draw = ImageDraw.Draw(img)
@@ -611,7 +613,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             else:
                 lis = get_me_data(message.sender.id)
                 if len(lis) == 2:
-                    ship = list_cmd[2]
+                    ship = list_cmd[2].upper()
                     wows_id = lis[0]
                     server = lis[1]
                     list_find = fuzzy_finder(ship)
@@ -691,6 +693,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                     await app.sendGroupMessage(group, MessageChain.create([
                         Image(data_bytes=out.getvalue())]))
                 else:
+                    ship = ship.upper()
                     list_find = fuzzy_finder(ship)
                     if len(list_find)!=0:
                         if len(list_find) == 1:
@@ -785,6 +788,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                     await app.sendGroupMessage(group, MessageChain.create([
                         Image(data_bytes=out.getvalue())]))
                 else:
+                    ship = ship.upper()
                     list_find = fuzzy_finder(ship)
                     if len(list_find) != 0:
                         if len(list_find) == 1:
