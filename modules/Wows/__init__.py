@@ -1,3 +1,4 @@
+import asyncio
 import json
 import math
 from graia.ariadne.message.chain import MessageChain
@@ -11,14 +12,17 @@ from graia.ariadne.message.element import *
 from graia.ariadne.message.parser.twilight import (FullMatch, MatchResult,
                                                    Twilight, WildcardMatch)
 from graia.ariadne.model import Group
-from graia.saya import Channel
+from graia.broadcast.interrupt import Waiter, InterruptControl
+from graia.saya import Channel, Saya
 from graia.saya.builtins.broadcast.schema import ListenerSchema
+import difflib
 
 import modules.Wows.wows_sql_data
 
 dev = True
-
+saya = Saya.current()
 channel = Channel.current()
+interrupt = InterruptControl(saya.broadcast)
 channel.name("Wows_checker")
 channel.description("发送wows指令来进行查询")
 channel.author("IntMax")
@@ -505,6 +509,18 @@ def get_me_data(QQID: int):
         return []
 
 
+def fuzzy_finder(key: str):
+    dict_temp = {}
+    with open("src/wows_data/wows_ship_v1.txt", 'r') as f:
+        for line in f.readlines():
+            line = line.strip()
+            k = line.split(' ')[0]
+            v = line.split(' ')[1]
+            dict_temp[k] = v
+        list_find = difflib.get_close_matches(key, dict_temp.keys(), 5, cutoff=0.5)
+        return list_find
+
+
 @channel.use(ListenerSchema(
     listening_events=[GroupMessage],
     inline_dispatchers=[Twilight(
@@ -512,7 +528,7 @@ def get_me_data(QQID: int):
          WildcardMatch(optional=True) @ "para"]
     )]
 ))
-async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMessage):
+async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMessage, member:Member):
     int_str = para.result.asDisplay().strip() if para.matched else ''
     list_cmd = int_str.split()
     Server_list = ["asia", "eu", "na", "ru"]
@@ -551,13 +567,16 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             '''
             if list_cmd[0] == 'me':
                 lis = get_me_data(message.sender.id)
-                user_wows_id = lis[0]
-                user_recent_data = wows_sql_data.read_sql_data(user_wows_id)
-                if user_recent_data == {}:
-                    await app.sendGroupMessage(group, MessageChain.create("正在更新或暂时无法查询"))
+                if len(lis) == 2:
+                    user_wows_id = lis[0]
+                    user_recent_data = wows_sql_data.read_sql_data(user_wows_id)
+                    if user_recent_data == {}:
+                        await app.sendGroupMessage(group, MessageChain.create("正在更新或暂时无法查询"))
+                    else:
+                        out = await wows_recent(user_wows_id, lis[1], user_recent_data)
+                        await app.sendGroupMessage(group, out)
                 else:
-                    out = await wows_recent(user_wows_id, lis[1], user_recent_data)
-                    await app.sendGroupMessage(group, out)
+                    await app.sendGroupMessage(group, MessageChain.create("你确定你绑定了？"))
             else:
                 await app.sendGroupMessage(group, MessageChain.create("不支持非绑定查询"))
         elif list_cmd[0] in Server_list:
@@ -581,10 +600,14 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             ship_id = get_ship_id(list_cmd[2])
             if ship_id != '':
                 lis = get_me_data(message.sender.id)
-                out = await wows_get_pl_ship(lis[0], ship_id, lis[1], list_cmd[2])
-                # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
-                await app.sendGroupMessage(group, MessageChain.create([
-                    Image(data_bytes=out.getvalue())]))
+                if len(lis) == 2:
+                    out = await wows_get_pl_ship(lis[0], ship_id, lis[1], list_cmd[2])
+                    # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
+                    await app.sendGroupMessage(group, MessageChain.create([
+                        Image(data_bytes=out.getvalue())]))
+                else:
+                    await app.sendGroupMessage(group, MessageChain.create("你确定绑定了？"))
+
             else:
                 await app.sendGroupMessage(group, MessageChain.create("找不到船，可能是作者还没有反和谐"))
         elif list_cmd[0] != 'set' and list_cmd[-2] == 'ship':
@@ -602,7 +625,66 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                     await app.sendGroupMessage(group, MessageChain.create([
                         Image(data_bytes=out.getvalue())]))
                 else:
-                    await app.sendGroupMessage(group, MessageChain.create("找不到船，可能是作者还没有反和谐"))
+                    list_find = fuzzy_finder(ship)
+                    if len(list_find)!=0:
+                        if len(list_find) == 1:
+                            ship_id = get_ship_id(list_find[0])
+                            out = await wows_get_pl_ship(str(wows_id), str(ship_id), server, list_find[0])
+                            # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
+                            await app.sendGroupMessage(group, MessageChain.create([
+                                Image(data_bytes=out.getvalue())]))
+                        elif len(list_find) == 2:
+                            msg_rep = f'猜你想找\n' \
+                                      f'1.{list_find[0]}\n' \
+                                      f'2.{list_find[1]}'
+                            await app.sendGroupMessage(group,
+                                                       MessageChain.create(msg_rep))
+                        elif len(list_find) == 3:
+                            msg_rep = f'猜你想找\n' \
+                                      f'1.{list_find[0]}\n' \
+                                      f'2.{list_find[1]}\n' \
+                                      f'3.{list_find[2]}'
+                            await app.sendGroupMessage(group,
+                                                       MessageChain.create(msg_rep))
+                        elif len(list_find) == 4:
+                            msg_rep = f'猜你想找\n' \
+                                      f'1.{list_find[0]}\n' \
+                                      f'2.{list_find[1]}\n' \
+                                      f'3.{list_find[2]}\n' \
+                                      f'4.{list_find[3]}\n'
+                            await app.sendGroupMessage(group,
+                                                       MessageChain.create(msg_rep))
+                        elif len(list_find) == 5:
+                            msg_rep = f'猜你想找\n' \
+                                      f'1.{list_find[0]}\n' \
+                                      f'2.{list_find[1]}\n' \
+                                      f'3.{list_find[2]}\n' \
+                                      f'4.{list_find[3]}\n' \
+                                      f'5.{list_find[4]}'
+                            await app.sendGroupMessage(group,
+                                                       MessageChain.create(msg_rep))
+                        if 1 < len(list_find) <= 5:
+                            @Waiter.create_using_function([GroupMessage])
+                            async def InterruptWaiter(g: Group, m: Member, msg: MessageChain):
+                                if group.id == g.id and member.id == m.id:
+                                    return msg
+                            try:
+                                rep_msg:message = await interrupt.wait(InterruptWaiter, timeout=15)
+                                rep_str:str = rep_msg.asDisplay()
+                                l_find = len(list_find)
+                                rep_int = int(rep_str)
+                                if 0 < rep_int <= l_find:
+                                    ship_id = get_ship_id(list_find[rep_int-1])
+                                    out = await wows_get_pl_ship(str(wows_id), str(ship_id), server, list_find[rep_int-1])
+                                    # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
+                                    await app.sendGroupMessage(group, MessageChain.create([
+                                        Image(data_bytes=out.getvalue())]))
+                                else:
+                                    await app.sendMessage(group, MessageChain.create("这样可没人愿意帮你找的！"))
+                            except asyncio.TimeoutError:
+                                await app.sendMessage(group, MessageChain.create("不说就当没有了！"))
+                    else:
+                        await app.sendMessage(group, MessageChain.create("猜不到你想找什么船"))
         elif list_cmd[0] == 'set' and list_cmd[-2] in Server_list:
             if not dev:
                 server_data = list_cmd[1]
@@ -637,7 +719,68 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                     await app.sendGroupMessage(group, MessageChain.create([
                         Image(data_bytes=out.getvalue())]))
                 else:
-                    await app.sendGroupMessage(group, MessageChain.create("找不到船，可能是作者还没有反和谐"))
+                    list_find = fuzzy_finder(ship)
+                    if len(list_find) != 0:
+                        if len(list_find) == 1:
+                            ship_id = get_ship_id(list_find[0])
+                            out = await wows_get_pl_ship(str(wows_id), str(ship_id), server, list_find[0])
+                            # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
+                            await app.sendGroupMessage(group, MessageChain.create([
+                                Image(data_bytes=out.getvalue())]))
+                        elif len(list_find) == 2:
+                            msg_rep = f'猜你想找\n' \
+                                      f'1.{list_find[0]}\n' \
+                                      f'2.{list_find[1]}'
+                            await app.sendGroupMessage(group,
+                                                       MessageChain.create(msg_rep))
+                        elif len(list_find) == 3:
+                            msg_rep = f'猜你想找\n' \
+                                      f'1.{list_find[0]}\n' \
+                                      f'2.{list_find[1]}\n' \
+                                      f'3.{list_find[2]}'
+                            await app.sendGroupMessage(group,
+                                                       MessageChain.create(msg_rep))
+                        elif len(list_find) == 4:
+                            msg_rep = f'猜你想找\n' \
+                                      f'1.{list_find[0]}\n' \
+                                      f'2.{list_find[1]}\n' \
+                                      f'3.{list_find[2]}\n' \
+                                      f'4.{list_find[3]}\n'
+                            await app.sendGroupMessage(group,
+                                                       MessageChain.create(msg_rep))
+                        elif len(list_find) == 5:
+                            msg_rep = f'猜你想找\n' \
+                                      f'1.{list_find[0]}\n' \
+                                      f'2.{list_find[1]}\n' \
+                                      f'3.{list_find[2]}\n' \
+                                      f'4.{list_find[3]}\n' \
+                                      f'5.{list_find[4]}'
+                            await app.sendGroupMessage(group,
+                                                       MessageChain.create(msg_rep))
+                        if 1 < len(list_find) <= 5:
+                            @Waiter.create_using_function([GroupMessage])
+                            async def InterruptWaiter(g: Group, m: Member, msg: MessageChain):
+                                if group.id == g.id and member.id == m.id:
+                                    return msg
+
+                            try:
+                                rep_msg: message = await interrupt.wait(InterruptWaiter, timeout=15)
+                                rep_str: str = rep_msg.asDisplay()
+                                l_find = len(list_find)
+                                rep_int = int(rep_str)
+                                if 0 < rep_int <= l_find:
+                                    ship_id = get_ship_id(list_find[rep_int - 1])
+                                    out = await wows_get_pl_ship(str(wows_id), str(ship_id), server,
+                                                                 list_find[rep_int - 1])
+                                    # await app.sendGroupMessage(group, MessageChain.create(str(ship_id)))
+                                    await app.sendGroupMessage(group, MessageChain.create([
+                                        Image(data_bytes=out.getvalue())]))
+                                else:
+                                    await app.sendMessage(group, MessageChain.create("这样可没人愿意帮你找的！"))
+                            except asyncio.TimeoutError:
+                                await app.sendMessage(group, MessageChain.create("不说就当没有了！"))
+                    else:
+                        await app.sendMessage(group, MessageChain.create("猜不到你想找什么船"))
         else:
             await app.sendGroupMessage(group, MessageChain.create("未知指令"))
     else:
