@@ -48,7 +48,7 @@
 
 ## 要是不会怎么办
 
-['看视频')] (https://www.bilibili.com/video/BV1CY4y1B7BX?spm_id_from=333.999.0.0)
+[`视频教学`](https://www.bilibili.com/video/BV1CY4y1B7BX?spm_id_from=333.999.0.0)
 
 ## 鸣谢 & 相关项目
 
@@ -79,4 +79,4 @@
 - [`Xenon`](https://github.com/McZoo/Xenon): 一个优雅，用户友好的，基于 [mirai](https://github.com/mamoe/mirai) 与 [Graia Project](https://github.com/GraiaProject/) 的 QQ 机器人应用
 - [`EroEroBot`](https://github.com/GraiaCommunity/EroEroBot): GraiaX 社区文档示例 —— 大家最喜欢的涩图机器人
 - [`A_Simple_QQ_Bot`](https://github.com/I-love-study/A_Simple_QQ_Bot): A QQ bot make by GraiaProject
-- [`redbot`](https://github.com/I-love-study/A_Simple_QQ_Bot): 一个以 Graia Ariadne 框架为基础的 QQ 机器人
+- [`redbot`]([https://github.com/I-love-study/A_Simple_QQ_Bot](https://github.com/Redlnn/redbot)): 一个以 Graia Ariadne 框架为基础的 QQ 机器人
