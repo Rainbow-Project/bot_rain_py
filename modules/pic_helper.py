@@ -63,7 +63,7 @@ async def saucenao(app: Ariadne, group: Group, member: Member, img: ElementResul
                     f"相似度：{results.similarity}%\n标题：{results.title}\n节点名：{results.index_name}\n链接：{urls}"
                 )))
 
-    if len(fwd_nodeList) == 0:
+    if not fwd_nodeList:
         await app.sendMessage(group, MessageChain.create("未找到有价值的数据"), quote=source.id)
     else:
         await app.sendMessage(group, MessageChain.create(Forward(nodeList=fwd_nodeList)))

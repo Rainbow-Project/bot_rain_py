@@ -33,7 +33,7 @@ async def crawl(file, squish=0):
                  fill=255)
     mask = mask.filter(ImageFilter.GaussianBlur(0))
     avatar.putalpha(mask)
-    images = [i for i in os.listdir(f"{os.getcwd()}/modules/crawl/crawl")]
+    images = list(os.listdir(f"{os.getcwd()}/modules/crawl/crawl"))
     crawl = IMG.open(f"{os.getcwd()}/modules/crawl/crawl/{random.choice(images)}").resize(
         (500, 500), IMG.ANTIALIAS)
     avatar = avatar.resize((100, 100), IMG.ANTIALIAS)

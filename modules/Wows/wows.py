@@ -57,7 +57,7 @@ wows_pl_ship_data = 'https://api.worldofwarships.SERVER/wows/ships/stats/?applic
 
 
 async def get_pr(bts: int, wr: int, dmg: int):
-    wr = (100 * wr)
+    wr *= 100
     if bts <= 70:
         pr = (100 * math.atan(bts / 40) * wr + 100 * math.asin(wr / 100) * dmg + 100 * math.acos(bts / 70)) / 1000
     else:
@@ -91,11 +91,14 @@ async def get_pr_ship(bts: int, wr: int, dmg: int, frags: int, ship_id: str):
     nDmg = max(0, (rDmg - 0.4) / (1 - 0.4))
     nFrags = max(0, (rFrags - 0.1) / (1 - 0.1))
     nWins = max(0, (rWins - 0.7) / (1 - 0.7))
-    wr = (100 * wr)
+    wr *= 100
     wr_w = (100 * math.asin(wr / 100)) / 158
 
-    pr = (350 + (350 * wr_w)) * nDmg + 300 * nFrags + (150 + (350 * (1 - wr_w))) * nWins
-    return pr
+    return (
+        (350 + (350 * wr_w)) * nDmg
+        + 300 * nFrags
+        + (150 + (350 * (1 - wr_w))) * nWins
+    )
 
 
 async def get_pr_ship_pic(bts: int, wr: int, dmg: int, frags: int, ship_id: str):
@@ -138,7 +141,7 @@ async def gen_img(LV: str, cl: str, name: str, bats: str, wr: str, dmg: str, XP:
                   timestamp_crate: int, PR: str):
     if cl is None:
         cl = "「 」"
-    img = IMG.open("wows_pic/" + PR)
+    img = IMG.open(f"wows_pic/{PR}")
     # 新建绘图对象
     draw = ImageDraw.Draw(img)
     # 选择文字字体和大小
@@ -173,29 +176,27 @@ async def gen_img(LV: str, cl: str, name: str, bats: str, wr: str, dmg: str, XP:
 def add_dic(QQ_ID: int, WowsID: str, ser: str):
     dic = read_dic()
     lis = []
-    lis += [str(WowsID)]
+    lis += [WowsID]
     lis += [ser]
     dic[QQ_ID] = lis
     write_dic(dic)
 
 
 def read_dic():
-    file = open('src/wows_data/user_data.data', 'r')
-    js = file.read()
-    try:
-        dic = json.loads(js)
-    except:
-        dic = {}
-    print(dic)
-    file.close()
+    with open('src/wows_data/user_data.data', 'r') as file:
+        js = file.read()
+        try:
+            dic = json.loads(js)
+        except:
+            dic = {}
+        print(dic)
     return dic
 
 
 def write_dic(dic: dict):
     json_str = json.dumps(dic)
-    file = open('src/wows_data/user_data.data', 'w')
-    file.write(json_str)
-    file.close()
+    with open('src/wows_data/user_data.data', 'w') as file:
+        file.write(json_str)
 
 
 def wows_get_numbers_api():
@@ -250,7 +251,7 @@ async def wows_get_cl_tag(wows_UID_tmp: str, ser: str):
             data_cl = await wows_get_cl(str(cl_id), ser)
             if data_cl["status"] == "ok":
                 cl_tag = data_cl['data'][str(cl_id)]['tag']
-                return "[" + cl_tag + "]"
+                return f"[{cl_tag}]"
         except:
             return "「 」"
 
@@ -291,10 +292,20 @@ async def wows_get_data_UID(server_data: str, wows_UID_tmp: str):
         pr = await get_pr(PVP_battles, PVP_WinRate, PVP_AvgDmg)
         PVP_WinRate = format(PVP_WinRate, ".2%")
         PVP_Main_Battery_Hit_Rate = format(PVP_Main_Battery_Hit_Rate, ".2%")
-        wows_img = await gen_img("LV" + str(tier), cl_tag, data['nickname'], str(PVP_battles), str(PVP_WinRate),
-                                 str(PVP_AvgDmg),
-                                 str(PVP_AvgXP), str(PVP_KD), str(PVP_Main_Battery_Hit_Rate), date_create,
-                                 pr)
+        wows_img = await gen_img(
+            f"LV{str(tier)}",
+            cl_tag,
+            data['nickname'],
+            str(PVP_battles),
+            str(PVP_WinRate),
+            str(PVP_AvgDmg),
+            str(PVP_AvgXP),
+            str(PVP_KD),
+            str(PVP_Main_Battery_Hit_Rate),
+            date_create,
+            pr,
+        )
+
         '''await app.sendGroupMessage(group, MessageChain.create(f"Wows_UID = {wows_UID_tmp} "
                                                               f"\nName = {nickName}"
                                                               f"\n总场数: {PVP_battles}"
@@ -308,13 +319,13 @@ async def wows_get_data_UID(server_data: str, wows_UID_tmp: str):
 
 
 async def get_pr_v2(ser: str, wows_id: str):
-    tpr = 0
-    total_cont = 0
     data_ini = wows_sql_data.get_user_data_wg_api(wows_id, ser)
     if data_ini['status'] == 'ok':
         data = data_ini['data'][wows_id]
+        dic_tmp = {}
+        tpr = 0
+        total_cont = 0
         for i in data:
-            dic_tmp = {}
             ship_id = i['ship_id']
             i = i['pvp']
             battles = i['battles']
@@ -345,10 +356,20 @@ async def get_pr_v2(ser: str, wows_id: str):
             PVP_WinRate = format(PVP_WinRate, ".2%")
             PVP_Main_Battery_Hit_Rate = format(PVP_Main_Battery_Hit_Rate, ".2%")
             pr_img = get_pr_img(pr)
-            wows_img = await gen_img("LV" + str(tier), cl_tag, data['nickname'], str(PVP_battles), str(PVP_WinRate),
-                                     str(PVP_AvgDmg),
-                                     str(PVP_AvgXP), str(PVP_KD), str(PVP_Main_Battery_Hit_Rate), date_create,
-                                     pr_img)
+            wows_img = await gen_img(
+                f"LV{str(tier)}",
+                cl_tag,
+                data['nickname'],
+                str(PVP_battles),
+                str(PVP_WinRate),
+                str(PVP_AvgDmg),
+                str(PVP_AvgXP),
+                str(PVP_KD),
+                str(PVP_Main_Battery_Hit_Rate),
+                date_create,
+                pr_img,
+            )
+
             wows_img.save(out := BytesIO(), format='JPEG')
             return out
 
@@ -378,10 +399,20 @@ async def wows_get_data(server_data: str, nickname: str):
             pr = await get_pr(PVP_battles, PVP_WinRate, PVP_AvgDmg)
             PVP_WinRate = format(PVP_WinRate, ".2%")
             PVP_Main_Battery_Hit_Rate = format(PVP_Main_Battery_Hit_Rate, ".2%")
-            wows_img = await gen_img("LV" + str(tier), cl_tag, nickName, str(PVP_battles), str(PVP_WinRate),
-                                     str(PVP_AvgDmg),
-                                     str(PVP_AvgXP), str(PVP_KD), str(PVP_Main_Battery_Hit_Rate), date_create,
-                                     pr)
+            wows_img = await gen_img(
+                f"LV{str(tier)}",
+                cl_tag,
+                nickName,
+                str(PVP_battles),
+                str(PVP_WinRate),
+                str(PVP_AvgDmg),
+                str(PVP_AvgXP),
+                str(PVP_KD),
+                str(PVP_Main_Battery_Hit_Rate),
+                date_create,
+                pr,
+            )
+
             '''await app.sendGroupMessage(group, MessageChain.create(f"Wows_UID = {wows_UID_tmp} "
                                                                   f"\nName = {nickName}"
                                                                   f"\n总场数: {PVP_battles}"
@@ -418,20 +449,30 @@ async def wows_get_pl_ship(wows_id: str, ship_id: str, ser: str, ship_name_give:
             date_create = data['created_at']
             tier = data['leveling_tier']
             name = data['nickname']
-            wows_img = await gen_img(ship_name_give, cl_tag, name, str(bats), str(WR),
-                                     str(dmg),
-                                     str(XP), str(KD), str(accu), date_create,
-                                     PR)
+            wows_img = await gen_img(
+                ship_name_give,
+                cl_tag,
+                name,
+                str(bats),
+                str(WR),
+                str(dmg),
+                str(XP),
+                str(KD),
+                accu,
+                date_create,
+                PR,
+            )
+
             wows_img.save(out := BytesIO(), format='JPEG')
             return out
 
 
 async def wows_recent(user_wows_id: str, user_server: str, user_past_data: dict):
     data_ini = wows_sql_data.get_user_data_wg_api(user_wows_id, user_server)
-    dic_user_recent = {}
-    dic_emp = {'battles': 0, 'damage_dealt': 0, 'wins': 0, 'frags': 0}
     if data_ini['status'] == 'ok':
         data = data_ini['data'][user_wows_id]
+        dic_user_recent = {}
+        dic_emp = {'battles': 0, 'damage_dealt': 0, 'wins': 0, 'frags': 0}
         for i in data:
             ship_id = i['ship_id']
             i = i['pvp']
@@ -439,53 +480,61 @@ async def wows_recent(user_wows_id: str, user_server: str, user_past_data: dict)
             damage_dealt = i['damage_dealt']
             wins = i['wins']
             frags = i['frags']
-            if str(ship_id) in user_past_data.keys():
-                user_past_data_ship = user_past_data[str(ship_id)]
-            else:
-                user_past_data_ship = dic_emp
+            user_past_data_ship = user_past_data.get(str(ship_id), dic_emp)
             if battles != user_past_data_ship['battles']:
                 dic_user_recent[ship_id] = {'battles': battles - user_past_data_ship['battles'],
                                             'wins': wins - user_past_data_ship['wins'],
                                             'frags': frags - user_past_data_ship['frags'],
                                             'damage_dealt': damage_dealt - user_past_data_ship['damage_dealt']}
-        if dic_user_recent == {}:
+        if not dic_user_recent:
             return MessageChain.create("可能最近没有战斗或无法访问数据")
-        else:
-            tpr = 0
-            total_cont = 0
-            tw = 0
-            td = 0
-            tb = 0
-            for i in dic_user_recent:
-                dic_tmp = {}
-                ship_id = i
-                battles = dic_user_recent[ship_id]['battles']
-                tb += battles
-                damage_dealt = dic_user_recent[ship_id]['damage_dealt']
-                td += damage_dealt
-                wins = dic_user_recent[ship_id]['wins']
-                tw += wins
-                frags = dic_user_recent[ship_id]['frags']
-                try:
-                    tpr += await get_pr_ship(battles, wins / battles, damage_dealt / battles, frags / battles,
-                                             str(ship_id))
-                    total_cont += 1
-                except:
-                    None
-            pr_img = get_pr_img(tpr / total_cont)
-            data_PD = await wows_c(user_server, user_wows_id)
-            if data_PD["status"] == "ok":
-                cl_tag = await wows_get_cl_tag(user_wows_id, user_server)
-                data = data_PD['data'][user_wows_id]
-                date_create = data['created_at']
-                tier = data['leveling_tier']
-                wr = format(round((tw / tb), 6), ".2%")
-                name = data['nickname']
-                dmg = str(round(td / tb))
-                wows_img = await gen_img("LV" + str(tier), cl_tag, name, str(tb), wr, dmg, "N/A", "N/A", 'N/A',
-                                         date_create, pr_img)
-                wows_img.save(out := BytesIO(), format='JPEG')
-                return MessageChain.create([Image(data_bytes=out.getvalue())])
+        tpr = 0
+        total_cont = 0
+        tw = 0
+        td = 0
+        tb = 0
+        dic_tmp = {}
+        for i in dic_user_recent:
+            ship_id = i
+            battles = dic_user_recent[ship_id]['battles']
+            tb += battles
+            damage_dealt = dic_user_recent[ship_id]['damage_dealt']
+            td += damage_dealt
+            wins = dic_user_recent[ship_id]['wins']
+            tw += wins
+            frags = dic_user_recent[ship_id]['frags']
+            try:
+                tpr += await get_pr_ship(battles, wins / battles, damage_dealt / battles, frags / battles,
+                                         str(ship_id))
+                total_cont += 1
+            except:
+                None
+        pr_img = get_pr_img(tpr / total_cont)
+        data_PD = await wows_c(user_server, user_wows_id)
+        if data_PD["status"] == "ok":
+            cl_tag = await wows_get_cl_tag(user_wows_id, user_server)
+            data = data_PD['data'][user_wows_id]
+            date_create = data['created_at']
+            tier = data['leveling_tier']
+            wr = format(round((tw / tb), 6), ".2%")
+            name = data['nickname']
+            dmg = str(round(td / tb))
+            wows_img = await gen_img(
+                f"LV{str(tier)}",
+                cl_tag,
+                name,
+                str(tb),
+                wr,
+                dmg,
+                "N/A",
+                "N/A",
+                'N/A',
+                date_create,
+                pr_img,
+            )
+
+            wows_img.save(out := BytesIO(), format='JPEG')
+            return MessageChain.create([Image(data_bytes=out.getvalue())])
 
 
 def get_ship_id(ship_name: str):
@@ -496,18 +545,12 @@ def get_ship_id(ship_name: str):
             k = line.split(' ')[0]
             v = line.split(' ')[1]
             dict_temp[k] = v
-    if ship_name in dict_temp.keys():
-        return dict_temp[ship_name]
-    else:
-        return ''
+    return dict_temp.get(ship_name, '')
 
 
 def get_me_data(QQID: int):
     dic = read_dic()
-    if str(QQID) in dic.keys():
-        return dic[str(QQID)]
-    else:
-        return []
+    return dic[str(QQID)] if str(QQID) in dic.keys() else []
 
 
 def fuzzy_finder(key: str):
@@ -518,8 +561,7 @@ def fuzzy_finder(key: str):
             k = line.split(' ')[0]
             v = line.split(' ')[1]
             dict_temp[k] = v
-        list_find = difflib.get_close_matches(key, dict_temp.keys(), 5, cutoff=0.5)
-        return list_find
+        return difflib.get_close_matches(key, dict_temp.keys(), 5, cutoff=0.5)
 
 
 @channel.use(ListenerSchema(

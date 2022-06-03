@@ -49,9 +49,9 @@ async def swallow(file, squish=0):
         avatar_frames.append(frame)
 
     frames = []
-    for i in range(2):
-        frames.extend(avatar_frames[0:12])
-    frames.extend(avatar_frames[0:8])
+    for _ in range(2):
+        frames.extend(avatar_frames[:12])
+    frames.extend(avatar_frames[:8])
     frames.extend(avatar_frames[12:18])
     frames.extend(raw_frames[18:23])
     imageio.mimsave(output := BytesIO(), frames, format='gif', duration=0.06)

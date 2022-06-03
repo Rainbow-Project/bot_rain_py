@@ -19,21 +19,19 @@ api_user = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=
 wows_API_ID = "1145141919810"
 
 def read_dic():
-    file = open('src/wows_data/user_data.data', 'r')
-    js = file.read()
-    try:
-        dic = json.loads(js)
-    except:
-        dic = {}
-    print(dic)
-    file.close()
+    with open('src/wows_data/user_data.data', 'r') as file:
+        js = file.read()
+        try:
+            dic = json.loads(js)
+        except:
+            dic = {}
+        print(dic)
     return dic
 
 
 def get_user_data_wg_api(user_wows_id: str, user_server: str):
     dataini = requests.get(api_user.replace('SERVER', user_server).replace('WOWS_USER_ID', user_wows_id).replace('1145141919810',wows_API_ID))
-    data = dataini.json()
-    return data
+    return dataini.json()
 
 
 def update():
@@ -59,8 +57,8 @@ def update():
         data_ini = get_user_data_wg_api(user_wows_id, user_server)
         if data_ini['status'] == 'ok':
             data = data_ini['data'][user_wows_id]
+            dic_tmp = {}
             for i in data:
-                dic_tmp = {}
                 ship_id = i['ship_id']
                 i = i['pvp']
                 battles = i['battles']
@@ -82,16 +80,18 @@ def read_sql_data(user_wows_id: str):
     try:
         cursor = c.execute("SELECT ship_id, battles, damage_dealt, wins, frags  from '%s'" % user_wows_id)
         for row in cursor:
-            dic_tmp = {}
             ship_id = row[0]
             battles = row[1]
             damage_dealt = row[2]
             wins = row[3]
             frags = row[4]
-            dic_tmp['battles'] = battles
-            dic_tmp['damage_dealt'] = damage_dealt
-            dic_tmp['wins'] = wins
-            dic_tmp['frags'] = frags
+            dic_tmp = {
+                'battles': battles,
+                'damage_dealt': damage_dealt,
+                'wins': wins,
+                'frags': frags,
+            }
+
             dic[str(ship_id)] = dic_tmp
     except:
         return {}

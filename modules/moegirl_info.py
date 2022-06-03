@@ -22,7 +22,8 @@ channel.author("I_love_study")
     inline_dispatchers=[Twilight.from_command("萌娘百科 {para}")]
 ))
 async def moegirl_search(app: Ariadne, group: Group, para: MatchResult):
-    url = "https://zh.moegirl.org.cn/zh-cn/" + quote(para.result.asDisplay().strip())
+    url = f"https://zh.moegirl.org.cn/zh-cn/{quote(para.result.asDisplay().strip())}"
+
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context(device_scale_factor=2.0)

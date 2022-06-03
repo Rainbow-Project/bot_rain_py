@@ -76,10 +76,7 @@ def next_weekend() -> Optional[date]:
 
 def in_holiday() -> bool:
     now = date.today()
-    for _, [f, t] in holiday.items():
-        if f <= now <= t:
-            return True
-    return False
+    return any(f <= now <= t for _, [f, t] in holiday.items())
 
 
 @channel.use(SchedulerSchema(timers.crontabify("0 8 * * * 0")))
@@ -97,9 +94,8 @@ async def moyu(app: Ariadne):
             msg += "而且还是放假期间哦"
         else:
             msg += "好好休息一下吧"
-    else:
-        if in_holiday():
-            msg += "现在是假期哦~"
+    elif in_holiday():
+        msg += "现在是假期哦~"
 
     end_holiday = list(dropwhile(lambda x: x[1][1] < today, holiday.items()))
     if weekend := next_weekend():

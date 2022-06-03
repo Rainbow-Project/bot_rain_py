@@ -47,8 +47,7 @@ def get_ship_data():
 
 def ocr_read(file):
     reader = easyocr.Reader(['ch_sim'], gpu=False)
-    result = reader.readtext(file.getvalue(), detail=0)
-    return result
+    return reader.readtext(file.getvalue(), detail=0)
 
 
 @channel.use(ListenerSchema(

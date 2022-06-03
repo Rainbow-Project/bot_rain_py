@@ -24,6 +24,6 @@ saya.install_behaviours(
 
 with saya.module_context():
     for module_info in pkgutil.iter_modules(["modules"]):
-        saya.require("modules." + module_info.name)
+        saya.require(f"modules.{module_info.name}")
 
 app.launch_blocking()

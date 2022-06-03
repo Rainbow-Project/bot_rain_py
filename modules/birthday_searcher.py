@@ -37,7 +37,7 @@ async def today_birthday(app: Ariadne, group: Group):
         except aiohttp.client_exceptions.ClientConnectorError:
             await app.sendGroupMessage(group, MessageChain.create("对不起，现在萌娘炸了，所以您的请求我无法回复"))
             return
-    
+
     figures = html.xpath('//div[@id="mw-pages"]//a/text()')
     font = ImageFont.truetype(r"src/font/SourceHanSans-Medium.otf", size=50)
     text = "\n".join(figures)

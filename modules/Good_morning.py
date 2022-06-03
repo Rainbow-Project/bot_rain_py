@@ -20,9 +20,7 @@ channel = Channel.current()
 async def zao(app: Ariadne, group: Group, message: MessageChain):
     if "早上好" in str(message) or "钉宫" in str(message):
         path = "src/dinggong_silk/"
-        audios = []
-        for x in os.listdir(path):
-            audios.append(x)
+        audios = list(os.listdir(path))
         audio_random = path+random.sample(audios,1)[0]
         with open(audio_random,'rb') as f:
             file = io.BytesIO(f.read())
