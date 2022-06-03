@@ -24,13 +24,13 @@
 
 ## 这是什么
 
-一个使用[graia-ariadne](https://github.com/GraiaProject/Ariadne)/[Saya](https://github.com/GraiaProject/Saya)写的bot  
-她拥有wows查询的功能还有一些屌图功能
+一个使用 [graia-ariadne](https://github.com/GraiaProject/Ariadne)/[Saya](https://github.com/GraiaProject/Saya) 写的bot  
+她拥有 wows 查询的功能还有一些屌图功能
 
 ## 前提提示
 
-这个代码，为无法保证没有bug
-### 本项目中的wows有关图标未经许可不允许使用在其他领域图标大部分著作权@Kcuftoe
+这个代码，为无法保证没有 bug
+### 本项目中的 wows 有关图标未经许可不允许使用在其他领域图标大部分著作权 @Kcuftoe
 ### 剩下一张（胜利意志）是我画的禁止商用就好
 
 ## 她能做什么
@@ -38,15 +38,15 @@
 
 ## 未来要做的功能有
 
-- 找出并修复bug
-- 如果（当然不太可能）WG修好了一些已经坏了的API会尝试更新（例如rank战绩的API就是坏的）[损坏的API](https://wows-numbers.com/api/status)
+- 找出并修复 bug
+- 如果（当然不太可能）WG 修好了一些已经坏了的 API 会尝试更新（例如rank战绩的API就是坏的）[损坏的API](https://wows-numbers.com/api/status)
 - ~~抄其他机器人的功能~~
 
 ## 我需要做什么
 
-部署环境 更换自己的key 然后就可以运行了
+部署环境 更换自己的 key 然后就可以运行了
 
-还有就是ocr的举报很吃性能如果服务器不行还是算了吧
+还有就是 ocr 的举报很吃性能如果服务器不行还是算了吧
 
 ## 要是不会怎么办
 
@@ -54,7 +54,7 @@
 
 ## 鸣谢 & 相关项目
 
-特别感谢 [`Kcuftoe`]给我们带来这些精美的图标:
+特别感谢 [`Kcuftoe`] 给我们带来这些精美的图标:
 
 > 这些项目也很棒, 可以去他们的项目主页看看, 点个 Star 鼓励他们的开发工作吧
 
