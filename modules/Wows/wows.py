@@ -16,7 +16,7 @@ from graia.broadcast.interrupt import Waiter, InterruptControl
 from graia.saya import Channel, Saya
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 import difflib
-from .wows_sql_data import wows_API_ID
+from modules.Wows import wows_sql_data
 
 dev = True
 saya = Saya.current()
@@ -39,7 +39,7 @@ Dic_ID = {}
                     \  /
                      \/
 '''
-Wows_API_ID = wows_API_ID
+Wows_API_ID = wows_sql_data.wows_API_ID
 wows_numbers_api = 'https://api.wows-numbers.com/personal/rating/expected/json/'
 wows_http_getUID = "https://api.worldofwarships.SERVER/wows/account/list/?search=WOWSUSERNAME&application_id" \
                    "=1145141919810 "
