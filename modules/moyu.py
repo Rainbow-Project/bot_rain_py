@@ -2,8 +2,10 @@ import asyncio
 
 from graia.ariadne.app import Ariadne
 from graia.ariadne.message.chain import MessageChain
+from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.element import *
 from graia.saya import Saya, Channel
+from graia.saya.builtins.broadcast import ListenerSchema
 from graia.scheduler import timers
 from graia.scheduler.saya.schema import SchedulerSchema
 
@@ -15,7 +17,7 @@ saya = Saya.current()
 channel = Channel.current()
 
 groups = (964132418, 429463785, 696443646, 565540208)
-groups = (964132418, )
+groups = ()
 
 # 来自《国务院办公厅关于2022年部分节假日安排的通知》
 holiday = {
@@ -62,8 +64,10 @@ def next_weekend() -> Optional[date]:
 
         for _, [f, t] in holiday.items():
             # 这是假期，超越了周末
-            if f < weekend < t:
-                weekend += timedelta(days=1 if w == 6 else 6)
+            if f <= weekend <= t:
+                if t.isoweekday() in [6, 7]:
+                    t = t + timedelta(days=1)
+                weekend = t + timedelta(days=6 - t.isoweekday())
                 continue
         break
 
@@ -73,7 +77,7 @@ def next_weekend() -> Optional[date]:
 def in_holiday() -> bool:
     now = date.today()
     for _, [f, t] in holiday.items():
-        if f < now < t:
+        if f <= now <= t:
             return True
     return False
 
