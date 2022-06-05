@@ -9,6 +9,7 @@ from graia.ariadne.message.parser.twilight import Twilight, FullMatch, WildcardM
 from graia.ariadne.model import Group
 from graia.saya import Channel
 from graia.saya.builtins.broadcast import ListenerSchema
+from ApiKeys import weatherApikey
 
 channel = Channel.current()
 
@@ -38,7 +39,7 @@ async def wather(app: Ariadne, group: Group, message: MessageChain, para: MatchR
         
         '''
 
-        async with session.get('https://api.seniverse.com/v3/weather/now.json?key=1145141919810&location=CITY'
+        async with session.get(f'https://api.seniverse.com/v3/weather/now.json?key={weatherApikey}&location=CITY'
                                '&language=zh-Hans&unit=c'.replace('CITY',city)) as resp:
             res = await resp.json()
             wather_text = res['results'][0]['now']
