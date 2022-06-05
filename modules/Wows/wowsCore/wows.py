@@ -526,7 +526,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
        wows指令判断
        '''
     if len(list_cmd) == 1:
-        '''当指令长度为1时只有wows me 和wows exboom两种情况'''
+        '''当指令长度为1时只有wows me 和 wows exboom wows help 3种情况'''
         if list_cmd[0] == 'me':
             '''
             wows me
@@ -537,7 +537,10 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                 await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
             except (APIs.Notfound, APIs.ApiError) as e:
                 await app.sendGroupMessage(group, MessageChain.create(e.args))
-
+        elif list_cmd[0] == 'help':
+            await app.sendGroupMessage(group, MessageChain.create("完整指令请尝试/help\n"
+                                                                  "wows set 服务器 你的wows名字"
+                                                                  "\n服务器从[asia, eu, na, ru]中选择"))
         else:
             '''wows exboom 默认去找亚服当exboom'''
             nickName = list_cmd[0]
