@@ -1,3 +1,10 @@
+# -*- coding: UTF-8 -*-
+"""
+@Project ：Bot_rain
+@File    ：report.py
+@Author  ：INTMAX
+@Date    ：2022-06-03 7:49 p.m. 
+"""
 import base64
 
 from graia.ariadne import get_running
@@ -13,13 +20,14 @@ from io import BytesIO
 from graia.saya import Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from PIL import Image as IMG, ImageFilter, ImageDraw
+from ApiKeys import ocrApiKey
 
 offline = False
 if offline:
     import easyocr
 channel = Channel.current()
 
-APIKEY = '1145141919810'
+APIKEY = ocrApiKey
 
 API = "https://api.ocr.space/parse/imageurl?apikey=APIKEY&url=PIC_URL&language=chs&OCREngine=3&scale=true"
 
