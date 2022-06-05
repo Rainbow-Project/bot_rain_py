@@ -24,7 +24,6 @@ import difflib
 from modules.wows import dataBase
 from modules.wows import APIs
 
-dev = True
 saya = Saya.current()
 channel = Channel.current()
 interrupt = InterruptControl(saya.broadcast)
@@ -324,7 +323,6 @@ async def fun_get_recent_img(server: str, account_id: str):
         shipList = await APIs.fun_get_ship_list(server, account_id)
     except (APIs.Notfound, APIs.ApiError) as e:
         raise e
-    ships = {}
     pr_total = 0
     battles_recent = 0
     wins_recent = 0
@@ -538,9 +536,15 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             except (APIs.Notfound, APIs.ApiError) as e:
                 await app.sendGroupMessage(group, MessageChain.create(e.args))
         elif list_cmd[0] == 'help':
+            """
+            简易的help
+            """
             await app.sendGroupMessage(group, MessageChain.create("完整指令请尝试/help\n"
                                                                   "wows set 服务器 你的wows名字"
                                                                   "\n服务器从[asia, eu, na, ru]中选择"))
+        elif list_cmd[0] == '正常模式' and message.sender.id == 563748846:
+            dataBase.set_dev("0")
+            await app.sendGroupMessage(group, MessageChain.create("已修改"))
         else:
             '''wows exboom 默认去找亚服当exboom'''
             nickName = list_cmd[0]
@@ -699,7 +703,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                     except asyncio.TimeoutError:
                         await app.sendMessage(group, MessageChain.create("不说就当没有了！"))
         elif list_cmd[0] == 'set' and list_cmd[-2] in Server_list:
-            if not dev:
+            if not dataBase.get_dev():
                 server = list_cmd[1]
                 nickName = list_cmd[2]
                 try:

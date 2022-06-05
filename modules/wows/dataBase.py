@@ -37,7 +37,9 @@ def read_user_data():
 def get_user_data_wg_api(user_wows_id: str, user_server: str):
     api_user = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=1145141919810' \
                '&account_id=WOWS_USER_ID '
-    dataini = requests.get(api_user.replace('SERVER', user_server).replace('WOWS_USER_ID', user_wows_id).replace('1145141919810',ApiKeys.wowsApikey))
+    dataini = requests.get(
+        api_user.replace('SERVER', user_server).replace('WOWS_USER_ID', user_wows_id).replace('1145141919810',
+                                                                                              ApiKeys.wowsApikey))
     data = dataini.json()
     return data
 
@@ -162,3 +164,17 @@ def add_user(QQ_ID: int, account_id: str, server: str):
     file = open('src/wows_data/user_data.data', 'w')
     file.write(json_str)
     file.close()
+
+
+def get_dev():
+    with open('src/wows_data/DEV.DEV', 'r') as f:
+        line = f.readline()
+        if line == '1':
+            return True
+        else:
+            return False
+
+
+def set_dev(mode):
+    with open('src/wows_data/DEV.DEV', 'w') as f:
+        f.write(mode)
