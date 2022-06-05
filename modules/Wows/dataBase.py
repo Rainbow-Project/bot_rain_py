@@ -7,12 +7,17 @@
 """
 import json
 import sqlite3
+import requests
 
+import ApiKeys
 from modules.wows import APIs
 
 
-async def update_ship_exp():
-    data = await APIs.fun_api_get_ship_exp()
+def updata_ship_data():
+    api = 'https://api.wows-numbers.com/personal/rating/expected/json/'
+
+    dataini = requests.get(api)
+    data = dataini.json()
     with open("src/wows_data/wows_exp.json", 'w') as f:
         f.write(json.dumps(data))
 
@@ -29,18 +34,26 @@ def read_user_data():
     return dic
 
 
+def get_user_data_wg_api(user_wows_id: str, user_server: str):
+    api_user = 'https://api.worldofwarships.SERVER/wows/ships/stats/?application_id=1145141919810' \
+               '&account_id=WOWS_USER_ID '
+    dataini = requests.get(api_user.replace('SERVER', user_server).replace('WOWS_USER_ID', user_wows_id).replace('1145141919810',ApiKeys.wowsApikey))
+    data = dataini.json()
+    return data
+
+
 def update():
-    update_ship_exp()
+    updata_ship_data()
     con = sqlite3.connect('src/wows_data/user_recent_data.db')
     c = con.cursor()
     dic = read_user_data()
     for i in dic.values():
-        account_id = i[0]
-        server = i[1]
+        user_wows_id = i[0]
+        user_server = i[1]
         c = con.cursor()
         try:
-            c.execute("DROP TABLE '%s'" % account_id)
-        except Exception:
+            c.execute("DROP TABLE '%s'" % user_wows_id)
+        except:
             None
 
         c.execute('''CREATE TABLE '%s'
@@ -48,10 +61,10 @@ def update():
                battles INT NOT NULL,
                damage_dealt INT NOT NULL,
                wins  INT NOT NULL,
-               frags INT NOT NULL);''' % account_id)
-        data_ini = APIs.fun_api_get_player_personal_data(server, account_id)
+               frags INT NOT NULL);''' % user_wows_id)
+        data_ini = get_user_data_wg_api(user_wows_id, user_server)
         if data_ini['status'] == 'ok':
-            data = data_ini['data'][account_id]
+            data = data_ini['data'][user_wows_id]
             for i in data:
                 dic_tmp = {}
                 ship_id = i['ship_id']
@@ -61,7 +74,7 @@ def update():
                 wins = i['wins']
                 frags = i['frags']
                 sql_cmd = '''INSERT INTO '%s' (ship_id,battles,damage_dealt,wins,frags) VALUES (%d,%d,%d,%d,%d)''' % (
-                    account_id, ship_id, battles, damage_dealt, wins, frags)
+                    user_wows_id, ship_id, battles, damage_dealt, wins, frags)
                 c.execute(sql_cmd)
     con.commit()
     con.close()
