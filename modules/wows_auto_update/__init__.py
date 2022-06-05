@@ -1,1 +1,0 @@
-from .wows_auto_update import *

@@ -8,12 +8,13 @@ from graia.saya import Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 from saucenao_api import AIOSauceNao
 from saucenao_api.errors import SauceNaoApiError
+from ApiKeys import saucenaoApiKey
 
 channel = Channel.current()
 
 channel.name("Saucenao")
 channel.description("以图搜图")
-channel.author("I_love_study，intmax")
+channel.author("I_love_study")
 
 '''              
 去申请自己的           
@@ -28,7 +29,7 @@ channel.author("I_love_study，intmax")
                 \/                                 
 '''
 
-apikey = "1145141919810"
+apikey = saucenaoApiKey
 
 
 @channel.use(
