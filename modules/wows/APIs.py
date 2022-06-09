@@ -32,7 +32,7 @@ api_wows_numbers = 'https://api.wows-numbers.com/personal/rating/expected/json/'
 
 # 开发者提供的API
 
-api_wargaming_rank = 'http://wows.asia.intmax.SERVER/community/accounts/tab/rank/overview/'
+api_wargaming_rank = 'http://wows.SERVER.intmax.top/community/accounts/tab/rank/overview/'
 
 
 class ApiError(Exception):
