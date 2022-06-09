@@ -7,6 +7,8 @@
 """
 import aiohttp
 from ApiKeys import wowsApikey
+import requests
+from bs4 import BeautifulSoup
 
 """
 @Describe: 战舰世界查询/更新可能会用到的 API
@@ -18,9 +20,11 @@ Wargaming 提供的API
 """
 api_wargaming_account_players = 'https://api.worldofwarships.SERVER/wows/account/list/'
 api_wargaming_account_personal_data = 'https://api.worldofwarships.SERVER/wows/account/info/'
+api_wargaming_account_statistics_by_date = 'https://api.worldofwarships.SERVER/wows/account/statsbydate/'
 api_wargaming_warships_player_ship = 'https://api.worldofwarships.SERVER/wows/ships/stats/'
 api_wargaming_clans_player_clan = 'https://api.worldofwarships.SERVER/wows/clans/accountinfo/'
 api_wargaming_clans_clans_details = 'https://api.worldofwarships.SERVER/wows/clans/info/'
+api_wargaming_rank = 'https://worldofwarships.SERVER/zh-sg/community/accounts/tab/rank/overview/'
 
 """
 非 Wargaming 官方 API
@@ -163,6 +167,46 @@ async def fun_api_get_player_ship(server: str, account_id: str) -> dict:
                 raise ApiError('Wargaming 的 API 出现问题/网络出现问题')
 
 
+async def fun_api_get_rank_data(server: str, account_id: str) -> str:
+    """
+    爬取 Wargaming 的 Rank 数据
+    :param server: 服务器信息
+    :param account_id: Wargaming 用户的唯一ID
+    :return:
+    """
+    headers = {
+        'X-Requested-With': 'XMLHttpRequest',
+    }
+    api = api_wargaming_rank.replace("SERVER", server)+account_id+"/"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(api, headers=headers) as resp:
+            if 200 == resp.status:
+                return await resp.text()
+            else:
+                raise ApiError('Wargaming 的 API 出现问题/网络出现问题')
+
+
+async def fun_get_rank_data(server: str, account_id: str):
+    """
+    解析 Rank 数据
+    :param server:
+    :param account_id:
+    :return:
+    """
+    try:
+        getdata = await fun_api_get_rank_data(server, account_id)
+        soup = BeautifulSoup(getdata, 'lxml')
+        list_get = soup.find('div', class_='_values').text.split()
+        battles = list_get[0]
+        winRate = list_get[1]
+        xp = list_get[2]
+        damage = list_get[3]
+        kd = list_get[4]
+        return battles, winRate, xp, damage, kd
+    except Exception as e:
+        raise e
+
+
 async def fun_get_ship_list(server: str, account_id: str) -> list:
     """
     根据 account id 返回船只列表
@@ -204,7 +248,7 @@ async def fun_get_ship_data(server: str, account_id: str, ship_id):
                     damage_dealt = pvp['damage_dealt']
                     wins = pvp['wins']
                     main_battery = pvp['main_battery']
-                    return xp, survived_battles, battles, frags, damage_dealt, wins, main_battery,ship
+                    return xp, survived_battles, battles, frags, damage_dealt, wins, main_battery, ship
                     break
             raise Notfound('找不到目标船')
         else:
@@ -266,7 +310,7 @@ async def fun_get_personal_data(server: str, account_id: str, mode=0):
                 if mode == 0:
                     return leveling_tier, created_at, nickname, battles, xp, frags, survived_battles, wins, damage_dealt, main_battery
                 if mode == 1:
-                    return nickname,created_at
+                    return nickname, created_at
             else:
                 raise Notfound('找不到用户数据')
 
@@ -290,7 +334,7 @@ async def fun_get_clan_tag(server: str, clan_id: str) -> str:
                 if getdata['data'][str(clan_id)] is None:
                     raise Notfound("找不到 clan_id 对应的数据")
                 else:
-                    return '「'+str(getdata['data'][str(clan_id)]['tag'])+'」'
+                    return '「' + str(getdata['data'][str(clan_id)]['tag']) + '」'
             else:
                 raise Notfound("找不到 clan_id 对应的数据")
         else:
