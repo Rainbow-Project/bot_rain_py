@@ -1,0 +1,4 @@
+wowsApikey = ""
+weatherApikey = ""
+saucenaoApiKey = ""
+ocrApiKey = ""
