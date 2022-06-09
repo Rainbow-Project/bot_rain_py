@@ -30,7 +30,7 @@ api_wargaming_clans_clans_details = 'https://api.worldofwarships.SERVER/wows/cla
 """
 api_wows_numbers = 'https://api.wows-numbers.com/personal/rating/expected/json/'
 
-# 开发者提供的API
+# 开发者提供的API 考虑到服务器的负载，头需要的信息就找我来要吧
 
 api_wargaming_rank = 'http://wows.SERVER.intmax.top/community/accounts/tab/rank/overview/'
 
@@ -176,9 +176,9 @@ async def fun_api_get_rank_data(server: str, account_id: str) -> str:
     :param server: 服务器信息
     :param account_id: Wargaming 用户的唯一ID
     :return:
+    考虑到服务器的负载，头需要的信息就找我来要吧
     """
     headers = {
-        'X-Requested-With': 'XMLHttpRequest',
     }
     api = api_wargaming_rank.replace("SERVER", server)+account_id+"/"
     async with aiohttp.ClientSession() as session:
