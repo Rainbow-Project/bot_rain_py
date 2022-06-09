@@ -35,7 +35,7 @@ channel.author("IntMax")
 async def fun_get_me(sender_id: int) -> dict:
     """
     找找 me 是谁
-    :param sender_id: 发送者的 QQ 号
+    :param sender_id:
     :return:
     """
     dic_users = dataBase.read_user_data()
@@ -115,8 +115,8 @@ async def fun_get_ship_pr(ship: dict):
 async def fun_get_gen_pr(server: str, account_id: str):
     """
     计算账号的整体 PR
-    :param server: 服务器信息
-    :param account_id: Wargaming 的唯一 ID
+    :param server:
+    :param account_id:
     :return:
     """
     try:
@@ -196,9 +196,9 @@ async def fun_gen_img(LV: str, cl: str, name: str, bats: str, wr: str, dmg: str,
 async def fun_get_out_img_ship(server: str, account_id: str, ship_id: str):
     """
     根据 account id 和 ship id 生成可输出的单船战绩图片
-    :param server: 服务器信息
-    :param account_id: Wargaming 的唯一 ID
-    :param ship_id: 船只的唯一 ID
+    :param server:
+    :param account_id:
+    :param ship_id:
     :return:
     """
     try:
@@ -254,8 +254,8 @@ async def fun_get_out_img_ship(server: str, account_id: str, ship_id: str):
 async def fun_get_out_img_account_id(server: str, account_id: str):
     """
     根据 account id 生成可输出的战绩图片
-    :param server: 服务器信息
-    :param account_id: Wargaming 的唯一 ID
+    :param server:
+    :param account_id:
     :return:
     """
     try:
@@ -307,8 +307,8 @@ async def fun_get_out_img_account_id(server: str, account_id: str):
 async def fun_get_recent_img(server: str, account_id: str):
     """
     生成近期战绩的 img
-    :param server: 服务器信息
-    :param account_id: Wargaming 的唯一 ID
+    :param server:
+    :param account_id:
     :return:
     """
     dic_past = dataBase.read_sql_data(account_id)
@@ -347,10 +347,8 @@ async def fun_get_recent_img(server: str, account_id: str):
                 wins_recent_tmp = wins - dic_past[str(ship_id)]['wins']
                 frags_recent_tmp = frags - dic_past[str(ship_id)]['frags']
                 damage_dealt_recent_tmp = damage_dealt - dic_past[str(ship_id)]['damage_dealt']
-                pvp = {'battles': battles - dic_past[str(ship_id)]['battles'],
-                       'wins': wins - dic_past[str(ship_id)]['wins'],
-                       'frags': frags - dic_past[str(ship_id)]['frags'],
-                       'damage_dealt': damage_dealt - dic_past[str(ship_id)]['damage_dealt']}
+                pvp = {'battles': battles - dic_past[str(ship_id)]['battles'], 'wins': wins - dic_past[str(ship_id)]['wins'],
+                       'frags': frags - dic_past[str(ship_id)]['frags'], 'damage_dealt': damage_dealt - dic_past[str(ship_id)]['damage_dealt']}
                 ship_tmp['ship_id'] = ship_id
                 ship_tmp['pvp'] = pvp
                 battles_recent += battles_recent_tmp
@@ -360,107 +358,24 @@ async def fun_get_recent_img(server: str, account_id: str):
                 pr_rank, pr = await fun_get_ship_pr(ship)
                 pr_total += pr * battles_recent_tmp
         except Exception:
-            continue
+            Exception.args
     if battles_recent == 0:
         raise APIs.Notfound("近期可能无数据或无法查询")
     else:
         pr_recent = pr_total / battles_recent
         pr_rank_recent = await fun_get_pr_rank(pr_recent)
-        recent_img = await fun_gen_img("PR = " + str(round(pr_recent)), str(clan_tag), str(nickname),
-                                       str(battles_recent),
-                                       str(format(wins_recent / battles_recent, '.2%')),
-                                       str(round(damage_dealt_recent / battles_recent)), "N/A", "N/A", "N/A",
-                                       str(datetime.fromtimestamp(created_at)), pr_rank_recent)
+        recent_img = await fun_gen_img("PR = "+str(round(pr_recent)), str(clan_tag), str(nickname), str(battles_recent),
+                                 str(format(wins_recent / battles_recent, '.2%')),
+                                 str(round(damage_dealt_recent / battles_recent)), "N/A", "N/A", "N/A",
+                                 str(datetime.fromtimestamp(created_at)), pr_rank_recent)
         recent_img.save(out := BytesIO(), format='JPEG')
         return out
-
-
-async def fun_get_rank_data(server: str, account_id: str):
-    """
-    根据 account id 找 rank 的数据
-    :param server: 服务器信息
-    :param account_id: Wargaming 的唯一 ID
-    :return: 
-    """
-    try:
-        battles, winRate, xp, damage, kd = await APIs.fun_get_rank_data(server, account_id)
-        return battles, winRate, xp, damage, kd
-    except APIs.ApiError as e:
-        raise e
-    except Exception:
-        raise APIs.Notfound("数据异常，可能是本赛季没有 Rank 数据")
-
-
-async def fun_get_rank_img(server: str, account_id: str):
-    """
-    生成 rank 的图片
-    :param server:
-    :param account_id:
-    :return:
-    """
-    try:
-        nickname, created_at = await APIs.fun_get_personal_data(server, account_id, mode=1)
-    except (APIs.Notfound, APIs.ApiError) as e:
-        raise e
-    try:
-        battles, winRate, xp, damage, kd = await fun_get_rank_data(server, account_id)
-    except Exception as e:
-        raise e
-    try:
-        clan_id = await APIs.fun_get_clan_id(server, account_id)
-        clan_tag = await APIs.fun_get_clan_tag(server, clan_id)
-    except (APIs.Notfound, APIs.ApiError) as e:
-        raise e
-    except APIs.UserNoClan:
-        clan_tag = '「 」'
-    rank_img = await fun_gen_img("Rank 模式下 PR 不可用", str(clan_tag), str(nickname), str(battles), str(winRate),
-                                 str(damage), str(xp), str(kd), "N/A", str(datetime.fromtimestamp(created_at)),
-                                 "wows_unknown.jpg")
-    rank_img.save(out := BytesIO(), format='JPEG')
-    return out
-
-
-async def fun_wows_me_rank(sender_id: str):
-    """
-    处理 rank 的情况
-    :param sender_id: 发送者的 QQ 号
-    :return:
-    """
-    try:
-        userData = await fun_get_me(sender_id)
-    except APIs.Notfound:
-        raise APIs.Notfound('找不到绑定数据')
-    account_id = userData[0]
-    server = userData[1]
-    try:
-        out = await fun_get_rank_img(server, account_id)
-        return out
-    except (APIs.Notfound, APIs.ApiError) as e:
-        raise e
-
-
-async def fun_wows_username_rank(server: str, nickName: str):
-    """
-    处理 wows exboom rank 的情况 和 wows asia exboom rank 的情况
-    :param server:
-    :param nickName:
-    :return:
-    """
-    try:
-        account_id = await APIs.fun_get_userid(server, nickName)
-    except (APIs.Notfound, APIs.ApiError) as e:
-        raise e
-    try:
-        out = await fun_get_rank_img(server, account_id)
-        return out
-    except (APIs.Notfound, APIs.ApiError) as e:
-        raise e
 
 
 async def fun_wows_me_recent(sender_id: str):
     """
     处理 recent 的情况
-    :param sender_id: 发送者的 QQ 号
+    :param sender_id:
     :return:
     """
     try:
@@ -480,8 +395,8 @@ async def fun_wows_userName(server: str, nickName: str):
     """
     用来处理 wows exboom 的情况
     或者 wows asia exboom 的情况
-    :param server: 服务器信息
-    :param nickName: 用户昵称
+    :param server:
+    :param nickName:
     :return:
     """
     try:
@@ -498,8 +413,8 @@ async def fun_wows_userName(server: str, nickName: str):
 async def fun_wows_me_ship(sender_id: str, ship_id):
     """
     用来处理 wows me ship 大胆 的情况
-    :param sender_id: 发送者的 QQ 号
-    :param ship_id: 船只的唯一 ID
+    :param sender_id:
+    :param ship_id:
     :return:
     """
     try:
@@ -519,9 +434,9 @@ async def fun_wows_username_ship(server: str, nickName: str, ship_id: str):
     """
     用来处理 wows exboom ship 大胆
     和 wows asia exboom ship 大胆 的情况
-    :param ship_id: 船只的唯一 ID
-    :param server: 服务器信息
-    :param nickName: 用户昵称
+    :param ship_id:
+    :param server:
+    :param nickName:
     :return:
     """
     try:
@@ -538,7 +453,7 @@ async def fun_wows_username_ship(server: str, nickName: str, ship_id: str):
 async def fun_wows_me(sender_id: int):
     """
     用来处理 wows me 的情况
-    :param sender_id: 发送者的 QQ 号
+    :param sender_id:
     :return:
     """
     try:
@@ -643,9 +558,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
     elif len(list_cmd) == 2:
         '''
         当指令长度为2时
-        会出现wows me recent 和 wows asia exboom
-        wows me rank 
-        wows exboom rank
+        会出现wows me recent和wows asia exboom
         '''
         if list_cmd[-1] == 'recent':
             '''
@@ -653,33 +566,12 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             先看看他是否在查自己
             随后找出数据
             '''
-            if list_cmd[0] == 'me':
-                try:
-                    out = await fun_wows_me_recent(message.sender.id)
-                    await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
-                except (APIs.Notfound, APIs.ApiError) as e:
-                    await app.sendGroupMessage(group, MessageChain.create(e.args))
-            else:
-                await app.sendGroupMessage(group, MessageChain.create("暂不支持非绑定查询"))
-        elif list_cmd[-1] == 'rank':
-            '''
-            当有人尝试查询recent
-            先看看他是否在查自己
-            随后找出数据
-            '''
-            if list_cmd[0] == 'me':
-                try:
-                    out = await fun_wows_me_rank(message.sender.id)
-                    await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
-                except (APIs.Notfound, APIs.ApiError) as e:
-                    await app.sendGroupMessage(group, MessageChain.create(e.args))
-            else:
-                try:
-                    nickName = list_cmd[0]
-                    out = await fun_wows_username_rank('asia', nickName)
-                    await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
-                except (APIs.Notfound, APIs.ApiError) as e:
-                    await app.sendGroupMessage(group, MessageChain.create(e.args))
+            try:
+                out = await fun_wows_me_recent(message.sender.id)
+                await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+            except (APIs.Notfound, APIs.ApiError) as e:
+                await app.sendGroupMessage(group, MessageChain.create(e.args))
+
         elif list_cmd[0] in Server_list:
             '''
             当有人查wows asia exboom
@@ -700,7 +592,6 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
         wows me ship 大胆
         wows exboom ship 大胆
         wows set asia exboom
-        wows asia exboom rank
         '''
         if list_cmd[0] == 'me' and list_cmd[-2] == 'ship':
             """
@@ -754,14 +645,6 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                             await app.sendMessage(group, MessageChain.create("这样可没人愿意帮你找的！"))
                     except asyncio.TimeoutError:
                         await app.sendMessage(group, MessageChain.create("不说就当没有了！"))
-        elif list_cmd[0] in Server_list and list_cmd[-1] == 'rank':
-            try:
-                nickName = list_cmd[1]
-                server = list_cmd[0]
-                out = await fun_wows_username_rank(server, nickName)
-                await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
-            except (APIs.Notfound, APIs.ApiError) as e:
-                await app.sendGroupMessage(group, MessageChain.create(e.args))
         elif list_cmd[0] != 'set' and list_cmd[-2] == 'ship':
             """
             wows exboom ship 大胆
