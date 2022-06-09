@@ -55,7 +55,7 @@ def update():
         c = con.cursor()
         try:
             c.execute("DROP TABLE '%s'" % user_wows_id)
-        except:
+        except Exception:
             None
 
         c.execute('''CREATE TABLE '%s'
