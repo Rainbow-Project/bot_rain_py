@@ -43,7 +43,7 @@
 
 - 找出并修复 bug
 - 完整的异步化
-- 如果（当然不太可能）WG 修好了一些已经坏了的 API 会尝试更新（例如rank战绩的API就是坏的）[损坏的API](https://wows-numbers.com/api/status)
+- 如果（当然不太可能）WG 修好了一些已经坏了的 API 会尝试更新（例如 rank 战绩的 API 就是坏的）(但是现在通过其他方式实现了 rank)[损坏的 API](https://wows-numbers.com/api/status)
 - ~~抄其他机器人的功能~~
 
 ## 我需要做什么
