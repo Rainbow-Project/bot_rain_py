@@ -24,7 +24,7 @@ api_wargaming_account_statistics_by_date = 'https://api.worldofwarships.SERVER/w
 api_wargaming_warships_player_ship = 'https://api.worldofwarships.SERVER/wows/ships/stats/'
 api_wargaming_clans_player_clan = 'https://api.worldofwarships.SERVER/wows/clans/accountinfo/'
 api_wargaming_clans_clans_details = 'https://api.worldofwarships.SERVER/wows/clans/info/'
-api_wargaming_rank = 'https://worldofwarships.SERVER/zh-sg/community/accounts/tab/rank/overview/'
+api_wargaming_rank = 'http://wows.SERVER.intmax.top/zh-sg/community/accounts/tab/rank/overview/'
 
 """
 非 Wargaming 官方 API
