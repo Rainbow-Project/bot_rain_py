@@ -20,7 +20,7 @@
 
 ## [`Docker 版本`](https://github.com/Rainbow-Project/bot_rain_docker): Docker 版本
 
-次版本由于本人太菜无法测试，但是能跑（应该）
+此版本由于本人太菜无法测试，但是能跑（应该）
 
 如果有人知道 Docker 怎么用可以教教我
 
