@@ -37,7 +37,18 @@
 
 如果有可以写个 Issues 或 Pull requests 也可以尝试联系 QQ: 563748846 ~~可能相应会很不及时~~
 
-### 本项目中的 wows_pic 下的图片 未经许可不可修改 图标大部分著作权 @Kcuftoe
+### 本项目中的 wows_pic 下的图片 未经许可不可修改
+## 图标著作权
+@Kcuftoe
+场均伤害
+K/D
+命中率
+绘制工具IPAD
+@INTMAX
+场数
+胜率
+XP
+绘制工具 INKSCAPE
 
 ## 她能做什么
 [请移步教程](https://github.com/Rainbow-Project/bot_rain_py/wiki))
