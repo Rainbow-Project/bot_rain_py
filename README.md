@@ -18,9 +18,11 @@
   <img src="https://count.getloli.com/get/@RainBot?theme=rule34" alt="访问次数" />
 </p>
 
-# ！不完善的内容
-当前内容的准确性和可靠性得不到保证
-内容随时可能发生更改
+## [`Docker 版本`](https://github.com/Rainbow-Project/bot_rain_docker): Docker 版本
+
+次版本由于本人太菜无法测试，但是能跑（应该）
+
+如果有人知道 Docker 怎么用可以教教我
 
 ## 这是什么
 
