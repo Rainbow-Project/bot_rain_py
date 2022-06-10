@@ -37,8 +37,7 @@
 
 如果有可以写个 Issues 或 Pull requests 也可以尝试联系 QQ: 563748846 ~~可能相应会很不及时~~
 
-### 本项目中的 wows 有关图标未经许可不允许使用在其他领域图标大部分著作权 @Kcuftoe
-### 剩下一张（胜利意志）是我画的禁止商用就好
+### 本项目中的 wows_pic 下的图片 未经许可不可修改 图标大部分著作权 @Kcuftoe
 
 ## 她能做什么
 [请移步教程](https://github.com/Rainbow-Project/bot_rain_py/wiki))
