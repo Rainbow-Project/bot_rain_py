@@ -51,7 +51,7 @@ XP
 绘制工具 INKSCAPE  
 
 ## 她能做什么
-[请移步教程](https://github.com/Rainbow-Project/bot_rain_py/wiki))
+[功能展示](https://rainbow-project.github.io/pages/3c92d6/)
 
 ## 未来要做的功能有
 
@@ -61,9 +61,7 @@ XP
 
 ## 我需要做什么
 
-部署环境 更换自己的 key 然后就可以运行了
-
-还有就是 ocr 的举报很吃性能如果服务器不行还是算了吧
+[部署](https://rainbow-project.github.io/pages/606815/)
 
 ## 要是不会怎么办
 
