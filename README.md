@@ -43,9 +43,9 @@
 场均伤害  
 K/D  
 命中率  
+场数 
 绘制工具IPAD  
-@INTMAX  
-场数  
+@INTMAX   
 胜率  
 XP  
 绘制工具 INKSCAPE  
