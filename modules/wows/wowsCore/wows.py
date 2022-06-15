@@ -242,7 +242,7 @@ async def fun_get_out_img_ship(server: str, account_id: str, ship_id: str):
     try:
         KD_img = round((frags / (battles - survived_battles)), 2)
     except Exception:
-        KD_img = round((frags+1 / (battles - survived_battles)+1), 2)
+        KD_img = round((frags+1 / ((battles - survived_battles)+1)), 2)
     try:
         accuRate = format((main_battery['hits'] / main_battery['shots']), '.2%')
     except Exception:
@@ -298,7 +298,7 @@ async def fun_get_out_img_account_id(server: str, account_id: str):
     try:
         KD_img = round((frags / (battles - survived_battles)), 2)
     except Exception:
-        KD_img = round((frags + 1 / (battles - survived_battles) + 1), 2)
+        KD_img = round((frags+1 / ((battles - survived_battles)+1)), 2)
     try:
         accuRate = format((main_battery['hits'] / main_battery['shots']), '.2%')
     except Exception:
