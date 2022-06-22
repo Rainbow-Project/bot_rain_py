@@ -82,6 +82,8 @@ async def fun_api_get_player_personal_data(server: str, account_id: str) -> dict
     :param account_id: Wargaming 用户的唯一ID
     :return:
     """
+    if server == "na":
+        server = 'com'
     params = [('application_id', wowsApikey),
               ('account_id', account_id)
               ]
@@ -101,6 +103,8 @@ async def fun_api_get_player_data(server: str, nickName: str) -> dict:
     :param nickName: 用户昵称
     :return: dict of user data
     """
+    if server == "na":
+        server = 'com'
     params = [('application_id', wowsApikey),
               ('search', nickName)
               ]
@@ -120,6 +124,8 @@ async def fun_api_get_player_clan_data(server: str, account_id: str) -> dict:
     :param account_id: Wargaming 用户的唯一ID
     :return: dict
     """
+    if server == "na":
+        server = 'com'
     params = [('application_id', wowsApikey),
               ('account_id', account_id)
               ]
@@ -139,6 +145,8 @@ async def fun_api_get_clan_data(server: str, clan_id: str) -> dict:
     :param clan_id: Wargaming 军团的唯一 ID
     :return: dict
     """
+    if server == "na":
+        server = 'com'
     params = [('application_id', wowsApikey),
               ('clan_id', clan_id)
               ]
@@ -158,6 +166,8 @@ async def fun_api_get_player_ship(server: str, account_id: str) -> dict:
     :param account_id: Wargaming 用户的唯一ID
     :return:
     """
+    if server == "na":
+        server = 'com'
     params = [('application_id', wowsApikey),
               ('account_id', account_id)
               ]
@@ -217,6 +227,8 @@ async def fun_get_ship_list(server: str, account_id: str) -> list:
     :param account_id: Wargaming 用户的唯一ID
     :return:
     """
+    if server == "na":
+        server = 'com'
     try:
         getdata = await fun_api_get_player_ship(server, account_id)
         if getdata['status'] == 'ok':
