@@ -305,6 +305,8 @@ async def fun_get_personal_data(server: str, account_id: str, mode=0):
     :param account_id: Wargaming 用户的唯一ID
     :return:
     """
+    if server == "na":
+        server = 'com'
     try:
         getdata = await fun_api_get_player_personal_data(server, account_id)
         if getdata['status'] == 'ok':
