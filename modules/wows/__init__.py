@@ -10,3 +10,4 @@ from .wowsAuto.autoNavalWars import *
 from .wowsCore.wows import *
 from .wowsReport.report import *
 from .wowsCore.roll import *
+from .wowsAuto.iwarship import *

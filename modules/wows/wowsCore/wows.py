@@ -8,7 +8,6 @@
 import asyncio
 import math
 from graia.ariadne.message.chain import MessageChain
-from PIL import Image
 from PIL import Image as IMG
 from PIL import ImageDraw, ImageFont
 from graia.ariadne.app import Ariadne
