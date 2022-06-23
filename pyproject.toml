@@ -26,6 +26,7 @@ lxml = "^4.8.0"
 saucenao-api = "^2.4.0"
 easyocr = "^1.4.2"
 bs4 = "^0.0.1"
+html2image = "^2.0.1"
 
 [tool.poetry.dev-dependencies]
 
