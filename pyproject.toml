@@ -22,7 +22,7 @@ aiohttp = {version = ">=3.7.4.post0", extras = ["speedups"]}
 playwright = ">=1.17.2"
 aiofile = "^3.7.4"
 imageio = "^2.16.1"
-lxml = "^4.8.0"
+lxml = "^4.9.1"
 saucenao-api = "^2.4.0"
 easyocr = "^1.4.2"
 bs4 = "^0.0.1"
