@@ -5,7 +5,7 @@ description = ""
 authors = ["intmax"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.11"
+python = ">=3.10,<3.11"
 graia-ariadne = "^0.7.16"
 prettytable = ">=2.5.0"
 pycryptodome = ">=3.12.0"
@@ -18,12 +18,12 @@ graia-scheduler = ">=0.0.6"
 graia-saya = ">=0.0.13"
 regex = ">=2021.11.10"
 graia-broadcast = ">=0.14.5"
-aiohttp = {version = ">=3.7.4.post0", extras = ["speedups"]}
+aiohttp = {version = ">=3.8.1", extras = ["speedups"]}
 playwright = ">=1.17.2"
 aiofile = "^3.7.4"
 imageio = "^2.16.1"
 lxml = "^4.9.1"
-saucenao-api = "^2.4.0"
+saucenao-api = {git = "https://github.com/Int-0X7FFFFFFF/saucenao_api.git"}
 easyocr = "^1.4.2"
 bs4 = "^0.0.1"
 html2image = "^2.0.1"
