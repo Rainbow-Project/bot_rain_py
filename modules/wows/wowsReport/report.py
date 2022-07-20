@@ -6,9 +6,6 @@
 @Date    ：2022-06-03 7:49 p.m. 
 """
 import base64
-
-from graia.ariadne import get_running
-from graia.ariadne.adapter import Adapter
 from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage, MessageEvent
 from graia.ariadne.message.chain import MessageChain
