@@ -38,7 +38,9 @@
 如果有可以写个 Issues 或 Pull requests 也可以尝试联系 QQ: 563748846 ~~可能相应会很不及时~~
 
 ### 本项目中的 wows_pic 下的图片 未经许可不可修改
+
 ## 图标著作权
+
 @Kcuftoe  
 场均伤害  
 K/D  
@@ -48,9 +50,10 @@ K/D
 @INTMAX   
 胜率  
 XP  
-绘制工具 INKSCAPE  
+绘制工具 INKSCAPE
 
 ## 她能做什么
+
 [功能展示](https://rainbow-project.github.io/pages/3c92d6/)
 
 ## 未来要做的功能有
@@ -75,7 +78,8 @@ XP
 
 特别感谢 [`Mamoe Technologies`](https://github.com/mamoe) 给我们带来这些精彩的项目:
 
-- [`mirai`](https://github.com/mamoe/mirai) & [`mirai-console`](https://github.com/mamoe/mirai-console): 一个在全平台下运行，提供 QQ Android 和 TIM PC 协议支持的高效率机器人框架
+- [`mirai`](https://github.com/mamoe/mirai) & [`mirai-console`](https://github.com/mamoe/mirai-console): 一个在全平台下运行，提供 QQ
+  Android 和 TIM PC 协议支持的高效率机器人框架
 - [`mirai-api-http`](https://github.com/project-mirai/mirai-api-http): 为本项目提供与 mirai 交互方式的 mirai-console 插件
 
 感谢 [`GraiaProject`](https://github.com/GraiaProject) 给我们带来这些项目:
@@ -84,16 +88,20 @@ XP
 - [`Ariadne`](https://github.com/GraiaProject/Ariadne): 一个设计精巧, 协议实现完备的, 基于 mirai-api-http v2 的即时聊天软件自动化框架
 - [`Saya`](https://github.com/GraiaProject/Saya) 简洁的模块管理系统
 - [`Scheduler`](https://github.com/GraiaProject/Scheduler): 简洁的基于 `asyncio` 的定时任务实现
-- [`Application`](https://github.com/GraiaProject/Application): Ariadne 的前身，一个设计精巧, 协议实现完备的, 基于 mirai-api-http 的即时聊天软件自动化框架
+- [`Application`](https://github.com/GraiaProject/Application): Ariadne 的前身，一个设计精巧, 协议实现完备的, 基于 mirai-api-http
+  的即时聊天软件自动化框架
 
 感谢 [`GraiaCommunity`]([https://github.com/GraiaProject](https://github.com/GraiaCommunity)) 提供了优秀的社区教程和样例:
+
 - [`GraiaX 文档`](https://graiax.cn/): 优秀的社区文档，简单而易懂
 - [`EroEroBot`](https://graiax.cn/): GraiaX 社区文档示例 —— 大家最喜欢的涩图机器人
 
 本 QQ 机器人在开发中还参考了如下项目:
 
-- [`ABot`](https://github.com/djkcyl/ABot-Graia/): 一个使用 [Graia-Ariadne](https://github.com/GraiaProject/Ariadne) 搭建的 QQ 功能性~~究极缝合怪~~机器人
-- [`Xenon`](https://github.com/McZoo/Xenon): 一个优雅，用户友好的，基于 [mirai](https://github.com/mamoe/mirai) 与 [Graia Project](https://github.com/GraiaProject/) 的 QQ 机器人应用
+- [`ABot`](https://github.com/djkcyl/ABot-Graia/): 一个使用 [Graia-Ariadne](https://github.com/GraiaProject/Ariadne) 搭建的 QQ
+  功能性~~究极缝合怪~~机器人
+- [`Xenon`](https://github.com/McZoo/Xenon): 一个优雅，用户友好的，基于 [mirai](https://github.com/mamoe/mirai)
+  与 [Graia Project](https://github.com/GraiaProject/) 的 QQ 机器人应用
 - [`EroEroBot`](https://github.com/GraiaCommunity/EroEroBot): GraiaX 社区文档示例 —— 大家最喜欢的涩图机器人
 - [`A_Simple_QQ_Bot`](https://github.com/I-love-study/A_Simple_QQ_Bot): A QQ bot make by GraiaProject
 - [`redbot`](https://github.com/Redlnn/redbot): 一个以 Graia Ariadne 框架为基础的 QQ 机器人

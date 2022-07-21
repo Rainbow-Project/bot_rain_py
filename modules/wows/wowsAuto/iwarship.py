@@ -75,5 +75,5 @@ async def iWarShipUpdate(app: Ariadne):
             hti.screenshot(html_str=soup_new.prettify(), save_as=str(uuid) + '.png', size=(1024, 40 * cont))
             out = await pic_pre_process(str(uuid) + '.png')
             for group in groups:
-                await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
             os.remove(str(uuid) + '.png')

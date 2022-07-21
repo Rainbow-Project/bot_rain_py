@@ -20,9 +20,9 @@ channel = Channel.current()
     )]
 ))
 async def wather(app: Ariadne, group: Group, message: MessageChain, para: MatchResult):
-    city = para.result.asDisplay().strip() if para.matched else ''
+    city = para.result.display.strip() if para.matched else ''
     if city != '':
-        session = get_running(Adapter).session
+        session = Ariadne.service.client_session
         '''
         如果不打算用也没事
                                                                                     ｜        ｜
@@ -38,12 +38,11 @@ async def wather(app: Ariadne, group: Group, message: MessageChain, para: MatchR
         '''
 
         async with session.get(f'https://api.seniverse.com/v3/weather/now.json?key={weatherApikey}&location=CITY'
-                               '&language=zh-Hans&unit=c'.replace('CITY',city)) as resp:
+                               '&language=zh-Hans&unit=c'.replace('CITY', city)) as resp:
             res = await resp.json()
             wather_text = res['results'][0]['now']
             wa = wather_text['text']
             tem = wather_text['temperature']
-            bot_message = await app.sendMessage(group, MessageChain.create(f'今天{city}天气'
+            bot_message = await app.send_message(group, MessageChain(f'今天{city}天气'
                                                                            f'\n{wa}'
                                                                            f'温度{tem}'))
-

@@ -15,7 +15,7 @@ from graia.ariadne.message.parser.twilight import (FullMatch, MatchResult,
 from graia.ariadne.model import Group, Member
 from graia.saya import Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from PIL import Image as IMG, ImageFilter,ImageDraw
+from PIL import Image as IMG, ImageFilter, ImageDraw
 
 channel = Channel.current()
 
@@ -35,11 +35,12 @@ async def throw(file, squish=0):
     avatar.putalpha(mask)
     avatar = avatar.rotate(random.randint(1, 360), IMG.BICUBIC)
     avatar = avatar.resize((143, 143), IMG.ANTIALIAS)
-    throw = IMG.open(Path(__file__).parent/'throw.png')
+    throw = IMG.open(Path(__file__).parent / 'throw.png')
     throw.paste(avatar, (15, 178), mask=avatar)
     throw = throw.convert('RGB')
     throw.save(output := BytesIO(), format='jpeg')
     return output
+
 
 @channel.use(ListenerSchema(
     listening_events=[GroupMessage],
@@ -51,4 +52,4 @@ async def throw_main(app: Ariadne, group: Group, member: Member, para: MatchResu
     async with aiohttp.request("GET", profile_url) as r:
         profile = BytesIO(await r.read())
     pic = await throw(profile)
-    await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=pic.getvalue())]))
+    await app.send_group_message(group, MessageChain([Image(data_bytes=pic.getvalue())]))

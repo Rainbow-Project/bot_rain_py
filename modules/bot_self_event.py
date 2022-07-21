@@ -25,4 +25,3 @@ async def inv(app: Ariadne, event: BotInvitedJoinGroupRequestEvent):
         event.accept()
     else:
         event.reject()
-

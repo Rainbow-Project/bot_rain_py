@@ -15,7 +15,7 @@ from graia.ariadne.message.parser.twilight import (FullMatch, MatchResult,
 from graia.ariadne.model import Group, Member
 from graia.saya import Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from PIL import Image as IMG, ImageFilter,ImageDraw
+from PIL import Image as IMG, ImageFilter, ImageDraw
 
 channel = Channel.current()
 
@@ -57,6 +57,7 @@ async def swallow(file, squish=0):
     imageio.mimsave(output := BytesIO(), frames, format='gif', duration=0.06)
     return output
 
+
 @channel.use(ListenerSchema(
     listening_events=[GroupMessage],
     inline_dispatchers=[Twilight([FullMatch("吞"), WildcardMatch() @ "para"])]
@@ -67,4 +68,4 @@ async def swallow_main(app: Ariadne, group: Group, member: Member, para: MatchRe
     async with aiohttp.request("GET", profile_url) as r:
         profile = BytesIO(await r.read())
     pic = await swallow(profile)
-    await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=pic.getvalue())]))
+    await app.send_group_message(group, MessageChain([Image(data_bytes=pic.getvalue())]))

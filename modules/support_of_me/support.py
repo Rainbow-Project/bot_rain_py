@@ -24,7 +24,7 @@ channel.author("IMT_MAX")
 
 async def support(file, squish=0):
     avatar = IMG.open(file).convert("RGBA")
-    support = IMG.open(Path(__file__).parent/'support.png')
+    support = IMG.open(Path(__file__).parent / 'support.png')
     frame = IMG.new('RGBA', (1293, 1164), (255, 255, 255, 0))
     avatar = avatar.resize((815, 815), IMG.ANTIALIAS).rotate(23, expand=True)
     frame.paste(avatar, (-172, -17))
@@ -32,6 +32,7 @@ async def support(file, squish=0):
     frame = frame.convert('RGB')
     frame.save(ret := BytesIO(), format='jpeg')
     return ret
+
 
 @channel.use(ListenerSchema(
     listening_events=[GroupMessage],
@@ -43,4 +44,4 @@ async def support_main(app: Ariadne, group: Group, member: Member, para: MatchRe
     async with aiohttp.request("GET", profile_url) as r:
         profile = BytesIO(await r.read())
     pic = await support(profile)
-    await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=pic.getvalue())]))
+    await app.send_group_message(group, MessageChain([Image(data_bytes=pic.getvalue())]))

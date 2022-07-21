@@ -29,20 +29,22 @@ prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = prop.get_name()
 plt.rcParams['mathtext.fontset'] = 'cm'  # 'cm' (Computer Modern)
 
+
 @channel.use(ListenerSchema(
     listening_events=[GroupMessage],
     inline_dispatchers=[Twilight.from_command("COVID-19")]
 ))
 async def COVID(app: Ariadne, group: Group):
     top_10, img = await get_COVID_19()
-    await app.sendGroupMessage(group, MessageChain.create([
-        Plain("新型冠状病毒前10:\n"+"\n".join(top_10)),
+    await app.send_group_message(group, MessageChain([
+        Plain("新型冠状病毒前10:\n" + "\n".join(top_10)),
         Image(data_bytes=img)
     ]))
 
+
 async def get_COVID_19(pic=True):
-    headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
-                       'Chrome/81.0.4044.69 Safari/537.36 Edg/81.0.416.34'}
+    headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
+                             'Chrome/81.0.4044.69 Safari/537.36 Edg/81.0.416.34'}
     async with aiohttp.request("GET", "https://c.m.163.com/ug/api/wuhan/app/data/list-total", headers=headers) as r:
         reponse = await r.json()
     country_total = reponse['data']['areaTree']
@@ -74,7 +76,7 @@ async def get_COVID_19(pic=True):
         width = 0.5
         # 绘制柱状图, 每根柱子的颜色
         plt.bar(index, y1, width, label="昨日累计人数", color="#FF0000")
-        plt.bar(index, y2, width, label="今日新增人数", color="#FF8C00",bottom=y1)
+        plt.bar(index, y2, width, label="今日新增人数", color="#FF8C00", bottom=y1)
         # 设置横轴标签
         plt.xlabel('各个国家')
         # 设置纵轴标签
@@ -86,14 +88,13 @@ async def get_COVID_19(pic=True):
         # 添加图例
         plt.legend(loc="upper right")
 
-
         for a, b, c in zip(index, y1, y2):
-            plt.text(a, b + c + 0.05 , str(b + c),
-             ha='center', va='bottom', fontsize=10)
+            plt.text(a, b + c + 0.05, str(b + c),
+                     ha='center', va='bottom', fontsize=10)
 
         read = BytesIO()
-        plt.savefig(read, format = "png", bbox_inches='tight')
+        plt.savefig(read, format="png", bbox_inches='tight')
         plt.clf()
-        return get,read.getvalue()
+        return get, read.getvalue()
     else:
         return get

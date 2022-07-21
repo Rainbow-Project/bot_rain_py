@@ -190,7 +190,7 @@ async def fun_api_get_rank_data(server: str, account_id: str) -> str:
     """
     headers = {
     }
-    api = api_wargaming_rank.replace("SERVER", server)+account_id+"/"
+    api = api_wargaming_rank.replace("SERVER", server) + account_id + "/"
     async with aiohttp.ClientSession() as session:
         async with session.get(api, headers=headers) as resp:
             if 200 == resp.status:

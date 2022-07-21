@@ -241,7 +241,7 @@ async def fun_get_out_img_ship(server: str, account_id: str, ship_id: str):
     try:
         KD_img = round((frags / (battles - survived_battles)), 2)
     except Exception:
-        KD_img = round((frags+1 / ((battles - survived_battles)+1)), 2)
+        KD_img = round((frags + 1 / ((battles - survived_battles) + 1)), 2)
     try:
         accuRate = format((main_battery['hits'] / main_battery['shots']), '.2%')
     except Exception:
@@ -297,7 +297,7 @@ async def fun_get_out_img_account_id(server: str, account_id: str):
     try:
         KD_img = round((frags / (battles - survived_battles)), 2)
     except Exception:
-        KD_img = round((frags+1 / ((battles - survived_battles)+1)), 2)
+        KD_img = round((frags + 1 / ((battles - survived_battles) + 1)), 2)
     try:
         accuRate = format((main_battery['hits'] / main_battery['shots']), '.2%')
     except Exception:
@@ -607,7 +607,7 @@ def fun_get_reply(ship_list: list):
     )]
 ))
 async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMessage, member: Member):
-    int_str = para.result.asDisplay().strip() if para.matched else ''
+    int_str = para.result.display.strip() if para.matched else ''
     list_cmd = int_str.split()
     Server_list = ["asia", "eu", "na", "ru"]
     '''
@@ -622,28 +622,28 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             '''
             try:
                 out = await fun_wows_me(message.sender.id)
-                await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
             except (APIs.Notfound, APIs.ApiError) as e:
-                await app.sendGroupMessage(group, MessageChain.create(e.args))
+                await app.send_group_message(group, MessageChain(e.args))
         elif list_cmd[0] == 'help':
             """
             简易的help
             """
-            await app.sendGroupMessage(group, MessageChain.create("完整指令请尝试/help\n"
+            await app.send_group_message(group, MessageChain("完整指令请尝试/help\n"
                                                                   "wows set 服务器 你的wows名字"
                                                                   "\n服务器从[asia, eu, na, ru]中选择"))
         elif list_cmd[0] == '正常模式' and message.sender.id == 563748846:
             dataBase.set_dev("0")
-            await app.sendGroupMessage(group, MessageChain.create("已修改"))
+            await app.send_group_message(group, MessageChain("已修改"))
         else:
             '''wows exboom 默认去找亚服当exboom'''
             nickName = list_cmd[0]
             server = "asia"
             try:
                 out = await fun_wows_userName(server, nickName)
-                await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
             except (APIs.Notfound, APIs.ApiError) as e:
-                await app.sendGroupMessage(group, MessageChain.create(e.args))
+                await app.send_group_message(group, MessageChain(e.args))
 
     elif len(list_cmd) == 2:
         '''
@@ -661,11 +661,11 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             if list_cmd[0] == 'me':
                 try:
                     out = await fun_wows_me_recent(message.sender.id)
-                    await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                    await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                 except (APIs.Notfound, APIs.ApiError) as e:
-                    await app.sendGroupMessage(group, MessageChain.create(e.args))
+                    await app.send_group_message(group, MessageChain(e.args))
             else:
-                await app.sendGroupMessage(group, MessageChain.create("暂不支持非绑定查询"))
+                await app.send_group_message(group, MessageChain("暂不支持非绑定查询"))
         elif list_cmd[-1] == 'rank':
             '''
             当有人尝试查询recent
@@ -675,16 +675,16 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             if list_cmd[0] == 'me':
                 try:
                     out = await fun_wows_me_rank(message.sender.id)
-                    await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                    await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                 except (APIs.Notfound, APIs.ApiError) as e:
-                    await app.sendGroupMessage(group, MessageChain.create(e.args))
+                    await app.send_group_message(group, MessageChain(e.args))
             else:
                 try:
                     nickName = list_cmd[0]
                     out = await fun_wows_username_rank('asia', nickName)
-                    await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                    await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                 except (APIs.Notfound, APIs.ApiError) as e:
-                    await app.sendGroupMessage(group, MessageChain.create(e.args))
+                    await app.send_group_message(group, MessageChain(e.args))
         elif list_cmd[0] in Server_list:
             '''
             当有人查wows asia exboom
@@ -694,11 +694,11 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             server = list_cmd[0]
             try:
                 out = await fun_wows_userName(server, nickName)
-                await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
             except (APIs.Notfound, APIs.ApiError) as e:
-                await app.sendGroupMessage(group, MessageChain.create(e.args))
+                await app.send_group_message(group, MessageChain(e.args))
         else:
-            await app.sendGroupMessage(group, MessageChain.create("未知指令"))
+            await app.send_group_message(group, MessageChain("未知指令"))
     elif len(list_cmd) == 3:
         '''
         当指令为3时可能出现
@@ -716,24 +716,24 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             if ship_id != '':
                 try:
                     out = await fun_wows_me_ship(str(message.sender.id), ship_id)
-                    await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                    await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                 except (APIs.Notfound, APIs.ApiError) as e:
-                    await app.sendGroupMessage(group, MessageChain.create(e.args))
+                    await app.send_group_message(group, MessageChain(e.args))
             else:
                 shipInputName = shipInputName.upper()
                 ship_list = fun_fuzzy_finder(shipInputName)
                 if len(ship_list) < 1:
-                    await app.sendMessage(group, MessageChain.create("猜不到你想找什么船"))
+                    await app.send_message(group, MessageChain("猜不到你想找什么船"))
                 elif len(ship_list) == 1:
                     ship_id = dataBase.get_ship_id(ship_list[0])
                     try:
                         out = await fun_wows_me_ship(str(message.sender.id), ship_id)
-                        await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                        await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                     except (APIs.Notfound, APIs.ApiError) as e:
-                        await app.sendGroupMessage(group, MessageChain.create(e.args))
+                        await app.send_group_message(group, MessageChain(e.args))
                 elif 1 < len(ship_list) <= 5:
                     msg_reply = fun_get_reply(ship_list)
-                    await app.sendGroupMessage(group, MessageChain.create(msg_reply))
+                    await app.send_group_message(group, MessageChain(msg_reply))
 
                     @Waiter.create_using_function([GroupMessage])
                     async def InterruptWaiter(g: Group, m: Member, msg: MessageChain):
@@ -742,7 +742,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
 
                     try:
                         rep_msg: message = await interrupt.wait(InterruptWaiter, timeout=15)
-                        rep_str: str = rep_msg.asDisplay()
+                        rep_str: str = rep_msg.display
                         lenList = len(ship_list)
                         rep_int = int(rep_str)
                         if 0 < rep_int <= lenList:
@@ -752,21 +752,21 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                             """
                             try:
                                 out = await fun_wows_me_ship(str(message.sender.id), ship_id)
-                                await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                                await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                             except (APIs.Notfound, APIs.ApiError) as e:
-                                await app.sendGroupMessage(group, MessageChain.create(e.args))
+                                await app.send_group_message(group, MessageChain(e.args))
                         else:
-                            await app.sendMessage(group, MessageChain.create("这样可没人愿意帮你找的！"))
+                            await app.send_message(group, MessageChain("这样可没人愿意帮你找的！"))
                     except asyncio.TimeoutError:
-                        await app.sendMessage(group, MessageChain.create("不说就当没有了！"))
+                        await app.send_message(group, MessageChain("不说就当没有了！"))
         elif list_cmd[0] in Server_list and list_cmd[-1] == 'rank':
             try:
                 nickName = list_cmd[1]
                 server = list_cmd[0]
                 out = await fun_wows_username_rank(server, nickName)
-                await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
             except (APIs.Notfound, APIs.ApiError) as e:
-                await app.sendGroupMessage(group, MessageChain.create(e.args))
+                await app.send_group_message(group, MessageChain(e.args))
         elif list_cmd[0] != 'set' and list_cmd[-2] == 'ship':
             """
             wows exboom ship 大胆
@@ -778,9 +778,9 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             if ship_id != '':
                 try:
                     out = await fun_wows_username_ship(server, nickName, ship_id)
-                    await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                    await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                 except (APIs.Notfound, APIs.ApiError) as e:
-                    await app.sendGroupMessage(group, MessageChain.create(e.args))
+                    await app.send_group_message(group, MessageChain(e.args))
             else:
                 """
                 模糊搜索
@@ -788,17 +788,17 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                 shipInputName = shipInputName.upper()
                 ship_list = fun_fuzzy_finder(shipInputName)
                 if len(ship_list) < 1:
-                    await app.sendMessage(group, MessageChain.create("猜不到你想找什么船"))
+                    await app.send_message(group, MessageChain("猜不到你想找什么船"))
                 elif len(ship_list) == 1:
                     ship_id = dataBase.get_ship_id(ship_list[0])
                     try:
                         out = await fun_wows_me_ship(str(message.sender.id), ship_id)
-                        await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                        await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                     except (APIs.Notfound, APIs.ApiError) as e:
-                        await app.sendGroupMessage(group, MessageChain.create(e.args))
+                        await app.send_group_message(group, MessageChain(e.args))
                 elif 1 < len(ship_list) <= 5:
                     msg_reply = fun_get_reply(ship_list)
-                    await app.sendGroupMessage(group, MessageChain.create(msg_reply))
+                    await app.send_group_message(group, MessageChain(msg_reply))
 
                     @Waiter.create_using_function([GroupMessage])
                     async def InterruptWaiter(g: Group, m: Member, msg: MessageChain):
@@ -807,7 +807,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
 
                     try:
                         rep_msg: message = await interrupt.wait(InterruptWaiter, timeout=15)
-                        rep_str: str = rep_msg.asDisplay()
+                        rep_str: str = rep_msg.display
                         lenList = len(ship_list)
                         rep_int = int(rep_str)
                         if 0 < rep_int <= lenList:
@@ -817,13 +817,13 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                             """
                             try:
                                 out = await fun_wows_username_ship(server, nickName, ship_id)
-                                await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                                await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                             except (APIs.Notfound, APIs.ApiError) as e:
-                                await app.sendGroupMessage(group, MessageChain.create(e.args))
+                                await app.send_group_message(group, MessageChain(e.args))
                         else:
-                            await app.sendMessage(group, MessageChain.create("这样可没人愿意帮你找的！"))
+                            await app.send_message(group, MessageChain("这样可没人愿意帮你找的！"))
                     except asyncio.TimeoutError:
-                        await app.sendMessage(group, MessageChain.create("不说就当没有了！"))
+                        await app.send_message(group, MessageChain("不说就当没有了！"))
         elif list_cmd[0] == 'set' and list_cmd[-2] in Server_list:
             if not dataBase.get_dev():
                 server = list_cmd[1]
@@ -832,15 +832,15 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                     account_id = await APIs.fun_get_userid(server, nickName)
                     try:
                         dataBase.add_user(message.sender.id, account_id, server)
-                        await app.sendGroupMessage(group, MessageChain.create("绑定成功"))
+                        await app.send_group_message(group, MessageChain("绑定成功"))
                     except Exception as e:
-                        await app.sendGroupMessage(group, MessageChain.create(e.args))
+                        await app.send_group_message(group, MessageChain(e.args))
                 except (APIs.Notfound, APIs.ApiError) as e:
-                    await app.sendGroupMessage(group, MessageChain.create(e.args))
+                    await app.send_group_message(group, MessageChain(e.args))
             else:
-                await app.sendGroupMessage(group, MessageChain.create("无法在开发状态下绑定"))
+                await app.send_group_message(group, MessageChain("无法在开发状态下绑定"))
         else:
-            await app.sendGroupMessage(group, MessageChain.create("未知指令"))
+            await app.send_group_message(group, MessageChain("未知指令"))
     elif len(list_cmd) == 4:
         '''
         当指令为4时可能出现
@@ -854,9 +854,9 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
             if ship_id != '':
                 try:
                     out = await fun_wows_username_ship(server, nickName, ship_id)
-                    await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                    await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                 except (APIs.Notfound, APIs.ApiError) as e:
-                    await app.sendGroupMessage(group, MessageChain.create(e.args))
+                    await app.send_group_message(group, MessageChain(e.args))
             else:
                 """
                 模糊搜索
@@ -864,17 +864,17 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                 shipInputName = shipInputName.upper()
                 ship_list = fun_fuzzy_finder(shipInputName)
                 if len(ship_list) < 1:
-                    await app.sendMessage(group, MessageChain.create("猜不到你想找什么船"))
+                    await app.send_message(group, MessageChain("猜不到你想找什么船"))
                 elif len(ship_list) == 1:
                     ship_id = dataBase.get_ship_id(ship_list[0])
                     try:
                         out = await fun_wows_me_ship(str(message.sender.id), ship_id)
-                        await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                        await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                     except (APIs.Notfound, APIs.ApiError) as e:
-                        await app.sendGroupMessage(group, MessageChain.create(e.args))
+                        await app.send_group_message(group, MessageChain(e.args))
                 elif 1 < len(ship_list) <= 5:
                     msg_reply = fun_get_reply(ship_list)
-                    await app.sendGroupMessage(group, MessageChain.create(msg_reply))
+                    await app.send_group_message(group, MessageChain(msg_reply))
 
                     @Waiter.create_using_function([GroupMessage])
                     async def InterruptWaiter(g: Group, m: Member, msg: MessageChain):
@@ -883,7 +883,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
 
                     try:
                         rep_msg: message = await interrupt.wait(InterruptWaiter, timeout=15)
-                        rep_str: str = rep_msg.asDisplay()
+                        rep_str: str = rep_msg.display
                         lenList = len(ship_list)
                         rep_int = int(rep_str)
                         if 0 < rep_int <= lenList:
@@ -893,15 +893,15 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, message: GroupMess
                             """
                             try:
                                 out = await fun_wows_username_ship(server, nickName, ship_id)
-                                await app.sendGroupMessage(group, MessageChain.create(Image(data_bytes=out.getvalue())))
+                                await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
                             except (APIs.Notfound, APIs.ApiError) as e:
-                                await app.sendGroupMessage(group, MessageChain.create(e.args))
+                                await app.send_group_message(group, MessageChain(e.args))
                         else:
-                            await app.sendMessage(group, MessageChain.create("这样可没人愿意帮你找的！"))
+                            await app.send_message(group, MessageChain("这样可没人愿意帮你找的！"))
                     except asyncio.TimeoutError:
-                        await app.sendMessage(group, MessageChain.create("不说就当没有了！"))
+                        await app.send_message(group, MessageChain("不说就当没有了！"))
 
         else:
-            await app.sendGroupMessage(group, MessageChain.create("未知指令"))
+            await app.send_group_message(group, MessageChain("未知指令"))
     else:
-        await app.sendGroupMessage(group, MessageChain.create("过多或过少的参数"))
+        await app.send_group_message(group, MessageChain("过多或过少的参数"))
