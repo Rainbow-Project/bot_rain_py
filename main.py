@@ -13,7 +13,7 @@ from graia.scheduler.saya import GraiaSchedulerBehaviour
 
 app = Ariadne(
     connection=config(
-        214047076,  # 你的机器人的 qq 号
+        1829414471,  # 你的机器人的 qq 号
         "HELLO",  # 填入你的 mirai-api-http 配置中的 verifyKey
         # 以下两行（不含注释）里的 host 参数的地址
         # 是你的 mirai-api-http 地址中的地址与端口
