@@ -17,4 +17,4 @@ channel = Channel.current()
 
 @channel.use(SchedulerSchema(timers.crontabify("30 2 * * * 30")))
 async def wows_auto_update(app: Ariadne):
-    update()
+    await update()
