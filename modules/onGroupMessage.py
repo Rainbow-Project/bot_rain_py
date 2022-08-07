@@ -30,7 +30,7 @@ async def gm(app: Ariadne, group: Group, message: MessageChain, message2: GroupM
                                                                  \/
          '''
     elif str(message) == "强制更新" and message2.sender.id == 563748846:
-        update()
+        await update()
         await app.send_message(
             group,
             MessageChain('强制更新完成'),
