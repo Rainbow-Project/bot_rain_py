@@ -24,6 +24,14 @@ caio = ">=0.9.0,<0.10.0"
 develop = ["aiomisc", "asynctest", "pytest", "pytest-cov"]
 
 [[package]]
+name = "aiofiles"
+version = "0.8.0"
+description = "File support for asyncio."
+category = "main"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[[package]]
 name = "aiohttp"
 version = "3.8.1"
 description = "Async http client/server framework (asyncio)"
@@ -56,6 +64,17 @@ python-versions = ">=3.6"
 
 [package.dependencies]
 frozenlist = ">=1.1.0"
+
+[[package]]
+name = "aiosqlite"
+version = "0.17.0"
+description = "asyncio bridge to the standard sqlite3 module"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+typing_extensions = ">=3.7.2"
 
 [[package]]
 name = "async-timeout"
@@ -319,26 +338,27 @@ uvicorn = ["uvicorn (>=0.17.6,<1.0.0)"]
 
 [[package]]
 name = "graia-ariadne"
-version = "0.7.16"
+version = "0.8.1"
 description = "Another elegant Python QQ Bot framework for mirai and mirai-api-http v2."
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 
 [package.dependencies]
-aiohttp = ">=3.7.4,<4.0.0"
-creart-graia = ">=0.1.4,<0.2.0"
+aiohttp = ">=3.7,<4.0"
+creart-graia = ">=0.1.4,<1.0.0"
 graia-amnesia = ">=0.5.2,<0.6.0"
-graia-broadcast = ">=0.18.0,<0.19.0"
-pydantic = ">=1.8.2,<2.0.0"
+graia-broadcast = ">=0.18,<1.0"
+launart = ">=0.6.0,<1.0.0"
+pydantic = ">=1.8,<2.0"
 typing-extensions = ">=4.0,<5.0"
 
 [package.extras]
-standard = ["richuru (>=0.1.0,<0.2.0)", "graia-scheduler (>=0.0,<0.1)", "graia-saya (>=0.0,<0.1)"]
-full = ["richuru (>=0.1.0,<0.2.0)", "arclet-alconna-graia", "graia-scheduler (>=0.0,<0.1)", "graia-saya (>=0.0,<0.1)"]
+standard = ["graia-saya (>=0.0,<1.0)", "graia-scheduler (>=0.0,<1.0)", "richuru (>=0.1,<1.0)"]
+graia = ["graia-saya (>=0.0,<1.0)", "graia-scheduler (>=0.0,<1.0)"]
+full = ["arclet-alconna-graia", "graia-saya (>=0.0,<1.0)", "graia-scheduler (>=0.0,<1.0)", "richuru (>=0.1,<1.0)"]
+fastapi = ["uvicorn[standard] (>=0.17.5,<1.0.0)", "fastapi (>=0.74.1,<1.0.0)"]
 alconna = ["arclet-alconna-graia"]
-graia = ["graia-scheduler (>=0.0,<0.1)", "graia-saya (>=0.0,<0.1)"]
-fastapi = ["fastapi (>=0.74.1,<1.0.0)", "uvicorn[standard] (>=0.17.5,<0.18.0)"]
 
 [[package]]
 name = "graia-broadcast"
@@ -438,8 +458,8 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "launart"
-version = "0.5.0"
-description = ""
+version = "0.6.0"
+description = "Component lifetime manager for runtime."
 category = "main"
 optional = false
 python-versions = ">=3.8"
@@ -450,6 +470,31 @@ statv = ">=0.2.2"
 
 [package.extras]
 saya = ["graia-saya (>=0.0.16)"]
+
+[[package]]
+name = "line-profiler"
+version = "3.5.1"
+description = "Line-by-line profiler."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+all = ["cython", "scikit-build", "cmake", "ninja", "pytest (>=4.6.11)", "pytest-cov (>=2.10.1)", "coverage[toml] (>=5.3)", "ubelt (>=1.0.1)", "IPython (>=0.13,<7.17.0)", "IPython (>=0.13)"]
+build = ["cython", "scikit-build", "cmake", "ninja"]
+ipython = ["IPython (>=0.13,<7.17.0)", "IPython (>=0.13)"]
+tests = ["pytest (>=4.6.11)", "pytest-cov (>=2.10.1)", "coverage[toml] (>=5.3)", "ubelt (>=1.0.1)", "IPython (>=0.13,<7.17.0)", "IPython (>=0.13)"]
+
+[[package]]
+name = "line-profiler-pycharm"
+version = "1.1.0"
+description = "PyCharm Line Profiler helper package with which one can visualize profiles from the 'line-profiler' into PyCharm"
+category = "main"
+optional = false
+python-versions = ">=3"
+
+[package.dependencies]
+line-profiler = "*"
 
 [[package]]
 name = "loguru"
@@ -566,7 +611,7 @@ tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "pa
 
 [[package]]
 name = "playwright"
-version = "1.23.1"
+version = "1.24.0"
 description = "A high-level API to automate web browsers"
 category = "main"
 optional = false
@@ -1038,7 +1083,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10,<3.11"
-content-hash = "06e60dfd52cf4a4782721243f0f66cba2f334fbe56a7961d1c10785cb1b52a53"
+content-hash = "d55253428e3e322bc5951eda6643b4bb013cc76f3d512cc40e9a380d14299ed4"
 
 [metadata.files]
 aiodns = [
@@ -1049,6 +1094,7 @@ aiofile = [
     {file = "aiofile-3.7.4-py3-none-any.whl", hash = "sha256:0e2a524e4714efda47ce8964b13d4da94cf553411f9f6da813df615a4cd73d95"},
     {file = "aiofile-3.7.4.tar.gz", hash = "sha256:0aefa1d91d000d3a20a515d153db2ebf713076c7c94edf2fca85d3d83316abc5"},
 ]
+aiofiles = []
 aiohttp = [
     {file = "aiohttp-3.8.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:1ed0b6477896559f17b9eaeb6d38e07f7f9ffe40b9f0f9627ae8b9926ae260a8"},
     {file = "aiohttp-3.8.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:7dadf3c307b31e0e61689cbf9e06be7a867c563d5a63ce9dca578f956609abf8"},
@@ -1127,6 +1173,7 @@ aiosignal = [
     {file = "aiosignal-1.2.0-py3-none-any.whl", hash = "sha256:26e62109036cd181df6e6ad646f91f0dcfd05fe16d0cb924138ff2ab75d64e3a"},
     {file = "aiosignal-1.2.0.tar.gz", hash = "sha256:78ed67db6c7b7ced4f98e495e572106d5c432a93e1ddd1bf475e1dc05f5b7df2"},
 ]
+aiosqlite = []
 async-timeout = [
     {file = "async-timeout-4.0.2.tar.gz", hash = "sha256:2163e1640ddb52b7a8c80d0a67a08587e5d245cc9c553a74a847056bc2976b15"},
     {file = "async_timeout-4.0.2-py3-none-any.whl", hash = "sha256:8ca1e4fcf50d07413d66d1a5e416e42cfdf5851c981d679a09851a6853383b3c"},
@@ -1393,6 +1440,8 @@ idna = [
 imageio = []
 kiwisolver = []
 launart = []
+line-profiler = []
+line-profiler-pycharm = []
 loguru = [
     {file = "loguru-0.6.0-py3-none-any.whl", hash = "sha256:4e2414d534a2ab57573365b3e6d0234dfb1d84b68b7f3b948e6fb743860a77c3"},
     {file = "loguru-0.6.0.tar.gz", hash = "sha256:066bd06758d0a513e9836fd9c6b5a75bfb3fd36841f4b996bc60b547a309d41c"},
