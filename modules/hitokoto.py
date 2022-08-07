@@ -13,7 +13,7 @@ channel = Channel.current()
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def hitokoto(app: Ariadne, group: Group, message: MessageChain):
     if "一言" in str(message):
-        session = get_running(Adapter).session
+        session = Ariadne.service.client_session
         async with session.get("https://v1.hitokoto.cn/?c=i&encode=text") as resp:
             res = await resp.text()
-            bot_message = await app.sendMessage(group, MessageChain.create(res))
+            bot_message = await app.send_message(group, MessageChain(res))

@@ -42,29 +42,29 @@ apikey = saucenaoApiKey
                        ]),
                    ]))
 async def saucenao(app: Ariadne, group: Group, member: Member, img: ElementResult, source: Source):
-    await app.sendGroupMessage(group, MessageChain.create("我正在使用色图雷达"), quote=source.id)
+    await app.send_group_message(group, MessageChain("我正在使用色图雷达"), quote=source.id)
     async with AIOSauceNao(apikey, numres=3) as snao:
         try:
             results = await snao.from_url(img.result.url)
         except SauceNaoApiError as e:
-            await app.sendMessage(group, MessageChain.create("搜索失败desu"))
+            await app.send_message(group, MessageChain("搜索失败desu"))
             return
 
-    fwd_nodeList = []
+    fwd_node_list = []
     for results in results.results:
         if len(results.urls) == 0:
             continue
         urls = "\n".join(results.urls)
-        fwd_nodeList.append(
+        fwd_node_list.append(
             ForwardNode(
                 target=app.account,
-                senderName="猜猜我是谁",
+                sender_name="猜猜我是谁",
                 time=datetime.now(),
-                message=MessageChain.create(
+                message=MessageChain(
                     f"相似度：{results.similarity}%\n标题：{results.title}\n节点名：{results.index_name}\n链接：{urls}"
                 )))
 
-    if len(fwd_nodeList) == 0:
-        await app.sendMessage(group, MessageChain.create("未找到有价值的数据"), quote=source.id)
+    if len(fwd_node_list) == 0:
+        await app.send_message(group, MessageChain("未找到有价值的数据"), quote=source.id)
     else:
-        await app.sendMessage(group, MessageChain.create(Forward(nodeList=fwd_nodeList)))
+        await app.send_message(group, MessageChain(Forward(node_list=fwd_node_list)))

@@ -47,15 +47,16 @@ squish_factor = [
 # 最大挤压时每一帧模板向下偏移的量
 squish_translation_factor = [0, 20, 34, 21, 0]
 
+
 def make_petpet(file, squish=0):
     profile_pic = IMG.open(file)
-    hands = IMG.open(Path(__file__).parent/'sprite.png')
+    hands = IMG.open(Path(__file__).parent / 'sprite.png')
     gifs = []
-    for i,spec in enumerate(frame_spec):
+    for i, spec in enumerate(frame_spec):
         # 将位置添加偏移量
         for j, s in enumerate(spec):
             spec[j] = int(s + squish_factor[i][j] * squish)
-        hand = hands.crop((112*i,0,112*(i+1),112))
+        hand = hands.crop((112 * i, 0, 112 * (i + 1), 112))
         reprofile = profile_pic.resize(
             (int((spec[2] - spec[0]) * 1.2), int((spec[3] - spec[1]) * 1.2)),
             IMG.ANTIALIAS)
@@ -65,6 +66,7 @@ def make_petpet(file, squish=0):
         gifs.append(gif_frame)
     imageio.mimsave(ret := BytesIO(), gifs, format="gif", fps=25, subrectangles=True)
     return ret
+
 
 @channel.use(ListenerSchema(
     listening_events=[GroupMessage],
@@ -76,4 +78,4 @@ async def petpet(app: Ariadne, group: Group, member: Member, para: MatchResult):
     async with aiohttp.request("GET", profile_url) as r:
         profile = BytesIO(await r.read())
     gif = make_petpet(profile)
-    await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=gif.getvalue())]))
+    await app.send_group_message(group, MessageChain([Image(data_bytes=gif.getvalue())]))

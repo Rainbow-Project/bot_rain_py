@@ -62,7 +62,7 @@ def ocr_read(file):
 ))
 async def report(app: Ariadne, group: Group, message: MessageChain, para: MatchResult):
     if offline:
-        # await app.sendMessage(group, MessageChain.create('OCR检测开始'))
+        # await app.send_message(group, MessageChain('OCR检测开始'))
         target = para.result.getFirst(At).target
         org_element: Quote = message[1]
         message_id = org_element.id
@@ -75,12 +75,12 @@ async def report(app: Ariadne, group: Group, message: MessageChain, para: MatchR
         dic_ship = get_ship_data()
         for res_sig in res:
             if res_sig in dic_ship.keys():
-                await app.sendMessage(group,
-                                      MessageChain.create(f'检测到船只 {res_sig}'))
+                await app.send_message(group,
+                                      MessageChain(f'检测到船只 {res_sig}'))
                 try:
-                    await app.muteMember(group, target, 3600)
+                    await app.mute_member(group, target, 3600)
                 except PermissionError:
-                    await app.sendGroupMessage(group, MessageChain.create('ERROR:权限不足'))
+                    await app.send_group_message(group, MessageChain('ERROR:权限不足'))
                 break
     else:
         target = para.result.getFirst(At).target
@@ -92,17 +92,17 @@ async def report(app: Ariadne, group: Group, message: MessageChain, para: MatchR
         input = BytesIO(await org_img.get_bytes())
         out = pic_cut(input)
         url: str = org_img.url
-        session = get_running(Adapter).session
+        session = Ariadne.service.client_session
         async with session.get(API.replace('APIKEY', APIKEY).replace('PIC_URL', url)) as resp:  # type: ignore
             data = await resp.json()
             dic = get_ship_data()
             val = data['ParsedResults'][0]['ParsedText']
             for ship in dic.keys():
                 if ship in val:
-                    await app.sendMessage(group,
-                                          MessageChain.create(f'检测到船只 {ship}'))
+                    await app.send_message(group,
+                                          MessageChain(f'检测到船只 {ship}'))
                     try:
-                        await app.muteMember(group, target, 3600)
+                        await app.mute_member(group, target, 3600)
                     except PermissionError:
-                        await app.sendGroupMessage(group, MessageChain.create('ERROR:权限不足'))
+                        await app.send_group_message(group, MessageChain('ERROR:权限不足'))
                     break

@@ -15,7 +15,7 @@ from graia.ariadne.message.parser.twilight import (FullMatch, MatchResult,
 from graia.ariadne.model import Group, Member
 from graia.saya import Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from PIL import Image as IMG, ImageFilter,ImageDraw
+from PIL import Image as IMG, ImageFilter, ImageDraw
 
 channel = Channel.current()
 
@@ -43,6 +43,7 @@ async def crawl(file, squish=0):
     crawl.save(output, format='jpeg')
     return output
 
+
 @channel.use(ListenerSchema(
     listening_events=[GroupMessage],
     inline_dispatchers=[Twilight([FullMatch("爬"), WildcardMatch() @ "para"])]
@@ -53,4 +54,4 @@ async def crawl_main(app: Ariadne, group: Group, member: Member, para: MatchResu
     async with aiohttp.request("GET", profile_url) as r:
         profile = BytesIO(await r.read())
     pic = await crawl(profile)
-    await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=pic.getvalue())]))
+    await app.send_group_message(group, MessageChain([Image(data_bytes=pic.getvalue())]))

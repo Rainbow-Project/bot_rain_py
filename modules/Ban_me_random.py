@@ -23,7 +23,7 @@ channel.author("INT_MAX")
 async def auto_ban(app: Ariadne, group: Group, member: Member):
     Ban_time_random = random.randrange(1, 114514)
     try:
-        await app.muteMember(group, member, Ban_time_random)
-        await app.sendGroupMessage(group, MessageChain.create('那我就来实现你的愿望吧！'))
+        await app.mute_member(group, member, Ban_time_random)
+        await app.send_group_message(group, MessageChain('那我就来实现你的愿望吧！'))
     except PermissionError:
-        await app.sendGroupMessage(group, MessageChain.create('对不起，我没有办法实现你的愿望555~'))
+        await app.send_group_message(group, MessageChain('对不起，我没有办法实现你的愿望555~'))

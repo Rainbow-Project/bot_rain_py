@@ -63,4 +63,4 @@ async def Audacious_main(app: Ariadne, group: Group, member: Member, para: Match
     async with aiohttp.request("GET", f"http://q1.qlogo.cn/g?b=qq&nk={member.id}&s=640") as r:
         profile2 = BytesIO(await r.read())
     pic = await Audacious_fun(profile, profile2)
-    await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=pic.getvalue())]))
+    await app.send_group_message(group, MessageChain([Image(data_bytes=pic.getvalue())]))

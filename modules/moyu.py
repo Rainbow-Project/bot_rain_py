@@ -84,7 +84,7 @@ def in_holiday() -> bool:
 @channel.use(SchedulerSchema(timers.crontabify("0 8 * * * 0")))
 async def moyu(app: Ariadne):
     today = date.today()
-    msg = MessageChain.create(
+    msg = MessageChain(
         f"早上好，摸鱼人！今天是{today.strftime('%Y年%m月%d日')}\n")
 
     # 看看今天是不是周末
@@ -114,5 +114,5 @@ async def moyu(app: Ariadne):
         f = f[0]
         msg += f"距离{day}还有{(f - today).days}天\n"
     for i in groups:
-        await app.sendGroupMessage(i, msg)
+        await app.send_group_message(i, msg)
         asyncio.sleep(2)

@@ -14,12 +14,13 @@ channel = Channel.current()
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
 async def img(app: Ariadne, group: Group, message: MessageChain):
-    if message.asDisplay().strip() != "色图雷达":
+    if message.display.strip() != "色图雷达":
         return
-    session = get_running(Adapter).session
-    random_int = random.randrange(1,930)
-    async with session.get("https://intmax.top/img/pic_src/setu_src/setu%20(XXX).jpg".replace("XXX",str(random_int))) as resp:  # type: ignore
+    session = Ariadne.service.client_session
+    random_int = random.randrange(1, 930)
+    async with session.get("https://intmax.top/img/pic_src/setu_src/setu%20(XXX).jpg".replace("XXX",
+                                                                                              str(random_int))) as resp:
         img_bytes = await resp.read()
-    bot_message = await app.sendMessage(group, MessageChain.create(Image(data_bytes=img_bytes)))
+    bot_message = await app.send_message(group, MessageChain(Image(data_bytes=img_bytes)))
     await asyncio.sleep(120)
-    await app.recallMessage(bot_message)
+    await app.recall_message(bot_message)

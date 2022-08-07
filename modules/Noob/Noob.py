@@ -42,7 +42,7 @@ async def Noob(file, squish=0):
     avatar.putalpha(mask)
     avatar = avatar.rotate(random.randint(1, 1), IMG.BICUBIC)
     avatar = avatar.resize((47, 47), IMG.ANTIALIAS)
-    noob = IMG.open(Path(__file__).parent/'Noob.jpg')
+    noob = IMG.open(Path(__file__).parent / 'Noob.jpg')
     noob.paste(avatar, (9, 35), mask=avatar)
     noob = noob.convert('RGB')
     output = BytesIO()
@@ -60,4 +60,4 @@ async def Noob_main(app: Ariadne, group: Group, member: Member, para: MatchResul
     async with aiohttp.request("GET", profile_url) as r:
         profile = BytesIO(await r.read())
         out = await Noob(profile)
-        await app.sendGroupMessage(group, MessageChain.create([Image(data_bytes=out.getvalue())]))
+        await app.send_group_message(group, MessageChain([Image(data_bytes=out.getvalue())]))

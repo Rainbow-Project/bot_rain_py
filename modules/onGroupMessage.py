@@ -12,13 +12,13 @@ channel = Channel.current()
 
 
 @channel.use(ListenerSchema(listening_events=[GroupMessage]))
-async def gm(app: Ariadne, group: Group, message: MessageChain,message2: GroupMessage):
+async def gm(app: Ariadne, group: Group, message: MessageChain, message2: GroupMessage):
     if str(message) == "你好":
-         await app.sendMessage(
+        await app.send_message(
             group,
-            MessageChain.create(f"不要说{message.asDisplay()}"),
-         )
-         ''''
+            MessageChain(f"不要说{message.display}"),
+        )
+        ''''
                                                             ｜        ｜
                                                             ｜        ｜
                                                             ｜        ｜
@@ -31,13 +31,13 @@ async def gm(app: Ariadne, group: Group, message: MessageChain,message2: GroupMe
          '''
     elif str(message) == "强制更新" and message2.sender.id == 563748846:
         update()
-        await app.sendMessage(
+        await app.send_message(
             group,
-            MessageChain.create('强制更新完成'),
+            MessageChain('强制更新完成'),
         )
     elif str(message) == "/help" and message2.sender.id == 563748846:
-        await app.sendMessage(
+        await app.send_message(
             group,
-            MessageChain.create('https://intmax.top/2022/05/13/%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9F%BA%E7%A1%80%E6%8C%87'
+            MessageChain('https://intmax.top/2022/05/13/%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9F%BA%E7%A1%80%E6%8C%87'
                                 '%E4%BB%A4/'),
         )

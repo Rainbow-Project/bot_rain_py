@@ -6,7 +6,7 @@ authors = ["intmax"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
-graia-ariadne = "^0.7.16"
+graia-ariadne = "^0.8.1"
 prettytable = ">=2.5.0"
 pycryptodome = ">=3.12.0"
 qrcode = ">=7.3.1"
@@ -29,6 +29,10 @@ bs4 = "^0.0.1"
 html2image = "^2.0.1"
 pysqlite3 = "^0.4.7"
 pyOpenSSL = "^22.0.0"
+rich = "^12.5.1"
+aiofiles = "^0.8.0"
+line-profiler-pycharm = "^1.1.0"
+aiosqlite = "^0.17.0"
 
 [tool.poetry.dev-dependencies]
 
