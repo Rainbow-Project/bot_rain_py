@@ -1047,7 +1047,10 @@ async def fun_get_recent_img(session: aiohttp.ClientSession, account_id: str, se
                 kd_img = str(round(frags / (battles - survived), 2))
             except Exception:
                 kd_img = 'N/A'
-            accuRate_img = str(format(hits / shots, '.2%'))
+            try:
+                accuRate_img = str(format(hits / shots, '.2%'))
+            except Exception:
+                accuRate_img = 'N/A'
             return await fun_gen_recent_img(battles_img, winRate_img, damage_img, xp_img, accuRate_img, nickName,
                                             str(round(pr)), clan_tag, kd_img, pr_tag, pr_color, pr_list,
                                             recent_ship_list)
