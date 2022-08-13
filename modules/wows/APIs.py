@@ -1013,16 +1013,23 @@ async def fun_get_recent_img(session: aiohttp.ClientSession, account_id: str, se
                 pass
         if battles != 0:
             _shipName = await read_ship_dic_api()
-            day_list = [6, 5, 4, 3, 2, 1]
+            day_list = [7, 6, 5, 4, 3, 2, 1]
             pr_list = []
             for day in day_list:
                 read_tmp = await dataBase.read_recent_data(account_id, day - 1)
                 if read_tmp == {}:
                     pr_list.append(0)
                 else:
-                    pr, pr_rank = await fun_get_gen_pr(recent_data)
+                    pr_ship_list_tmp = []
+                    for ship_id_tmp, ship_tmp in read_tmp.items():
+                        pr_ship_list_tmp.append(
+                            {
+                                'ship_id': ship_id_tmp,
+                                'pvp': ship_tmp['pvp'],
+                            }
+                        )
+                    pr, pr_rank = await fun_get_gen_pr(pr_ship_list_tmp)
                     pr_list.append(round(pr))
-            pr, pr_rank = await fun_get_gen_pr(recent_data)
             recent_ship_list = []
             for ship in recent_data:
                 try:
@@ -1037,7 +1044,6 @@ async def fun_get_recent_img(session: aiohttp.ClientSession, account_id: str, se
                     print(e.args)
                     pass
             pr, pr_rank = await fun_get_gen_pr(recent_data)
-            pr_list.append(round(pr))
             pr_tag, pr_color = await fun_get_pr_color(round(pr))
             battles_img = str(battles)
             winRate_img = str(format(wins / battles, '.2%'))

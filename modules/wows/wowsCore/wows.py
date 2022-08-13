@@ -249,11 +249,15 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                     try:
                         api_res = await APIs.api_get_account_id(session, _cmd[2], server)
                         account_id = str(api_res[0]['account_id'])
-                        clan_res = await APIs.api_get_clan_id(session, account_id, server)
-                        clan_id = str(clan_res[account_id]['clan_id'])
-                        clan_details = await APIs.api_get_clan_details(session, clan_id, server)
-                        clan_tag = clan_details[clan_id]['tag']
-                        nickName = clan_res[str(account_id)]['account_name']
+                        try:
+                            clan_res = await APIs.api_get_clan_id(session, account_id, server)
+                            clan_id = str(clan_res[account_id]['clan_id'])
+                            clan_details = await APIs.api_get_clan_details(session, clan_id, server)
+                            clan_tag = clan_details[clan_id]['tag']
+                            nickName = clan_res[str(account_id)]['account_name']
+                        except Exception:
+                            clan_tag = 'NO_CLAN'
+                            nickName = 'Waiting_Refactor'
                         user_add = {
                             'account_id': account_id,
                             'server': server,
