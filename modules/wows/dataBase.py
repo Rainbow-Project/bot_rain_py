@@ -236,7 +236,7 @@ async def update_task(accounts: list, sender_id: int):
         if item != {}:
             if item[str(account_id)] is not None:
                 nickName = item[str(account_id)]['account_name']
-                if item[account_id] is None:
+                if account_id not in item.keys():
                     clan_tag = 'NO CLAN DATA'
                 else:
                     clan_id = str(item[account_id]['clan_id'])
