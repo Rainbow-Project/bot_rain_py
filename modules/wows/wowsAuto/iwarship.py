@@ -25,10 +25,9 @@ import datetime
 
 saya = Saya.current()
 channel = Channel.current()
-groups = {755167601, 429463785, }
+groups = {124500140, 429463785, 755167601, }
 
-
-async def pic_pre_process(path: str):
+def pic_pre_process(path: str):
     im = IMG.open(path)
     x, y = im.size
     im.convert('RGB')
@@ -38,9 +37,11 @@ async def pic_pre_process(path: str):
     return out
 
 
-@channel.use(SchedulerSchema(timers.crontabify("58 15 * * * 10")))
+@channel.use(SchedulerSchema(timers.crontabify("30 09 * * * 00")))
 async def iWarShipUpdate(app: Ariadne):
+    print("START_IARSHIP_CHECK")
     hti = Html2Image()
+    hti.output_path = '/home/BOT/bot_ker/bot_rain_py/'
     headers = {
     }
     response = requests.get('https://iwarship.net/sitemap.xml',
@@ -54,7 +55,7 @@ async def iWarShipUpdate(app: Ariadne):
     for sitemap in urlTags:
         loc = sitemap.findNext("loc").text
         lastmod = sitemap.findNext("lastmod").text
-        if 'devblog' in loc and f'2022-06-10' in lastmod:
+        if 'devblog' in loc and d1 in lastmod:
             await asyncio.sleep(15)
             response_lp = requests.get(loc, headers=headers)
             data_lp = response_lp.text
@@ -72,8 +73,9 @@ async def iWarShipUpdate(app: Ariadne):
                     soup_new.append(sibling_copy)
 
             uuid = hash(tm.time())
-            hti.screenshot(html_str=soup_new.prettify(), save_as=str(uuid) + '.png', size=(1024, 40 * cont))
-            out = await pic_pre_process(str(uuid) + '.png')
+            paths = hti.screenshot(html_str=soup_new.prettify(), save_as=str(uuid) + '.png', size=(1920, 40 * cont))
+            print(paths)
+            out = pic_pre_process(str(uuid) + '.png')
             os.remove(str(uuid) + '.png')
             for group in groups:
                 await app.send_group_message(group, MessageChain(Image(data_bytes=out.getvalue())))
