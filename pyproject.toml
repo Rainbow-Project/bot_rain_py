@@ -33,6 +33,8 @@ rich = "^12.5.1"
 aiofiles = "^0.8.0"
 line-profiler-pycharm = "^1.1.0"
 aiosqlite = "^0.17.0"
+pyminizip = "^0.2.6"
+PixivPy-Async = "^1.2.14"
 
 [tool.poetry.dev-dependencies]
 
