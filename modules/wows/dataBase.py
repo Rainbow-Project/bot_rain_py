@@ -234,7 +234,7 @@ async def update_task(accounts: list, sender_id: int):
         server = account['server']
         item = await get_clan_data(account_id, server)
         if item != {}:
-            if item[str(account_id)] is not None:
+            if str(account_id) in item.keys:
                 nickName = item[str(account_id)]['account_name']
                 if account_id not in item.keys():
                     clan_tag = 'NO CLAN DATA'
@@ -265,7 +265,7 @@ async def update_task(accounts: list, sender_id: int):
 async def add_user(sender_id: int, user_add: dict):
     sender_id = str(sender_id)
     old_data = await read_user_data()
-    if old_data[sender_id] is not None:
+    if sender_id in old_data.keys():
         tmp_list = old_data[sender_id]
         if len(tmp_list) < 6:
             add_stat = True
