@@ -234,14 +234,17 @@ async def update_task(accounts: list, sender_id: int):
         server = account['server']
         item = await get_clan_data(account_id, server)
         if item != {}:
-            if str(account_id) in item.keys():
+            if str(account_id) in item.keys() and item[str(account_id)] != None:
                 nickName = item[str(account_id)]['account_name']
                 if account_id not in item.keys():
                     clan_tag = 'NO CLAN DATA'
                 else:
                     clan_id = str(item[account_id]['clan_id'])
                     clan_details = await get_clan_tag(clan_id, server)
-                    clan_tag = clan_details[clan_id]['tag']
+                    if(clan_details != {}):
+                        clan_tag = clan_details[clan_id]['tag']
+                    else:
+                        clan_tag = 'NO CLAN DATA'
                 tmp_list.append({
                     'account_id': account_id,
                     'server': server,
