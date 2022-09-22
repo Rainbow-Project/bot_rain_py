@@ -329,7 +329,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                 '''
                 try:
                     days = int(_cmd[2])
-                    if days >= 30:
+                    if days > 30:
                         raise Exception('>=30')
                 except Exception as e:
                     await app.send_group_message(group, MessageChain('天数在转换时出现错误，它可能不是一个数字,或者它大于31'))
@@ -362,7 +362,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                 stat_code_ship, ship_id, shipName = await wait_ship_id(app, group, member, _cmd[-1])
                 if stat_code_ship == 0:
                     try:
-                        img = await APIs.wows_get_ship_nickName(session, _cmd[1], 0, ship_id, shipName,
+                        img = await APIs.wows_get_ship_nickName(session, _cmd[1], server, ship_id, shipName,
                                                                 wows_pic, Fort)
                         await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
                     except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
