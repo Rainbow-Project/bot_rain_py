@@ -101,22 +101,7 @@ async def update_user_ship_list(account_id: str, server: int):
                     today = str(datetime.date.today())
                     print(account_id)
                     key_insert = str(account_id) + '_' + today
-                    oneMago = str(datetime.date.today() - datetime.timedelta(days=30))
-                    key_del = str(account_id) + '_' + oneMago
                     async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
-                        try:
-                            await db.execute("DROP TABLE '%s'" % key_insert)
-                        except Exception:
-                            print(key_insert)
-                            pass
-                        try:
-                            await db.execute("DROP TABLE '%s'" % key_del)
-                        except Exception:
-                            pass
-                        await db.execute(
-                            "CREATE TABLE '%s'(SHIP_ID INT NOT NULL, BATTLES INT NOT NULL, FRAGS INT NOT NULL, "
-                            "XP INT NOT NULL, DAMAGE INT NOT NULL, WINS INT NOT NULL, SURVIVED INT NOT NULL, "
-                            "SHOTS INT NOT NULL, HITS INT NOT NULL);" % key_insert)
                         for ship in shipList:
                             ship_id = ship['ship_id']
                             battles = ship['pvp']['battles']
@@ -127,10 +112,10 @@ async def update_user_ship_list(account_id: str, server: int):
                             survived = ship['pvp']['survived_battles']
                             shots = ship['pvp']['main_battery']['shots']
                             hits = ship['pvp']['main_battery']['hits']
-                            sql_cmd = '''INSERT INTO '{}' (SHIP_ID, BATTLES, FRAGS, XP, DAMAGE, WINS, SURVIVED, 
-                            SHOTS, HITS) VALUES ({},{},{},{},{},{},{},{},{})'''.format(
-                                key_insert, int(ship_id), battles, frags, XP, damage, wins, survived, shots, hits)
-                            await db.execute(sql_cmd)
+                            sql_cmd = """INSERT INTO ships (account_id, ship_id, date, battles, wins, shots, hit, 
+                            damage, frags, survive, xp) VALUES (?,?,?,?,?,?,?,?,?,?,?); """
+                            await db.execute(sql_cmd, (
+                            account_id, ship_id, today, battles, wins, shots, hits, damage, frags, survived, XP))
                         await db.commit()
                 else:
                     print(data)
@@ -234,14 +219,14 @@ async def update_task(accounts: list, sender_id: int):
         server = account['server']
         item = await get_clan_data(account_id, server)
         if item != {}:
-            if str(account_id) in item.keys() and item[str(account_id)] != None:
+            if str(account_id) in item.keys() and item[str(account_id)] is not None:
                 nickName = item[str(account_id)]['account_name']
                 if account_id not in item.keys():
                     clan_tag = 'NO CLAN DATA'
                 else:
                     clan_id = str(item[account_id]['clan_id'])
                     clan_details = await get_clan_tag(clan_id, server)
-                    if(clan_details != {}):
+                    if clan_details != {}:
                         clan_tag = clan_details[clan_id]['tag']
                     else:
                         clan_tag = 'NO CLAN DATA'
@@ -310,11 +295,15 @@ async def update_user_detail():
 async def read_recent_data(account_id: str, days: int):
     async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
         date_cmp = str(datetime.date.today() - datetime.timedelta(days=days))
-        data_check = account_id + '_' + date_cmp
         shipList = {}
+        sql_cmd = """
+        SELECT ship_id, battles, frags, xp, damage, wins, survive,shots, hit
+        FROM ships
+        WHERE account_id = ?
+        AND date = ?
+        """
         try:
-            cursor = await db.execute(
-                "SELECT SHIP_ID, BATTLES, FRAGS, XP, DAMAGE, WINS, SURVIVED, SHOTS, HITS  from '%s'" % data_check)
+            cursor = await db.execute(sql_cmd, (account_id, date_cmp))
             rows = await cursor.fetchall()
             for row in rows:
                 ship_id = row[0]
@@ -346,8 +335,66 @@ async def read_recent_data(account_id: str, days: int):
             return {}
 
 
+async def remove():
+    ddl = str(datetime.date.today() - datetime.timedelta(days=30))
+    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+        await db.execute("""DELETE FROM ships where date < '{}'""".format(ddl))
+        await db.commit()
+
+
+async def table_check() -> None:
+    drop_users = """
+    DROP TABLE IF EXISTS users;
+    """
+    pr_on = """
+    PRAGMA foreign_keys = ON;
+    """
+    init_users = """
+    CREATE TABLE users(
+        account_id INT NOT NULL,
+        server INT NOT NULL,
+        nickName TEXT NOT NULL,
+        clan_tag TEXT,
+        PRIMARY KEY (account_id)
+    );
+    """
+    drop_ships = """
+    DROP TABLE IF EXISTS ships;
+    """
+    init_ships = """
+    CREATE TABLE ships(
+        account_id INT NOT NULL,
+        ship_id INT NOT NULL,
+        date DATE NOT NULL,
+        battles INT NOT NULL,
+        wins INT NOT NULL,
+        shots INT NOT NULL,
+        hit INT NOT NULL,
+        damage INT NOT NULL,
+        frags INT NOT NULL,
+        survive INT NOT NULL,
+        xp INT NOT NULL,
+        PRIMARY KEY (account_id, ship_id, date),
+        FOREIGN KEY (account_id) REFERENCES users ON DELETE CASCADE
+    );
+    """
+    async with aiosqlite.connect('/src/wows_data/user_recent_data.db') as db:
+        cur = await db.execute("SELECT name _id FROM sqlite_master WHERE type ='table'")
+        tables = await cur.fetchall()
+        await db.execute(pr_on)
+        if ("users",) not in tables:
+            await db.execute(drop_users)
+            await db.execute(init_users)
+        if ("ships",) not in tables:
+            await db.execute(drop_ships)
+            await db.execute(init_ships)
+    return
+
+
 async def update():
-    await update_user_detail(),
+    await table_check()
+    await update_user_detail()
+    await remove()
     task = [
         asyncio.create_task(update_user_past_data()),
         asyncio.create_task(update_ship_data()),
