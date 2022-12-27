@@ -407,7 +407,7 @@ async def table_check() -> None:
         survive INT NOT NULL,
         xp INT NOT NULL,
         PRIMARY KEY (account_id, ship_id, date),
-        FOREIGN KEY (account_id) REFERENCES users ON DELETE CASCADE
+        FOREIGN KEY (account_id) REFERENCES users(account_id) ON DELETE CASCADE
     );
     """
     async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
@@ -443,3 +443,38 @@ async def read_ship_dic():
         for ship_id, ship in json_dic.items():
             data_name[ship['name']] = ship_id
         return data_name
+
+
+async def remove_user(sender_id: int, user_remove: str):
+    user_dic = await read_user_data()
+    if len(user_dic[str(sender_id)]) == 1:
+        user_dic.pop(str(sender_id))
+    else:
+        accounts = user_dic[str(sender_id)]
+        new_accounts = []
+        for account in accounts:
+            if account["account_id"] == user_remove:
+                pass
+            else:
+                new_accounts.append(account)
+        user_dic[str(sender_id)] = new_accounts
+    async with aiofiles.open('src/wows_data/user_data.json', mode='w') as f:
+        await f.write(json.dumps(user_dic, ensure_ascii=False, indent=4))
+    cnt = 0
+    for user in user_dic.values():
+        for account in user:
+            if account["account_id"] == user_remove:
+                cnt = 1
+                break
+        if cnt == 1:
+            break
+    if cnt == 0:
+        async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+            pr_on = """
+            PRAGMA foreign_keys = ON;
+            """
+            sql_cmd = """DELETE FROM users WHERE account_id == ?"""
+            await db.execute(pr_on)
+            await db.execute(sql_cmd, (int(user_remove),))
+            await db.commit()
+    return

@@ -200,6 +200,35 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                             await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
                         except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
                             await app.send_group_message(group, MessageChain(e.args))
+                case 'remove':
+                    if _cmd[0] == 'me':
+                        @Waiter.create_using_function([GroupMessage])
+                        async def InterruptWaiter(g: Group, m: Member, msg: MessageChain):
+                            if group.id == g.id and member.id == m.id:
+                                return msg
+                        msg = """
+警告：本操作不可撤销，过去服务器保存的数据可能会丢失
+账号过去的战绩信息将在没有人绑定该账号时删除
+回复删除来确认
+                        """
+                        stat_code, account_id, server, clan_tag, nickName = await fun_wait_me(app, group, member)
+                        if stat_code == 1:
+                            await app.send_group_message(group, MessageChain(msg))
+                            try:
+                                res_msg = await interrupt.wait(InterruptWaiter, timeout=15)
+                                if str(res_msg) == '删除':
+                                    try:
+                                        await app.send_group_message(group, MessageChain('正在尝试解析依赖'))
+                                        await dataBase.remove_user(member.id, account_id)
+                                        await app.send_group_message(group, MessageChain('移除完成'))
+                                    except Exception as e:
+                                        await app.send_group_message(group, MessageChain('由于错误无法移除数据'))
+                                        raise e
+                                else:
+                                    await app.send_group_message(group, MessageChain('放弃移除数据'))
+                            except Exception as e:
+                                await app.send_group_message(group, MessageChain('由于超时放弃移除数据'))
+                                raise e
                 case _:
                     if _cmd[0].lower() in serverList:
                         match _cmd[0].lower():
@@ -269,9 +298,10 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                             case 0:
                                 await app.send_group_message(group,
                                                              MessageChain('已将 {} 与QQ号 {} 绑定'.format(nickName,
-                                                                                                    member.id)))
+                                                                                                          member.id)))
                             case 1:
-                                await app.send_group_message(group, MessageChain('已达最大绑定数量，不过依然可以联系管理者手动加入'))
+                                await app.send_group_message(group, MessageChain(
+                                    '已达最大绑定数量，不过依然可以联系管理者手动加入'))
                             case 2:
                                 await app.send_group_message(group, MessageChain('似乎已经添加过了'))
                     except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
@@ -332,7 +362,8 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                     if days > 30:
                         raise Exception('>=30')
                 except Exception as e:
-                    await app.send_group_message(group, MessageChain('天数在转换时出现错误，它可能不是一个数字,或者它大于31'))
+                    await app.send_group_message(group,
+                                                 MessageChain('天数在转换时出现错误，它可能不是一个数字,或者它大于31'))
                     raise e
                 stat_code, account_id, server, clan_tag, nickName = await fun_wait_me(app, group, member)
                 if stat_code == 1:
