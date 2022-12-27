@@ -90,6 +90,51 @@ async def fun_wait_me(app: Ariadne, group: Group, member: Member):
     return
 
 
+async def fun_wait_target(app: Ariadne, group: Group, member: Member, target: int):
+    @Waiter.create_using_function([GroupMessage])
+    async def InterruptWaiter(g: Group, m: Member, msg: MessageChain):
+        if group.id == g.id and member.id == m.id:
+            return msg
+
+    sender_data = await fun_get_me(target)
+    if sender_data is None:
+        await app.send_group_message(group, MessageChain('找不到绑定数据'))
+        return 0, "", "", ""
+    else:
+        if len(sender_data) == 1:
+            account_id = sender_data[0]['account_id']
+            server = sender_data[0]['server']
+            clan_tag = sender_data[0]['clan_tag']
+            return 1, account_id, server, clan_tag, sender_data[0]['nickName']
+        elif len(sender_data) > 1:
+            ask_message = '请选择你想查询的账号：'
+            servers = ['亚服', '毛服', '欧服', '美服']
+            num = 0
+            for account in sender_data:
+                nickName = account['nickName']
+                server_code = account['server']
+                server = servers[server_code]
+                ask_message += '\n{}: {} {}'.format(num, nickName, server)
+                num += 1
+            await app.send_group_message(group, MessageChain(ask_message))
+            try:
+                res_msg = await interrupt.wait(InterruptWaiter, timeout=30)
+                res = int(res_msg.display)
+                if 0 <= res < len(sender_data):
+                    account = sender_data[res]
+                    account_id = account['account_id']
+                    server = account['server']
+                    clan_tag = account['clan_tag']
+                    return 1, account_id, server, clan_tag, account['nickName']
+                else:
+                    await app.send_group_message(group, MessageChain('推荐好好说话'))
+                    return 0, "", "", ""
+            except Exception:
+                await app.send_group_message(group, MessageChain('不说就算了/说了不对的'))
+                return 0, "", "", ""
+    return
+
+
 async def wait_ship_id(app: Ariadne, group: Group, member: Member, shipName: str):
     @Waiter.create_using_function([GroupMessage])
     async def InterruptWaiter(g: Group, m: Member, msg: MessageChain):
@@ -184,6 +229,16 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                                 await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
                             except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
                                 await app.send_group_message(group, MessageChain(e.args))
+                    else:
+                        target = _cmd[0][1:]
+                        stat_code, account_id, server, clan_tag, nickName = await fun_wait_target(app, group, member, int(target))
+                        if stat_code == 1:
+                            try:
+                                img = await APIs.fun_get_recent_img(session, account_id, server, clan_tag, nickName, 1,
+                                                                    wows_pic, Fort)
+                                await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
+                            except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
+                                await app.send_group_message(group, MessageChain(e.args))
                 case 'rank':
                     if _cmd[0] == 'me':
                         stat_code, account_id, server, clan_tag, nickName = await fun_wait_me(app, group, member)
@@ -206,6 +261,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                         async def InterruptWaiter(g: Group, m: Member, msg: MessageChain):
                             if group.id == g.id and member.id == m.id:
                                 return msg
+
                         msg = """
 警告：本操作不可撤销，过去服务器保存的数据可能会丢失
 账号过去的战绩信息将在没有人绑定该账号时删除
@@ -258,6 +314,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
             wows set asia exboom
             wows asia exboom rank
             wows me recent n
+            wows target recent n
             '''
             if _cmd[0].lower() == 'set':
                 '''
@@ -356,23 +413,45 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
             elif _cmd[1].lower() == 'recent':
                 '''
                 wows me recent n
+                wows target recent n
                 '''
-                try:
-                    days = int(_cmd[2])
-                    if days > 30:
-                        raise Exception('>=30')
-                except Exception as e:
-                    await app.send_group_message(group,
-                                                 MessageChain('天数在转换时出现错误，它可能不是一个数字,或者它大于31'))
-                    raise e
-                stat_code, account_id, server, clan_tag, nickName = await fun_wait_me(app, group, member)
-                if stat_code == 1:
+                if _cmd[0].lower() == 'me':
                     try:
-                        img = await APIs.fun_get_recent_img(session, account_id, server, clan_tag, nickName, days,
-                                                            wows_pic, Fort)
-                        await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
-                    except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
-                        await app.send_group_message(group, MessageChain(e.args))
+                        days = int(_cmd[2])
+                        if days > 30:
+                            raise Exception('>=30')
+                    except Exception as e:
+                        await app.send_group_message(group,
+                                                     MessageChain(
+                                                         '天数在转换时出现错误，它可能不是一个数字,或者它大于31'))
+                        raise e
+                    stat_code, account_id, server, clan_tag, nickName = await fun_wait_me(app, group, member)
+                    if stat_code == 1:
+                        try:
+                            img = await APIs.fun_get_recent_img(session, account_id, server, clan_tag, nickName, days,
+                                                                wows_pic, Fort)
+                            await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
+                        except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
+                            await app.send_group_message(group, MessageChain(e.args))
+                else:
+                    target = _cmd[0][1:]
+                    try:
+                        days = int(_cmd[2])
+                        if days > 30:
+                            raise Exception('>=30')
+                    except Exception as e:
+                        await app.send_group_message(group,
+                                                     MessageChain(
+                                                         '天数在转换时出现错误，它可能不是一个数字,或者它大于31'))
+                        raise e
+                    stat_code, account_id, server, clan_tag, nickName = await fun_wait_target(app, group, member, int(target))
+                    if stat_code == 1:
+                        try:
+                            img = await APIs.fun_get_recent_img(session, account_id, server, clan_tag, nickName, days,
+                                                                wows_pic, Fort)
+                            await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
+                        except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
+                            await app.send_group_message(group, MessageChain(e.args))
         case 4:
             '''
             当指令为4时可能出现
