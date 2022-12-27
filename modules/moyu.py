@@ -114,4 +114,4 @@ async def moyu(app: Ariadne):
         msg += f"距离{day}还有{(f - today).days}天\n"
     for i in groups:
         await app.send_group_message(i, msg)
-        asyncio.sleep(2)
+        await asyncio.sleep(2)
