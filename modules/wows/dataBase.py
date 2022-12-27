@@ -113,9 +113,18 @@ async def update_user_ship_list(account_id: str, server: int):
                             shots = ship['pvp']['main_battery']['shots']
                             hits = ship['pvp']['main_battery']['hits']
                             sql_cmd = """INSERT INTO ships (account_id, ship_id, date, battles, wins, shots, hit, 
-                            damage, frags, survive, xp) VALUES (?,?,?,?,?,?,?,?,?,?,?); """
+                            damage, frags, survive, xp) VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                            ON CONFLICT (account_id, ship_id, date) DO
+                            UPDATE SET account_id=excluded.account_id,
+                            ship_id=excluded.ship_id,
+                            date=excluded.date,
+                            battles=excluded.battles,
+                            wins=excluded.wins,
+                            shots=excluded.shots,
+                            hit=excluded.hit
+                            ; """
                             await db.execute(sql_cmd, (
-                            account_id, ship_id, today, battles, wins, shots, hits, damage, frags, survived, XP))
+                                account_id, ship_id, today, battles, wins, shots, hits, damage, frags, survived, XP))
                         await db.commit()
                 else:
                     print(data)
@@ -289,6 +298,29 @@ async def update_user_detail():
         user_detail[sender_id] = tmp_list
     async with aiofiles.open('src/wows_data/user_data.json', mode='w') as f:
         await f.write(json.dumps(user_detail, ensure_ascii=False, indent=4))
+    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+        insert_task = []
+        for qid, accounts in user_detail.items():
+            for account in accounts:
+                account_id = account['account_id']
+                server = account['server']
+                clan_tag = account['clan_tag']
+                nickName = account['nickName']
+                if clan_tag == 'NO CLAN DATA':
+                    clan_tag = None
+                sql_cmd = """
+                INSERT INTO users (account_id, server, nickName, clan_tag)
+                VALUES (?,?,?,?)
+                ON CONFLICT (account_id) DO
+                UPDATE SET account_id=excluded.account_id,
+                           server=excluded.server,
+                           nickName=excluded.nickName,
+                           clan_tag=excluded.clan_tag
+                ;
+                """
+                insert_task.append(asyncio.create_task(db.execute(sql_cmd, (account_id, server, nickName, clan_tag))))
+        await asyncio.gather(*insert_task)
+        await db.commit()
     return
 
 
@@ -378,7 +410,7 @@ async def table_check() -> None:
         FOREIGN KEY (account_id) REFERENCES users ON DELETE CASCADE
     );
     """
-    async with aiosqlite.connect('/src/wows_data/user_recent_data.db') as db:
+    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
         cur = await db.execute("SELECT name _id FROM sqlite_master WHERE type ='table'")
         tables = await cur.fetchall()
         await db.execute(pr_on)
