@@ -525,7 +525,7 @@ async def update_account_re(account_id: str, REs: list, server: int, db):
                                 ship = data['data'][str(account_id)]['statistics'][str(ship_id)]['pvp']
                                 battles = ship['battles_count']
                                 frags = ship['frags']
-                                XP = ship['exp']
+                                XP = ship['premium_exp']
                                 damage = ship['damage_dealt']
                                 wins = ship['wins']
                                 survived = ship['survived']

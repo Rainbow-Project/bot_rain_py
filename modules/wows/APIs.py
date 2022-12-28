@@ -1132,7 +1132,7 @@ async def fun_get_recent_img(session: aiohttp.ClientSession, account_id: str, se
                 wins_tmp = ship_tmp['wins']
                 frags_tmp = ship_tmp['frags']
                 damage_dealt_tmp = ship_tmp['damage_dealt']
-                xp_tmp = ship_tmp['exp']
+                xp_tmp = ship_tmp['premium_exp']
                 shots_tmp = ship_tmp['shots_by_main']
                 hits_tmp = ship_tmp['hits_by_main']
                 survived_tmp = ship_tmp['survived']
