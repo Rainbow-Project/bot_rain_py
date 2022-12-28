@@ -91,6 +91,16 @@ api_wargaming_rank_eu = 'http://wows.eu.intmax.top/community/accounts/tab/rank/o
 api_wargaming_rank_na = 'http://wows.na.intmax.top/community/accounts/tab/rank/overview/'
 api_wargaming_rank_asia = 'http://wows.asia.intmax.top/community/accounts/tab/rank/overview/'
 
+"""
+逆向工程 API
+"""
+
+"""
+根据 account_id, ship_id 查询船只数据 // 逆向工程 API
+"""
+
+wows_warship_stat_re = 'https://vortex.worldofwarships.'
+
 
 class NetError(Exception):
     """
@@ -432,8 +442,12 @@ async def fun_get_ship_pr(ship: dict):
     :return pr_rank: 当前船只的 PR 水平
     """
     ship_exp = await dataBase.wows_get_numbers_api()
-    ship_id = ship['ship_id']
-    ship_exp = ship_exp['data'][str(ship_id)]
+    try:
+        ship_id = ship['ship_id']
+        ship_exp = ship_exp['data'][str(ship_id)]
+    except Exception:
+        ship_id = 4255037136
+        ship_exp = ship_exp['data'][str(ship_id)]
     """
     期望数据
     """
@@ -445,6 +459,52 @@ async def fun_get_ship_pr(ship: dict):
     """
     pvp = ship['pvp']
     battles = pvp['battles']
+    damage_dealt = pvp['damage_dealt']
+    wins = pvp['wins']
+    frags = pvp['frags']
+    """
+    与期望的比率
+    """
+    rDmg = (damage_dealt / battles) / avg_dmg
+    rFrags = (frags / battles) / avg_frags
+    rWins = (wins / battles) * 100 / avg_wr
+    """
+    正则化数据
+    """
+    nDmg = max(0, (rDmg - 0.4) / (1 - 0.4))
+    nFrags = max(0, (rFrags - 0.1) / (1 - 0.1))
+    nWins = max(0, (rWins - 0.7) / (1 - 0.7))
+    """
+    计算 PR
+    """
+    wr = (100 * (wins / battles))
+    wr_w = (100 * math.asin(wr / 100)) / 158
+    pr = (350 + (350 * wr_w)) * nDmg + 300 * nFrags + (150 + (350 * (1 - wr_w))) * nWins
+    pr_rank = await fun_get_pr_rank(int(pr))
+    return pr_rank, pr
+
+
+async def get_re_pr(ship: dict):
+    """
+    计算单船 PR
+    :param ship: 船只数据
+    :return pr: 当前船只的 PR 数值
+    :return pr_rank: 当前船只的 PR 水平
+    """
+    ship_exp = await dataBase.wows_get_numbers_api()
+    ship_id = "4255037136"
+    ship_exp = ship_exp['data'][ship_id]
+    """
+    期望数据
+    """
+    avg_dmg = ship_exp["average_damage_dealt"]
+    avg_frags = ship_exp["average_frags"]
+    avg_wr = ship_exp["win_rate"]
+    """
+    实际数据
+    """
+    pvp = ship
+    battles = pvp['battles_count']
     damage_dealt = pvp['damage_dealt']
     wins = pvp['wins']
     frags = pvp['frags']
@@ -662,6 +722,52 @@ async def api_get_player_ship_data(session: aiohttp.ClientSession, account_id: s
                 raise APIError('参数出现错误')
         else:
             raise NetError('Wargaming 的 API 出现问题/网络出现问题')
+
+
+async def reapi_get_player_ship_data(session: aiohttp.ClientSession, account_id: str, server: int, ship_id) -> dict:
+    API = wows_warship_stat_re
+    match server:
+        case 0:
+            API += "asia"
+        case 1:
+            API += "ru"
+        case 2:
+            API += "eu"
+        case 3:
+            API += "com"
+    API += '/api/accounts/{}/ships/{}/pvp/'.format(account_id, ship_id)
+    async with session.get(API) as resp:
+        if 200 == resp.status:
+            data = await resp.json()
+            if data['status'] == 'ok':
+                return data['data']
+            else:
+                raise APIError('参数出现错误')
+        else:
+            raise NetError('逆向工程的 API 出现问题/网络出现问题')
+
+
+async def reapi_get_ships(session: aiohttp.ClientSession, account_id: str, server: int):
+    API = wows_warship_stat_re
+    match server:
+        case 0:
+            API += "asia"
+        case 1:
+            API += "ru"
+        case 2:
+            API += "eu"
+        case 3:
+            API += "com"
+    API += '/api/accounts/{}/ships/'.format(account_id)
+    async with session.get(API) as resp:
+        if 200 == resp.status:
+            data = await resp.json()
+            if data['status'] == 'ok':
+                return data['data']
+            else:
+                raise APIError('参数出现错误')
+        else:
+            raise NetError('逆向工程的 API 出现问题/网络出现问题')
 
 
 async def api_get_rank_data(server: int, account_id: str) -> str:
@@ -943,6 +1049,13 @@ async def fun_get_recent_img(session: aiohttp.ClientSession, account_id: str, se
                              draws: dict, Fort: dict):
     past_data = await dataBase.read_recent_data(account_id, days - 1)
     ship_data = await api_get_player_ship_data(session, account_id, server)
+    ships_RE = await reapi_get_ships(session, account_id, server)
+    ships_RE = ships_RE[account_id]['statistics']
+    REs = []
+    ship_read = await read_ship_dic_api()
+    for ship_id, ship in ship_read.items():
+        if ship['RE']:
+            REs.append(ship_id)
     ship_list = ship_data[account_id]
     recent_data = []
     if past_data == {}:
@@ -1011,6 +1124,86 @@ async def fun_get_recent_img(session: aiohttp.ClientSession, account_id: str, se
                     pass
             else:
                 pass
+        for ship_id_tmp in ships_RE.keys():
+            if ship_id_tmp in REs:
+                ship_tmp = await reapi_get_player_ship_data(session, account_id, server, ship_id_tmp)
+                ship_tmp = ship_tmp[str(account_id)]['statistics'][str(ship_id_tmp)]['pvp']
+                battles_tmp = ship_tmp['battles_count']
+                wins_tmp = ship_tmp['wins']
+                frags_tmp = ship_tmp['frags']
+                damage_dealt_tmp = ship_tmp['damage_dealt']
+                xp_tmp = ship_tmp['exp']
+                shots_tmp = ship_tmp['shots_by_main']
+                hits_tmp = ship_tmp['hits_by_main']
+                survived_tmp = ship_tmp['survived']
+                if str(ship_id_tmp) not in past_data.keys():
+                    recent_data.append(
+                        {
+                            'pvp': {
+                                'battles': battles_tmp,
+                                'frags': round(frags_tmp),
+                                'damage_dealt': round(damage_dealt_tmp),
+                                'wins': wins_tmp,
+                                'xp': round(xp_tmp),
+                                'survived_battles': round(survived_tmp),
+                                'main_battery': {
+                                    'shots': shots_tmp,
+                                    'hits': hits_tmp,
+                                }
+                            },
+                            'ship_id': ship_id_tmp
+                        }
+                    )
+                    battles += battles_tmp
+                    frags += frags_tmp
+                    damage += damage_dealt_tmp
+                    wins += wins_tmp
+                    xp += xp_tmp
+                    survived += survived_tmp
+                    shots += shots_tmp
+                    hits += hits_tmp
+                elif (battles_tmp - past_data[str(ship_id_tmp)]['pvp']['battles']) != 0:
+                    battles_recent = battles_tmp - past_data[str(ship_id_tmp)]['pvp']['battles']
+                    frags_recent = frags_tmp - past_data[str(ship_id_tmp)]['pvp']['frags']
+                    damage_recent = damage_dealt_tmp - past_data[str(ship_id_tmp)]['pvp']['damage_dealt']
+                    wins_recent = wins_tmp - past_data[str(ship_id_tmp)]['pvp']['wins']
+                    xp_recent = xp_tmp - past_data[str(ship_id_tmp)]['pvp']['xp']
+                    survived_recent = survived_tmp - past_data[str(ship_id_tmp)]['pvp'][
+                        'survived_battles']
+                    shots_recent = shots_tmp - \
+                                   past_data[str(ship_id_tmp)]['pvp']['main_battery'][
+                                       'shots']
+                    hits_recent = hits_tmp - \
+                                  past_data[str(ship_id_tmp)]['pvp']['main_battery'][
+                                      'hits']
+                    battles += battles_recent
+                    frags += frags_recent
+                    damage += damage_recent
+                    wins += wins_recent
+                    xp += xp_recent
+                    survived += survived_recent
+                    shots += shots_recent
+                    hits += hits_recent
+                    recent_data.append(
+                        {
+                            'pvp': {
+                                'battles': battles_recent,
+                                'frags': round(frags_recent),
+                                'damage_dealt': round(damage_recent),
+                                'wins': wins_recent,
+                                'xp': round(xp_recent),
+                                'survived_battles': round(survived_recent),
+                                'main_battery': {
+                                    'shots': shots_recent,
+                                    'hits': hits_recent,
+                                }
+                            },
+                            'ship_id': ship_id_tmp
+                        }
+                    )
+                else:
+                    pass
+
         if battles != 0:
             _shipName = await read_ship_dic_api()
             day_list = [7, 6, 5, 4, 3, 2, 1]
@@ -1067,10 +1260,15 @@ async def fun_get_recent_img(session: aiohttp.ClientSession, account_id: str, se
 async def wows_get_ship_img(session: aiohttp.ClientSession, account_id: str, server: int, ship_id: str, shipName: str,
                             draws: dict,
                             Fort: dict):
+    RE = await re_ship_check(ship_id)
+    if RE:
+        task = asyncio.create_task(reapi_get_player_ship_data(session, account_id, server, ship_id))
+    else:
+        task = asyncio.create_task(api_get_player_ship_data(session, account_id, server))
     tasks = [
         asyncio.create_task(api_get_clan_id(session, account_id, server)),
         asyncio.create_task(api_get_play_personal_data(session, account_id, server)),
-        asyncio.create_task(api_get_player_ship_data(session, account_id, server)),
+        task
     ]
     _init = '_init'
     _NA = 'N/A'
@@ -1099,32 +1297,58 @@ async def wows_get_ship_img(session: aiohttp.ClientSession, account_id: str, ser
                 item = res[1]
                 nickName = item[account_id]['nickname']
             case 2:
-                item = res[2]
-                shipList = item[account_id]
-                ship_ans = None
-                for _ship in shipList:
-                    if str(_ship['ship_id']) == ship_id:
-                        ship_ans = _ship
-                if ship_ans is None:
-                    raise Notfound('没有该船只')
-                else:
-                    PR_tag, PR = await fun_get_ship_pr(ship_ans)
-                    ship = ship_ans['pvp']
-                    battles = ship['battles']
+                if RE:
+                    ship = res[2]
+                    ship = ship[str(account_id)]['statistics'][str(ship_id)]['pvp']
+                    PR_tag, PR = await get_re_pr(ship)
+                    battles = ship['battles_count']
                     wins = ship['wins']
                     frags = ship['frags']
                     damage_dealt = ship['damage_dealt']
-                    xp = ship['xp']
-                    shots = ship['main_battery']['shots']
-                    hits = ship['main_battery']['hits']
+                    xp = ship['exp']
+                    shots = ship['shots_by_main']
+                    hits = ship['hits_by_main']
                     damageAvg = round(damage_dealt / battles)
                     winRate = str(format(wins / battles, '.2%'))
                     xpAvg = str(round(xp / battles))
-                    KD = str(round(frags + 1 / battles - ship['survived_battles'] + 1, 2))
+                    try:
+                        KD = str(round(frags / (battles - ship['survived']), 2))
+                    except Exception:
+                        KD = _NA
                     try:
                         accuRate = str(format(hits / shots, '.2%'))
                     except Exception:
                         accuRate = _NA
+                else:
+                    item = res[2]
+                    shipList = item[account_id]
+                    ship_ans = None
+                    for _ship in shipList:
+                        if str(_ship['ship_id']) == ship_id:
+                            ship_ans = _ship
+                    if ship_ans is None:
+                        raise Notfound('没有该船只')
+                    else:
+                        PR_tag, PR = await fun_get_ship_pr(ship_ans)
+                        ship = ship_ans['pvp']
+                        battles = ship['battles']
+                        wins = ship['wins']
+                        frags = ship['frags']
+                        damage_dealt = ship['damage_dealt']
+                        xp = ship['xp']
+                        shots = ship['main_battery']['shots']
+                        hits = ship['main_battery']['hits']
+                        damageAvg = round(damage_dealt / battles)
+                        winRate = str(format(wins / battles, '.2%'))
+                        xpAvg = str(round(xp / battles))
+                        try:
+                            KD = str(round(frags / (battles - ship['survived_battles']), 2))
+                        except Exception:
+                            KD = _NA
+                        try:
+                            accuRate = str(format(hits / shots, '.2%'))
+                        except Exception:
+                            accuRate = _NA
     return await fun_gen_img(shipName, str(clan_tag), str(nickName), str(battles), str(winRate),
                              str(damageAvg), str(xpAvg), str(KD), str(accuRate), "_NA", str(PR_tag), draws, Fort)
 
@@ -1142,32 +1366,59 @@ async def wows_get_ship_img_me(session: aiohttp.ClientSession, account_id: str, 
     xpAvg = _init
     KD = _init
     accuRate = _init
-    item = await api_get_player_ship_data(session, account_id, server)
-    shipList = item[account_id]
-    ship_ans = None
-    for _ship in shipList:
-        if str(_ship['ship_id']) == ship_id:
-            ship_ans = _ship
-    if ship_ans is None:
-        raise Notfound('没有该船只')
-    else:
-        PR_tag, PR = await fun_get_ship_pr(ship_ans)
-        ship = ship_ans['pvp']
-        battles = ship['battles']
+    RE = await re_ship_check(ship_id)
+    if RE:
+        ship = await reapi_get_player_ship_data(session, account_id, server, ship_id)
+        ship = ship[str(account_id)]['statistics'][str(ship_id)]['pvp']
+        PR_tag, PR = await get_re_pr(ship)
+        battles = ship['battles_count']
         wins = ship['wins']
         frags = ship['frags']
         damage_dealt = ship['damage_dealt']
-        xp = ship['xp']
-        shots = ship['main_battery']['shots']
-        hits = ship['main_battery']['hits']
+        xp = ship['exp']
+        shots = ship['shots_by_main']
+        hits = ship['hits_by_main']
         damageAvg = round(damage_dealt / battles)
         winRate = str(format(wins / battles, '.2%'))
         xpAvg = str(round(xp / battles))
-        KD = str(round(frags + 1 / battles - ship['survived_battles'] + 1, 2))
+        try:
+            KD = str(round(frags / (battles - ship['survived']), 2))
+        except Exception:
+            KD = _NA
         try:
             accuRate = str(format(hits / shots, '.2%'))
         except Exception:
             accuRate = _NA
+    else:
+        item = await api_get_player_ship_data(session, account_id, server)
+        shipList = item[account_id]
+        ship_ans = None
+        for _ship in shipList:
+            if str(_ship['ship_id']) == ship_id:
+                ship_ans = _ship
+        if ship_ans is None:
+            raise Notfound('没有该船只')
+        else:
+            PR_tag, PR = await fun_get_ship_pr(ship_ans)
+            ship = ship_ans['pvp']
+            battles = ship['battles']
+            wins = ship['wins']
+            frags = ship['frags']
+            damage_dealt = ship['damage_dealt']
+            xp = ship['xp']
+            shots = ship['main_battery']['shots']
+            hits = ship['main_battery']['hits']
+            damageAvg = round(damage_dealt / battles)
+            winRate = str(format(wins / battles, '.2%'))
+            xpAvg = str(round(xp / battles))
+            try:
+                KD = str(round(frags / (battles - ship['survived_battles']), 2))
+            except Exception:
+                KD = _NA
+            try:
+                accuRate = str(format(hits / shots, '.2%'))
+            except Exception:
+                accuRate = _NA
     return await fun_gen_img(shipName, str(clan_tag), str(nickName), str(battles), str(winRate),
                              str(damageAvg), str(xpAvg), str(KD), str(accuRate), _NA, str(PR_tag), draws, Fort)
 
@@ -1185,3 +1436,8 @@ async def wows_get_ship_nickName(session: aiohttp.ClientSession, nickName: str, 
         return out
     except (NetError, APIError) as e:
         raise e
+
+
+async def re_ship_check(ship_id: str) -> bool:
+    ships = await read_ship_dic_api()
+    return ships[ship_id]['RE']

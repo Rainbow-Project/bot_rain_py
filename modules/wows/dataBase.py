@@ -432,6 +432,7 @@ async def update():
         asyncio.create_task(update_ship_data()),
     ]
     await asyncio.gather(*task)
+    await update_res()
     return
 
 
@@ -478,3 +479,79 @@ async def remove_user(sender_id: int, user_remove: str):
             await db.execute(sql_cmd, (int(user_remove),))
             await db.commit()
     return
+
+
+async def update_res():
+    REs = []
+    tasks = []
+    async with aiofiles.open('src/wows_data/wows_ship_list.json', 'r') as f:
+        js = await f.read()
+        ships = json.loads(js)
+    for ship_id, ship in ships.items():
+        if ship['RE']:
+            REs.append(ship_id)
+    users = await read_user_data()
+    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+        for qid, accounts in users.items():
+            for account in accounts:
+                account_id = account['account_id']
+                server = account['server']
+                tasks.append(asyncio.create_task(update_account_re(account_id, REs, server, db)))
+        await asyncio.gather(*tasks)
+        await db.commit()
+
+
+async def update_account_re(account_id: str, REs: list, server: int, db):
+    match server:
+        case 0:
+            s = 'asia'
+        case 1:
+            s = 'ru'
+        case 2:
+            s = 'eu'
+        case 3:
+            s = 'com'
+    today = str(datetime.date.today())
+    for ship_id in REs:
+        API = 'https://vortex.worldofwarships.{}/api/accounts/{}/ships/{}/pvp/'.format(s, account_id, ship_id)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(API) as resp:
+                if 200 == resp.status:
+                    data = await resp.json()
+                    if data['status'] == 'ok':
+                        if data['data'][str(account_id)]['statistics'] != {} and data['data'][str(account_id)]['statistics'][str(ship_id)]['pvp'] != {}:
+                            try:
+                                print('RE ship {} ,user {}'.format(ship_id, account_id))
+                                ship = data['data'][str(account_id)]['statistics'][str(ship_id)]['pvp']
+                                battles = ship['battles_count']
+                                frags = ship['frags']
+                                XP = ship['exp']
+                                damage = ship['damage_dealt']
+                                wins = ship['wins']
+                                survived = ship['survived']
+                                shots = ship['shots_by_main']
+                                hits = ship['hits_by_main']
+                                sql_cmd = """INSERT INTO ships (account_id, ship_id, date, battles, wins, shots, hit, 
+                                damage, frags, survive, xp) VALUES (?,?,?,?,?,?,?,?,?,?,?)
+                                ON CONFLICT (account_id, ship_id, date) DO
+                                UPDATE SET account_id=excluded.account_id,
+                                ship_id=excluded.ship_id,
+                                date=excluded.date,
+                                battles=excluded.battles,
+                                wins=excluded.wins,
+                                shots=excluded.shots,
+                                hit=excluded.hit
+                                ; """
+                                await db.execute(sql_cmd, (
+                                    account_id, ship_id, today, battles, wins, shots, hits, damage, frags, survived,
+                                    XP))
+                            except Exception as e:
+                                print(e)
+                                print(account_id, ship_id)
+                                print(data['data'][str(account_id)]['statistics'][str(ship_id)]['pvp'])
+                        else:
+                            print('No ship')
+                    else:
+                        print(data)
+                else:
+                    print(resp.status)
