@@ -54,6 +54,23 @@ async def read_ship_img(session: aiohttp.ClientSession, img_url: str):
         return img
 
 
+async def get_random_ship(ships: dict):
+    """
+    获取一个随机的船只
+    该船只不能是逆向工程船只
+    该船只也不能是阿卡斯塔(因为阿卡斯塔的大图是个果敢)
+    :param ships:
+    :return:
+    """
+    while True:
+        random_ship_id = random.sample(ships.keys(), 1)[0]
+        ship_random = ships[random_ship_id]
+        ship_name = ship_random['name']
+        ship_re = ship_random['RE']
+        if ship_re == False and ship_name != "阿卡斯塔":
+            return random_ship_id
+
+
 @channel.use(ListenerSchema(
     listening_events=[GroupMessage],
     inline_dispatchers=[Twilight(
@@ -65,7 +82,7 @@ async def guess_ship(app: Ariadne, group: Group):
     session = Ariadne.service.client_session
     try:
         ship_json = await read_ship_json()
-        random_ship_id = random.sample(ship_json.keys(), 1)[0]
+        random_ship_id = await get_random_ship(ship_json)
         ship_random = ship_json[random_ship_id]
         ship_img = await read_ship_img(session, ship_random['images']['large'])
         ship_name = ship_random['name']
@@ -117,21 +134,25 @@ async def guess_ship(app: Ariadne, group: Group):
         await app.send_group_message(group, MessageChain(Image(data_bytes=ship_img)))
         try:
             member_winner = await interrupt.wait(InterruptWaiter, timeout=120)
-            await app.send_group_message(group, MessageChain([Plain('恭喜'), At(member_winner.id), Plain('成功的找出了这条船')]))
+            await app.send_group_message(group, MessageChain(
+                [Plain('恭喜'), At(member_winner.id), Plain('成功的找出了这条船')]))
         except asyncio.TimeoutError:
             await app.send_group_message(group, MessageChain('已经两分钟了(120s)'))
             await app.send_group_message(group, MessageChain('小提示: \n这艘战舰所属的国家为：{}'.format(ship_nation)))
             try:
                 member_winner = await interrupt.wait(InterruptWaiter, timeout=120)
                 await app.send_group_message(group,
-                                             MessageChain([Plain('恭喜'), At(member_winner.id), Plain('成功的找出了这条船')]))
+                                             MessageChain(
+                                                 [Plain('恭喜'), At(member_winner.id), Plain('成功的找出了这条船')]))
             except asyncio.TimeoutError:
                 await app.send_group_message(group, MessageChain('已经四分钟了(120s x 2)'))
-                await app.send_group_message(group, MessageChain('小提示: \n这艘战舰是{}级{}'.format(ship_tier, ship_type)))
+                await app.send_group_message(group,
+                                             MessageChain('小提示: \n这艘战舰是{}级{}'.format(ship_tier, ship_type)))
                 try:
                     member_winner = await interrupt.wait(InterruptWaiter, timeout=60)
                     await app.send_group_message(group,
-                                                 MessageChain([Plain('恭喜'), At(member_winner.id), Plain('成功的找出了这条船')]))
+                                                 MessageChain([Plain('恭喜'), At(member_winner.id),
+                                                               Plain('成功的找出了这条船')]))
                 except asyncio.TimeoutError:
                     await app.send_group_message(group, MessageChain('时间到，没有猜出结果'))
                     await app.send_group_message(group, MessageChain('这艘战舰的名字是{}'.format(ship_name)))
