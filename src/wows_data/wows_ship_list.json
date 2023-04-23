@@ -9823,5 +9823,89 @@
         "is_premium": false,
         "is_special": false,
         "RE": false
+    },
+    "3761681872": {
+        "name": "S189",
+        "tier": 8,
+        "type": "Submarine",
+        "nation": "ussr",
+        "RE": false
+    },
+    "3751196368": {
+        "name": "I56",
+        "tier": 8,
+        "type": "Submarine",
+        "nation": "japan",
+        "RE": false
+    },
+    "4076255024": {
+        "name": "U190",
+        "tier": 8,
+        "type": "Submarine",
+        "nation": "germany",
+        "RE": false
+    },
+    "4076255216": {
+        "name": "鲑鱼",
+        "tier": 8,
+        "type": "Submarine",
+        "nation": "usa",
+        "RE": false
+    },
+    "4074157872": {
+        "name": "U2501",
+        "tier": 10,
+        "type": "Submarine",
+        "nation": "germany",
+        "RE": false
+    },
+    "4074158064": {
+        "name": "巴劳鱵",
+        "tier": 10,
+        "type": "Submarine",
+        "nation": "usa",
+        "RE": false
+    },
+    "4078352176": {
+        "name": "U69",
+        "tier": 6,
+        "type": "Submarine",
+        "nation": "germany",
+        "RE": false
+    },
+    "4078352368": {
+        "name": "抹香鲸",
+        "tier": 6,
+        "type": "Submarine",
+        "nation": "usa",
+        "RE": false
+    },
+    "4183209936": {
+        "name": "温蒂妮",
+        "tier": 6,
+        "type": "Submarine",
+        "nation": "uk",
+        "RE": false
+    },
+    "4181112784": {
+        "name": "强健",
+        "tier": 8,
+        "type": "Submarine",
+        "nation": "uk",
+        "RE": false
+    },
+    "3761682384": {
+        "name": "联盟",
+        "tier": 8,
+        "type": "Submarine",
+        "nation": "uk",
+        "RE": false
+    },
+    "4179015632": {
+        "name": "长尾鲨",
+        "tier": 10,
+        "type": "Submarine",
+        "nation": "uk",
+        "RE": false
     }
 }

@@ -1859,17 +1859,6 @@ files = [
 diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
-name = "pysqlite3"
-version = "0.4.7"
-description = "DB-API 2.0 interface for Sqlite 3.x"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "pysqlite3-0.4.7.tar.gz", hash = "sha256:0352864898aa406beb762f4a620594c950a9a4430caab679bce574065698c8ac"},
-]
-
-[[package]]
 name = "python-bidi"
 version = "0.4.2"
 description = "Pure python implementation of the BiDi layout algorithm"
@@ -2782,4 +2771,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "ada0cb31bc3216c3122e7383440813545264786987d0fd94496b6771cd432e78"
+content-hash = "af2ec4cc2b397034c0e919c67cef5201e3c857062c0b4f64c7d47466d9a7788c"

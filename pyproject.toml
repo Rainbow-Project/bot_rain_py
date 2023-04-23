@@ -27,7 +27,6 @@ saucenao-api = {git = "https://github.com/Int-0X7FFFFFFF/saucenao_api.git"}
 easyocr = "^1.4.2"
 bs4 = "^0.0.1"
 html2image = "^2.0.1"
-pysqlite3 = "^0.4.7"
 pyOpenSSL = "^22.0.0"
 rich = "^12.5.1"
 aiofiles = "^0.8.0"
