@@ -1,1 +1,29 @@
 ./ApiKeys.py
+**/__pycache__/*.pyc
+__pycache__/*.pyc
+src/wows_data/user_recent_data.db
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE-specific files
+.idea/
+*.pydevproject
+*.project
+*.settings/
+.vscode/
+
+# Test files
+*.pytest_cache/
+test_*.py
+
+# System files
+.DS_Store
+Thumbs.db
+

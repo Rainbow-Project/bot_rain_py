@@ -1124,86 +1124,138 @@ async def fun_get_recent_img(session: aiohttp.ClientSession, account_id: str, se
                     pass
             else:
                 pass
-        for ship_id_tmp in ships_RE.keys():
-            if ship_id_tmp in REs:
-                ship_tmp = await reapi_get_player_ship_data(session, account_id, server, ship_id_tmp)
-                if ship_tmp[str(account_id)]['statistics'] != {} and ship_tmp[str(account_id)]['statistics'][str(ship_id_tmp)]['pvp'] != {}:
-                    ship_tmp = ship_tmp[str(account_id)]['statistics'][str(ship_id_tmp)]['pvp']
-                    battles_tmp = ship_tmp['battles_count']
-                    wins_tmp = ship_tmp['wins']
-                    frags_tmp = ship_tmp['frags']
-                    damage_dealt_tmp = ship_tmp['damage_dealt']
-                    xp_tmp = ship_tmp['premium_exp']
-                    shots_tmp = ship_tmp['shots_by_main']
-                    hits_tmp = ship_tmp['hits_by_main']
-                    survived_tmp = ship_tmp['survived']
-                    if str(ship_id_tmp) not in past_data.keys():
-                        recent_data.append(
+        if battles != 0:
+            _shipName = await read_ship_dic_api()
+            day_list = [7, 6, 5, 4, 3, 2, 1]
+            pr_list = []
+            for day in day_list:
+                read_tmp = await dataBase.read_recent_data(account_id, day - 1)
+                if read_tmp == {}:
+                    pr_list.append(0)
+                else:
+                    pr_ship_list_tmp = []
+                    for ship_id_tmp, ship_tmp in read_tmp.items():
+                        pr_ship_list_tmp.append(
                             {
-                                'pvp': {
-                                    'battles': battles_tmp,
-                                    'frags': round(frags_tmp),
-                                    'damage_dealt': round(damage_dealt_tmp),
-                                    'wins': wins_tmp,
-                                    'xp': round(xp_tmp),
-                                    'survived_battles': round(survived_tmp),
-                                    'main_battery': {
-                                        'shots': shots_tmp,
-                                        'hits': hits_tmp,
-                                    }
-                                },
-                                'ship_id': ship_id_tmp
+                                'ship_id': ship_id_tmp,
+                                'pvp': ship_tmp['pvp'],
                             }
                         )
-                        battles += battles_tmp
-                        frags += frags_tmp
-                        damage += damage_dealt_tmp
-                        wins += wins_tmp
-                        xp += xp_tmp
-                        survived += survived_tmp
-                        shots += shots_tmp
-                        hits += hits_tmp
-                    elif (battles_tmp - past_data[str(ship_id_tmp)]['pvp']['battles']) != 0:
-                        battles_recent = battles_tmp - past_data[str(ship_id_tmp)]['pvp']['battles']
-                        frags_recent = frags_tmp - past_data[str(ship_id_tmp)]['pvp']['frags']
-                        damage_recent = damage_dealt_tmp - past_data[str(ship_id_tmp)]['pvp']['damage_dealt']
-                        wins_recent = wins_tmp - past_data[str(ship_id_tmp)]['pvp']['wins']
-                        xp_recent = xp_tmp - past_data[str(ship_id_tmp)]['pvp']['xp']
-                        survived_recent = survived_tmp - past_data[str(ship_id_tmp)]['pvp'][
-                            'survived_battles']
-                        shots_recent = shots_tmp - \
-                                       past_data[str(ship_id_tmp)]['pvp']['main_battery'][
-                                           'shots']
-                        hits_recent = hits_tmp - \
-                                      past_data[str(ship_id_tmp)]['pvp']['main_battery'][
-                                          'hits']
-                        battles += battles_recent
-                        frags += frags_recent
-                        damage += damage_recent
-                        wins += wins_recent
-                        xp += xp_recent
-                        survived += survived_recent
-                        shots += shots_recent
-                        hits += hits_recent
-                        recent_data.append(
-                            {
-                                'pvp': {
-                                    'battles': battles_recent,
-                                    'frags': round(frags_recent),
-                                    'damage_dealt': round(damage_recent),
-                                    'wins': wins_recent,
-                                    'xp': round(xp_recent),
-                                    'survived_battles': round(survived_recent),
-                                    'main_battery': {
-                                        'shots': shots_recent,
-                                        'hits': hits_recent,
-                                    }
-                                },
-                                'ship_id': ship_id_tmp
-                            }
-                        )
-                    else:
-                        pass
+                    pr, pr_rank = await fun_get_gen_pr(pr_ship_list_tmp)
+                    pr_list.append(round(pr))
+            recent_ship_list = []
+            for ship in recent_data:
+                try:
+                    pr_rank, pr = await fun_get_ship_pr(ship)
+                    pr_tag_tmp, pr_color_tmp = await fun_get_pr_color(round(pr))
+                    ship_id_tmp = ship['ship_id']
+                    ship['PR'] = str(round(pr))
+                    ship['PR_color'] = pr_color_tmp
+                    ship['name'] = _shipName[str(ship_id_tmp)]['name']
+                    recent_ship_list.append(ship)
+                except Exception as e:
+                    print(e.args)
+                    pass
+            pr, pr_rank = await fun_get_gen_pr(recent_data)
+            pr_tag, pr_color = await fun_get_pr_color(round(pr))
+            battles_img = str(battles)
+            winRate_img = str(format(wins / battles, '.2%'))
+            damage_img = str(round(damage / battles))
+            xp_img = str(round(xp / battles))
+            try:
+                kd_img = str(round(frags / (battles - survived), 2))
+            except Exception:
+                kd_img = 'N/A'
+            try:
+                accuRate_img = str(format(hits / shots, '.2%'))
+            except Exception:
+                accuRate_img = 'N/A'
+            return await fun_gen_recent_img(battles_img, winRate_img, damage_img, xp_img, accuRate_img, nickName,
+                                            str(round(pr)), clan_tag, kd_img, pr_tag, pr_color, pr_list,
+                                            recent_ship_list)
+        else:
+            raise Notfound('更新后可能没有进行游戏')
+
+
+async def fun_get_recent_img_auto(session: aiohttp.ClientSession, account_id: str, server: int, clan_tag: str, nickName: str,
+                             draws: dict, Fort: dict):
+    past_data = await dataBase.read_recent_data_auto(account_id)
+    ship_data = await api_get_player_ship_data(session, account_id, server)
+    ships_RE = await reapi_get_ships(session, account_id, server)
+    ships_RE = ships_RE[account_id]['statistics']
+    REs = []
+    ship_read = await read_ship_dic_api()
+    for ship_id, ship in ship_read.items():
+        if ship['RE']:
+            REs.append(ship_id)
+    ship_list = ship_data[account_id]
+    recent_data = []
+    if past_data == {}:
+        raise Notfound('找不到战绩信息，可能是刚刚绑定或绑定时间不足')
+    else:
+        battles = 0
+        frags = 0
+        damage = 0
+        wins = 0
+        xp = 0
+        survived = 0
+        shots = 0
+        hits = 0
+        for ship in ship_list:
+            ship_id = ship['ship_id']
+            if ship['pvp']['battles'] != 0:
+                if str(ship_id) not in past_data.keys():
+                    recent_data.append(ship)
+                    battles += ship['pvp']['battles']
+                    frags += ship['pvp']['frags']
+                    damage += ship['pvp']['damage_dealt']
+                    wins += ship['pvp']['wins']
+                    xp += ship['pvp']['xp']
+                    survived += ship['pvp']['survived_battles']
+                    shots += ship['pvp']['main_battery']['shots']
+                    hits += ship['pvp']['main_battery']['hits']
+                elif (ship['pvp']['battles'] - past_data[str(ship_id)]['pvp']['battles']) != 0:
+                    battles_recent = ship['pvp']['battles'] - past_data[str(ship_id)]['pvp']['battles']
+                    frags_recent = ship['pvp']['frags'] - past_data[str(ship_id)]['pvp']['frags']
+                    damage_recent = ship['pvp']['damage_dealt'] - past_data[str(ship_id)]['pvp']['damage_dealt']
+                    wins_recent = ship['pvp']['wins'] - past_data[str(ship_id)]['pvp']['wins']
+                    xp_recent = ship['pvp']['xp'] - past_data[str(ship_id)]['pvp']['xp']
+                    survived_recent = ship['pvp']['survived_battles'] - past_data[str(ship_id)]['pvp'][
+                        'survived_battles']
+                    shots_recent = ship['pvp']['main_battery']['shots'] - \
+                                   past_data[str(ship_id)]['pvp']['main_battery'][
+                                       'shots']
+                    hits_recent = ship['pvp']['main_battery']['hits'] - past_data[str(ship_id)]['pvp']['main_battery'][
+                        'hits']
+                    battles += battles_recent
+                    frags += frags_recent
+                    damage += damage_recent
+                    wins += wins_recent
+                    xp += xp_recent
+                    survived += survived_recent
+                    shots += shots_recent
+                    hits += hits_recent
+                    recent_data.append(
+                        {
+                            'pvp': {
+                                'battles': battles_recent,
+                                'frags': round(frags_recent),
+                                'damage_dealt': round(damage_recent),
+                                'wins': wins_recent,
+                                'xp': round(xp_recent),
+                                'survived_battles': round(survived_recent),
+                                'main_battery': {
+                                    'shots': shots_recent,
+                                    'hits': hits_recent,
+                                }
+                            },
+                            'ship_id': ship_id
+                        }
+                    )
+                else:
+                    pass
+            else:
+                pass
         if battles != 0:
             _shipName = await read_ship_dic_api()
             day_list = [7, 6, 5, 4, 3, 2, 1]
