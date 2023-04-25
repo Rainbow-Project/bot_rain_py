@@ -163,3 +163,6 @@ cython_debug/
 src/wows_data/user_recent_data.db
 modules/.DS_Store
 .DS_Store
+src/wows_data/user_data.json
+ApiKeys.py
+
