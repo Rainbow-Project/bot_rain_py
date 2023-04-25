@@ -1179,7 +1179,7 @@ async def fun_get_recent_img(session: aiohttp.ClientSession, account_id: str, se
 
 async def fun_get_recent_img_auto(session: aiohttp.ClientSession, account_id: str, server: int, clan_tag: str, nickName: str,
                              draws: dict, Fort: dict):
-    past_data = await dataBase.read_recent_data_auto(account_id)
+    past_data, date_snap = await dataBase.read_recent_data_auto(account_id)
     ship_data = await api_get_player_ship_data(session, account_id, server)
     ships_RE = await reapi_get_ships(session, account_id, server)
     ships_RE = ships_RE[account_id]['statistics']
@@ -1304,7 +1304,7 @@ async def fun_get_recent_img_auto(session: aiohttp.ClientSession, account_id: st
                 accuRate_img = 'N/A'
             return await fun_gen_recent_img(battles_img, winRate_img, damage_img, xp_img, accuRate_img, nickName,
                                             str(round(pr)), clan_tag, kd_img, pr_tag, pr_color, pr_list,
-                                            recent_ship_list)
+                                            recent_ship_list), date_snap
         else:
             raise Notfound('更新后可能没有进行游戏')
 

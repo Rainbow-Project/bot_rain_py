@@ -375,9 +375,9 @@ async def read_recent_data_auto(account_id: str):
         WHERE account_id = ?;
         """
         try:
-            cursor = await db.execute(sql_cmd, (account_id))
+            cursor = await db.execute(sql_cmd, (account_id,))
             rows = await cursor.fetchall()
-            date = row[0][0]
+            date = rows[0][0]
             print(date)
         except Exception as e:
             print(e)
@@ -416,10 +416,10 @@ async def read_recent_data_auto(account_id: str):
                         }
                     }
                 }
-            return shipList
+            return shipList, date
         except Exception as e:
             print(e)
-            return {}
+            return {}, None
 
 async def remove():
     ddl = str(datetime.date.today() - datetime.timedelta(days=30))
