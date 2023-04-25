@@ -162,5 +162,4 @@ cython_debug/
 
 src/wows_data/user_recent_data.db
 modules/.DS_Store
-.gitignore
 .DS_Store
