@@ -224,8 +224,9 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                         stat_code, account_id, server, clan_tag, nickName = await fun_wait_me(app, group, member)
                         if stat_code == 1:
                             try:
-                                img = await APIs.fun_get_recent_img(session, account_id, server, clan_tag, nickName, 1,
+                                img, date_snap = await APIs.fun_get_recent_img_auto(session, account_id, server, clan_tag, nickName,
                                                                     wows_pic, Fort)
+                                await app.send_group_message(group, MessageChain(f'上一次可用日期为{date_snap}'))
                                 await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
                             except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
                                 await app.send_group_message(group, MessageChain(e.args))
@@ -234,8 +235,9 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                         stat_code, account_id, server, clan_tag, nickName = await fun_wait_target(app, group, member, int(target))
                         if stat_code == 1:
                             try:
-                                img = await APIs.fun_get_recent_img(session, account_id, server, clan_tag, nickName, 1,
+                                img, date_snap = await APIs.fun_get_recent_img_auto(session, account_id, server, clan_tag, nickName,
                                                                     wows_pic, Fort)
+                                await app.send_group_message(group, MessageChain(f'上一次可用日期为{date_snap}'))
                                 await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
                             except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
                                 await app.send_group_message(group, MessageChain(e.args))

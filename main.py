@@ -23,8 +23,8 @@ app = Ariadne(
         # 他们默认为 "http://localhost:8080"
         # 如果你 mirai-api-http 的地址与端口也是 localhost:8080
         # 就可以删掉这两行，否则需要修改为 mirai-api-http 的地址与端口
-        HttpClientConfig(host="http://127.0.1:1575"),
-        WebsocketClientConfig(host="http://127.0.1:1575"),
+        HttpClientConfig(host="http://localhost:9333"),
+        WebsocketClientConfig(host="http://localhost:9333"),
     ),
 )
 img_avg = IMG.open('wows_pic/wows_id_avg.jpg')

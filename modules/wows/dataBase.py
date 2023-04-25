@@ -367,6 +367,60 @@ async def read_recent_data(account_id: str, days: int):
             return {}
 
 
+async def read_recent_data_auto(account_id: str):
+    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+        sql_cmd = """
+        SELECT MAX(date) AS max_date 
+        FROM ships 
+        WHERE account_id = ?;
+        """
+        try:
+            cursor = await db.execute(sql_cmd, (account_id,))
+            rows = await cursor.fetchall()
+            date = rows[0][0]
+            print(date)
+        except Exception as e:
+            print(e)
+            return {}
+        shipList = {}
+        sql_cmd = """
+        SELECT ship_id, battles, frags, xp, damage, wins, survive,shots, hit
+        FROM ships
+        WHERE account_id = ?
+        AND date = ?
+        """
+        try:
+            cursor = await db.execute(sql_cmd, (account_id, date))
+            rows = await cursor.fetchall()
+            for row in rows:
+                ship_id = row[0]
+                battles = row[1]
+                frags = row[2]
+                xp = row[3]
+                damage = row[4]
+                wins = row[5]
+                survived = row[6]
+                shots = row[7]
+                hits = row[8]
+                shipList[str(ship_id)] = {
+                    'pvp': {
+                        'battles': battles,
+                        'frags': frags,
+                        'damage_dealt': damage,
+                        'wins': wins,
+                        'xp': xp,
+                        'survived_battles': survived,
+                        'main_battery': {
+                            'shots': shots,
+                            'hits': hits
+                        }
+                    }
+                }
+            return shipList, date
+        except Exception as e:
+            print(e)
+            return {}, None
+
 async def remove():
     ddl = str(datetime.date.today() - datetime.timedelta(days=30))
     async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
