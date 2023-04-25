@@ -1,4 +1,0 @@
-wowsApikey = ""
-weatherApikey = ""
-saucenaoApiKey = ""
-ocrApiKey = ""
