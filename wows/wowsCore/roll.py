@@ -10,8 +10,8 @@ from graia.ariadne.model import Group, Member
 from graia.broadcast.interrupt import Waiter, InterruptControl
 from graia.saya import Channel, Saya
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from modules.wows import APIs
-from modules.wows import dataBase
+from wows import APIs
+from wows import dataBase
 
 channel = Channel.current()
 saya = Saya.current()

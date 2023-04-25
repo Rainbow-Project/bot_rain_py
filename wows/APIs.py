@@ -21,7 +21,7 @@ from graia.ariadne.util.async_exec import io_bound
 from PIL import ImageDraw
 import aiohttp
 import ApiKeys
-from modules.wows import dataBase
+from wows import dataBase
 import cv2 as cv
 
 """

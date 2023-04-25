@@ -19,8 +19,8 @@ from graia.broadcast.interrupt import Waiter, InterruptControl
 from graia.saya import Channel, Saya
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 import difflib
-from modules.wows import dataBase
-from modules.wows import APIs
+from wows import dataBase
+from wows import APIs
 
 saya = Saya.current()
 channel = Channel.current()

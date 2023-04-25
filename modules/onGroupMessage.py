@@ -6,7 +6,7 @@ from graia.ariadne.model import Group
 
 from graia.saya import Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
-from modules.wows.dataBase import update
+from wows.dataBase import update
 
 channel = Channel.current()
 

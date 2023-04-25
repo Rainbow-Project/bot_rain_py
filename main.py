@@ -73,6 +73,7 @@ with saya.module_context():
     saya.mount('wows_pic', wows_pic)
     saya.mount('Font', Font)
     saya.mount('CoolDown', [])
+    saya.require("wows")
     for module_info in pkgutil.iter_modules(["modules"]):
         saya.require("modules." + module_info.name)
 app.launch_blocking()

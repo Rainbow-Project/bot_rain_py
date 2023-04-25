@@ -16,7 +16,7 @@ from graia.broadcast.interrupt import Waiter
 from graia.saya import Channel, Saya
 from graia.saya.builtins.broadcast.schema import ListenerSchema
 
-from modules.wows.wowsCore.wows import interrupt
+from wows.wowsCore.wows import interrupt
 
 channel = Channel.current()
 saya = Saya.current()
