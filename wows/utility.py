@@ -1,4 +1,7 @@
 import math
+from wows.dataBase import wows_get_numbers_api
+import aiofiles
+import json
 
 class Ship:
     org_json = None
@@ -38,10 +41,10 @@ class Ship:
         self.org_json = ship_dict
         # 基本数据
         self.ship_id = ship_dict['ship_id']
-        self.ship_name = ship_list[self.ship_id]['name']
+        self.ship_name = ship_list[str(self.ship_id)]['name']
         # 非战斗数据
         self.last_battle_time = ship_dict['last_battle_time']
-        self.distance = ship_dict['battles']
+        self.distance = None
         # pvp 数据
         pvp = ship_dict['pvp']
         # 战斗数据
@@ -56,7 +59,7 @@ class Ship:
         # 最佳数据
         self.max_damage_dealt = pvp['max_damage_dealt']
         self.max_damage_scouting = pvp['max_damage_scouting']
-        self.max_frags = pvp['max_frags']
+        self.max_frags = pvp['max_frags_battle']
         self.max_planes_killed = pvp['max_planes_killed']
         self.max_total_agro = pvp['max_total_agro']
         self.max_xp = pvp['max_xp']
@@ -150,7 +153,6 @@ class User:
         self.created_at = user['created_at']  # 账号创建时间
         self.hidden_profile = user['hidden_profile']  # 隐藏战绩
         self.logout_at = user['logout_at']  # 上次退出游戏
-        self.distance = user['distance']  # 航行长度
 
         pvp = user['statistics']['pvp']
 
@@ -168,19 +170,10 @@ class User:
         # 最佳数据
         self.max_damage_dealt = pvp['max_damage_dealt']
         self.max_damage_scouting = pvp['max_damage_scouting']
-        self.max_frags = pvp['max_frags']
+        self.max_frags = pvp['max_frags_battle']
         self.max_planes_killed = pvp['max_planes_killed']
         self.max_total_agro = pvp['max_total_agro']
         self.max_xp = pvp['max_xp']
-
-        # 船表
-        self.ship_list = []  # 玩家船只列表
-        for ship in ships:
-            self.ship_list.append(Ship(ship))
-
-        # PR
-        self.pr = Pr()  # pr 数值
-        self.pr.init_pr_user(self.ship_list)
 
         # 显示数据
         self.display_battles = f'{self.battles}'
@@ -195,6 +188,19 @@ class User:
             self.display_accu_rate = format(self.hits / self.shots, '.2%')
         self.display_winrate = format(self.wins / self.battles, '.2%')
         self.display_xp = f'{round(self.xp / self.battles)}'
+
+    async def async_init(self, ships) -> None:
+        ship_ls = await read_ship_dic()
+        exps = await wows_get_numbers_api()
+        # 船表
+        self.ship_list = []  # 玩家船只列表
+        for ship in ships:
+            if ship['pvp']['battles'] != 0 and str(ship['ship_id']) in ship_ls.keys():
+                self.ship_list.append(Ship(ship, ship_ls, exps))
+
+        # PR
+        self.pr = Pr()  # pr 数值
+        self.pr.init_pr_user(self.ship_list)
 
 
 class Pr:
@@ -211,11 +217,13 @@ class Pr:
 
     def init_pr_user(self, ships:list[Ship]) -> None:
         total_pr = 0
+        total_battles = 0
 
         for ship in ships:
-            total_pr += ship.pr.pr_number
+            total_pr += (ship.pr.pr_number * ship.battles)
+            total_battles += ship.battles
 
-        self.pr_number = total_pr / len(ships)
+        self.pr_number = round(total_pr / total_battles)
 
         self.color_init()
 
@@ -224,31 +232,31 @@ class Pr:
 
         battles = ship.battles
 
-        exp_damage = expected_data['data'][ship_id]['average_damage_dealt']
-        exp_frags = expected_data['data'][ship_id]['average_frags']
-        exp_winrate = expected_data['data'][ship_id]['win_rate']
+        exp_damage = expected_data['data'][str(ship_id)]['average_damage_dealt']
+        exp_frags = expected_data['data'][str(ship_id)]['average_frags']
+        exp_winrate = expected_data['data'][str(ship_id)]['win_rate']
 
         damage = ship.damage_dealt / ship.battles
         frags = ship.frags / ship.battles
-        winrate = ship.wins / ship.battles
+        winrate = (ship.wins / ship.battles) * 100
 
         r_dmg = damage / exp_damage
         r_frags = frags / exp_frags
         r_winrate = winrate / exp_winrate
 
 
-        w1 = 1/1+math.e^(-0.7 * (battles - 3))
-        w2 = 1/1+math.e^(-20 * (winrate - 0.50))
+        w1 = 1 / (1 + math.exp(-0.7 * (battles - 3)))
+        w2 = 1 / (1 + math.exp(-20 * (winrate - 0.50)))
 
-        w_wins = (1000 * w1) - ((1000 * w1 * 0.4) * w2)
-        w_dmg = (1000 * (1 - w1)) + ((1000 * w1 * 0.4) * w2)
+        w_wins = (1000 * w1) - ((1000 * w1 * 0.35) * w2)
+        w_dmg = (1000 * (1 - w1)) + ((1000 * w1 * 0.35) * w2)
         w_frags = 150
 
-        # n_dmg = max(0, (r_dmg - 0.4) / (1 - 0.4))
-        # n_frags = max(0, (r_frags - 0.1) / (1 - 0.1))
-        # n_wins = max(0, (r_winrate - 0.7) / (1 - 0.7))
+        n_dmg = max(0, (r_dmg - 0.4) / (1 - 0.4))
+        n_frags = max(0, (r_frags - 0.1) / (1 - 0.1))
+        n_wins = max(0, (r_winrate - 0.7) / (1 - 0.7))
 
-        self.pr_number = round((w_dmg * r_dmg) + (w_frags * r_frags) + (w_wins * r_winrate))
+        self.pr_number = round((w_dmg * n_dmg) + (w_frags * n_frags) + (w_wins * n_wins))
 
         self.color_init()
 
@@ -294,4 +302,8 @@ class Pr:
             self.color_text = (255, 255, 255)
             self.pr_text = '神佬平均'
         
-    
+async def read_ship_dic():
+    async with aiofiles.open('src/wows_data/wows_ship_list.json', 'r') as f:
+        js = await f.read()
+        json_dic = json.loads(js)
+        return json_dic

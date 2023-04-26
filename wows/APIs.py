@@ -23,6 +23,7 @@ import aiohttp
 import ApiKeys
 from wows import dataBase
 import cv2 as cv
+from wows.utility import Pr, User, Ship
 
 """
 @Describe: 战舰世界查询/更新可能会用到的 API
@@ -889,6 +890,8 @@ async def fun_wows_account_id(session: aiohttp.ClientSession, account_id: str, s
                 else:
                     accuRate = _NA
                 created_at = datetime.datetime.fromtimestamp(item[account_id]['created_at'])
+    user = User(res[2][account_id], res[1][account_id], server, None, clan_tag)
+    await user.async_init(res[1][account_id])
     return await fun_gen_img_cv2('PR=' + str(PR), str(clan_tag), str(nickName), str(battles), str(winRate),
                                  str(damageAvg),
                                  str(xpAvg), str(KD), str(accuRate), str(created_at), str(PR_tag), draws, Fort)
@@ -954,6 +957,8 @@ async def fun_wows_account_id_no_clan(session: aiohttp.ClientSession, account_id
                 else:
                     accuRate = _NA
                 created_at = datetime.datetime.fromtimestamp(item[account_id]['created_at'])
+    user = User(res[1][account_id], res[0][account_id], server, None, clan_tag)
+    await user.async_init(res[0][account_id])
     return await fun_gen_img_cv2('PR=' + str(PR), str(clan_tag), str(nickName), str(battles), str(winRate),
                                  str(damageAvg),
                                  str(xpAvg), str(KD), str(accuRate), str(created_at), str(PR_tag), draws, Fort)
