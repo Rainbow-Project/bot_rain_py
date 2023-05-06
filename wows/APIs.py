@@ -847,7 +847,8 @@ async def fun_wows_account_id(session: aiohttp.ClientSession, account_id: str, s
         clan_id = str(item[account_id]['clan_id'])
         clan_details = await api_get_clan_details(session, clan_id, server)
         clan_tag = clan_details[clan_id]['tag']
-    user = User(res[2][account_id], res[1][account_id], server, None, clan_tag)
+    user = User()
+    user.init_user(res[2][account_id], res[1][account_id], server, None, clan_tag)
     await user.async_init(res[1][account_id])
     return await wows_user(user)
 
@@ -870,7 +871,8 @@ async def fun_wows_account_id_no_clan(session: aiohttp.ClientSession, account_id
     task_get_person_detail = asyncio.create_task(api_get_play_personal_data(session, account_id, server))
     task.append(task_get_person_detail)
     res = await asyncio.gather(*task)
-    user = User(res[1][account_id], res[0][account_id], server, None, clan_tag)
+    user = User()
+    user.init_user(res[1][account_id], res[0][account_id], server, None, clan_tag)
     await user.async_init(res[0][account_id])
     return await wows_user(user)
 
@@ -1244,7 +1246,8 @@ async def wows_get_ship_img(session: aiohttp.ClientSession, account_id: str, ser
         clan_id = str(item[account_id]['clan_id'])
         clan_details = await api_get_clan_details(session, clan_id, server)
         clan_tag = clan_details[clan_id]['tag']
-    user = User(res[2][account_id], res[1][account_id], server, None, clan_tag)
+    user = User()
+    user.init_user(res[2][account_id], res[1][account_id], server, None, clan_tag)
     await user.async_init(res[1][account_id])
     return await wows_ship(user, ship_id)
 
@@ -1258,9 +1261,10 @@ async def wows_get_ship_img_me(session: aiohttp.ClientSession, account_id: str, 
     task_get_person_detail = asyncio.create_task(api_get_play_personal_data(session, account_id, server))
     task.append(task_get_person_detail)
     res = await asyncio.gather(*task)
-    user = User(res[1][account_id], res[0][account_id], server, None, clan_tag)
+    user = User()
+    user.init_user(res[1][account_id], res[0][account_id], server, None, clan_tag)
     await user.async_init(res[0][account_id])
-    return wows_ship(user, ship_id)
+    return await wows_ship(user, ship_id)
 
 
 async def wows_get_ship_nickName(session: aiohttp.ClientSession, nickName: str, server: int, ship_id: str,

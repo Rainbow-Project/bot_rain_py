@@ -494,7 +494,7 @@ async def wows_user(user: User):
     render_text(img, f'{user.max_ships_spotted}', (1025, 1666), font_medium, 32, user.pr.color_text)
 
     # render_text(img, f'{user.max_ships_spotted}', (1025, 1810), font_medium, 32, user.pr.color_text)
-    _, buffer = cv.imencode('.WebP', img)
+    _, buffer = cv.imencode('.jpeg', img)
     bytes_io = buffer.tobytes()
     return bytes_io
 
@@ -503,8 +503,11 @@ async def wows_ship(user: User, ship_id: str):
     main_data_img = cv.imread('components/main_data.png')
     max_data_img = cv.imread('components/max_main.png')
     pr_bar_img = cv.imread('components/pr_bar.png') 
-    color_bg = user.pr.color_background[::-1]
-    color_pr = user.pr.pr_color[::-1]
+    ship = user.ship_dic.get(ship_id, None)
+    if ship is None:
+        raise('没有该船只')
+    color_bg = ship.pr.color_background[::-1]
+    color_pr = ship.pr.pr_color[::-1]
     pr_bar_img[:,:,0][pr_bar_img[:,:,0] == 222] = color_pr[0]
     pr_bar_img[:,:,1][pr_bar_img[:,:,1] == 222] = color_pr[1]
     pr_bar_img[:,:,2][pr_bar_img[:,:,2] == 222] = color_pr[2]
@@ -529,9 +532,6 @@ async def wows_ship(user: User, ship_id: str):
     render_text(img, user.clan_tag, (621, 66), font_heavy, 48, user.pr.color_text)
     render_text(img, user.nick_name, (621, 152), font_medium, 48, user.pr.color_text)
 
-    ship = user.ship_dic.get(ship_id, None)
-    if ship is None:
-        raise('没有该船只')
 
     render_text(img, ship.ship_name, (621, 265), font_medium, 48, ship.pr.color_text)
 
@@ -555,6 +555,6 @@ async def wows_ship(user: User, ship_id: str):
     render_text(img, f'{ship.max_frags}', (1025, 1443), font_medium, 32, ship.pr.color_text)
     render_text(img, f'{ship.max_ships_spotted}', (1025, 1666), font_medium, 32, user.pr.color_text)
     
-    _, buffer = cv.imencode('.WebP', img)
+    _, buffer = cv.imencode('.jpeg', img)
     bytes_io = buffer.tobytes()
     return bytes_io
