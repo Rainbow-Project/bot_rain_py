@@ -127,7 +127,7 @@ async def fun_wait_target(app: Ariadne, group: Group, member: Member, target: in
                     clan_tag = account['clan_tag']
                     return 1, account_id, server, clan_tag, account['nickName']
                 else:
-                    await app.send_group_message(group, MessageChain('推荐好好说话'))
+                    await app.send_group_message(group, MessageChain('无法解析语句'))
                     return 0, "", "", ""
             except Exception:
                 await app.send_group_message(group, MessageChain('不说就算了/说了不对的'))
@@ -242,21 +242,22 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                             except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
                                 await app.send_group_message(group, MessageChain(e.args))
                 case 'rank':
-                    if _cmd[0] == 'me':
-                        stat_code, account_id, server, clan_tag, nickName = await fun_wait_me(app, group, member)
-                        if stat_code == 1:
-                            try:
-                                img = await APIs.fun_get_me_rank_img(session, server, account_id, clan_tag, wows_pic,
-                                                                     Fort)
-                                await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
-                            except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
-                                await app.send_group_message(group, MessageChain(e.args))
-                    else:
-                        try:
-                            img = await APIs.fun_wows_username_rank(session, 0, _cmd[0], wows_pic, Fort)
-                            await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
-                        except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
-                            await app.send_group_message(group, MessageChain(e.args))
+                    await app.send_group_message(group, MessageChain('该功能暂时无法使用， 等待修复'))
+                    # if _cmd[0] == 'me':
+                    #     stat_code, account_id, server, clan_tag, nickName = await fun_wait_me(app, group, member)
+                    #     if stat_code == 1:
+                    #         try:
+                    #             img = await APIs.fun_get_me_rank_img(session, server, account_id, clan_tag, wows_pic,
+                    #                                                  Fort)
+                    #             await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
+                    #         except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
+                    #             await app.send_group_message(group, MessageChain(e.args))
+                    # else:
+                    #     try:
+                    #         img = await APIs.fun_wows_username_rank(session, 0, _cmd[0], wows_pic, Fort)
+                    #         await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
+                    #     except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
+                    #         await app.send_group_message(group, MessageChain(e.args))
                 case 'remove':
                     if _cmd[0] == 'me':
                         @Waiter.create_using_function([GroupMessage])
@@ -306,8 +307,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                         except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
                             await app.send_group_message(group, MessageChain(e.args))
                     else:
-                        await app.send_group_message(group, MessageChain('错误: 意料外的指令\n推测是不正确的服务器\nasia,na,ru,eu,'
-                                                                         '依次为亚服，美服，毛服，欧服'))
+                        await app.send_group_message(group, MessageChain('错误: 意料外的指令'))
         case 3:
             '''
             当指令为3时可能出现
@@ -369,23 +369,24 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                 '''
                 wows server nickName rank
                 '''
-                match _cmd[0].lower():
-                    case 'asia':
-                        server = 0
-                    case 'ru':
-                        server = 1
-                    case 'eu':
-                        server = 2
-                    case 'na':
-                        server = 3
-                    case _:
-                        server = 0
-                nickName = _cmd[1]
-                try:
-                    img = await APIs.fun_wows_username_rank(session, server, nickName, wows_pic, Fort)
-                    await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
-                except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
-                    await app.send_group_message(group, MessageChain(e.args))
+                # match _cmd[0].lower():
+                #     case 'asia':
+                #         server = 0
+                #     case 'ru':
+                #         server = 1
+                #     case 'eu':
+                #         server = 2
+                #     case 'na':
+                #         server = 3
+                #     case _:
+                #         server = 0
+                # nickName = _cmd[1]
+                # try:
+                #     img = await APIs.fun_wows_username_rank(session, server, nickName, wows_pic, Fort)
+                #     await app.send_group_message(group, MessageChain(Image(data_bytes=img)))
+                # except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
+                #     await app.send_group_message(group, MessageChain(e.args))
+                await app.send_group_message(group, MessageChain("该功能暂时停用"))
             elif _cmd[1].lower() == 'ship':
                 '''
                 wows nickName ship shipName

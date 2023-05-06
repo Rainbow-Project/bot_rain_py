@@ -23,7 +23,7 @@ import aiohttp
 import ApiKeys
 from wows import dataBase
 import cv2 as cv
-from wows.utility import Pr, User, Ship
+from wows.utility import Pr, User, Ship, wows_user, wows_ship
 
 """
 @Describe: 战舰世界查询/更新可能会用到的 API
@@ -212,56 +212,56 @@ def fun_gen_img_cv2(hit_tag: str, clan: str, nickName: str, battles: str, winRat
     return byte_im
 
 
-@io_bound
-def fun_gen_img(hit_tag: str, clan: str, nickName: str, battles: str, winRate: str, damage: str, XP: str, KD: str,
-                accu: str,
-                timestamp_crate: str, PR: str, draws: dict, Fort: dict):
-    """
-    用 PIL 来绘制战绩图片
-    :param hit_tag: 介于昵称与创建时间的变量
-    :param clan: 军团TAG
-    :param nickName: 昵称
-    :param battles: 战斗场数
-    :param winRate: 胜率
-    :param damage: 伤害
-    :param XP: 经验
-    :param KD: KD
-    :param accu: 主炮精准度
-    :param timestamp_crate: 账号创建时间
-    :param PR: PR等级字符串
-    :param draws: 预加载的图片
-    :param Fort: 预加载的字体
-    :return: 二进制图片
-    """
-    img = draws[PR][0].copy()
-    # 新建绘图对象
-    draw = ImageDraw.Draw(img)
-    # 选择文字字体和大小
-    setFont = Fort['setFont']
-    setFont_big = Fort['setFont_big']
-    fillColor = (0, 0, 0)  # 文字颜色：黑色
-    w, h = setFont.getsize(hit_tag)
-    draw.text((621 - (w / 2), 340), hit_tag, font=setFont, fill=fillColor)
-    w, h = setFont.getsize(timestamp_crate)
-    draw.text((621 - (w / 2), 520), timestamp_crate, font=setFont, fill=fillColor)
-    w, h = setFont_big.getsize(clan)
-    draw.text((621 - (w / 2), 100), clan, font=setFont_big, fill=fillColor)
-    w, h = setFont_big.getsize(nickName)
-    draw.text((621 - (w / 2), 200), nickName, font=setFont_big, fill=fillColor)
-    w, h = setFont.getsize(battles)
-    draw.text((245 - (w / 2), 1170), battles, font=setFont, fill=fillColor)
-    w, h = setFont.getsize(winRate)
-    draw.text((630 - (w / 2), 1170), winRate, font=setFont, fill=fillColor)
-    w, h = setFont.getsize(damage)
-    draw.text((1040 - (w / 2), 1170), damage, font=setFont, fill=fillColor)
-    w, h = setFont.getsize(XP)
-    draw.text((245 - (w / 2), 1700), XP, font=setFont, fill=fillColor)
-    w, h = setFont.getsize(KD)
-    draw.text((630 - (w / 2), 1700), KD, font=setFont, fill=fillColor)
-    w, h = setFont.getsize(accu)
-    draw.text((1040 - (w / 2), 1700), accu, font=setFont, fill=fillColor)
-    img.save(out := BytesIO(), format='JPEG')
-    return out.getvalue()
+# @io_bound
+# def fun_gen_img(hit_tag: str, clan: str, nickName: str, battles: str, winRate: str, damage: str, XP: str, KD: str,
+#                 accu: str,
+#                 timestamp_crate: str, PR: str, draws: dict, Fort: dict):
+#     """
+#     用 PIL 来绘制战绩图片
+#     :param hit_tag: 介于昵称与创建时间的变量
+#     :param clan: 军团TAG
+#     :param nickName: 昵称
+#     :param battles: 战斗场数
+#     :param winRate: 胜率
+#     :param damage: 伤害
+#     :param XP: 经验
+#     :param KD: KD
+#     :param accu: 主炮精准度
+#     :param timestamp_crate: 账号创建时间
+#     :param PR: PR等级字符串
+#     :param draws: 预加载的图片
+#     :param Fort: 预加载的字体
+#     :return: 二进制图片
+#     """
+#     img = draws[PR][0].copy()
+#     # 新建绘图对象
+#     draw = ImageDraw.Draw(img)
+#     # 选择文字字体和大小
+#     setFont = Fort['setFont']
+#     setFont_big = Fort['setFont_big']
+#     fillColor = (0, 0, 0)  # 文字颜色：黑色
+#     w, h = setFont.getsize(hit_tag)
+#     draw.text((621 - (w / 2), 340), hit_tag, font=setFont, fill=fillColor)
+#     w, h = setFont.getsize(timestamp_crate)
+#     draw.text((621 - (w / 2), 520), timestamp_crate, font=setFont, fill=fillColor)
+#     w, h = setFont_big.getsize(clan)
+#     draw.text((621 - (w / 2), 100), clan, font=setFont_big, fill=fillColor)
+#     w, h = setFont_big.getsize(nickName)
+#     draw.text((621 - (w / 2), 200), nickName, font=setFont_big, fill=fillColor)
+#     w, h = setFont.getsize(battles)
+#     draw.text((245 - (w / 2), 1170), battles, font=setFont, fill=fillColor)
+#     w, h = setFont.getsize(winRate)
+#     draw.text((630 - (w / 2), 1170), winRate, font=setFont, fill=fillColor)
+#     w, h = setFont.getsize(damage)
+#     draw.text((1040 - (w / 2), 1170), damage, font=setFont, fill=fillColor)
+#     w, h = setFont.getsize(XP)
+#     draw.text((245 - (w / 2), 1700), XP, font=setFont, fill=fillColor)
+#     w, h = setFont.getsize(KD)
+#     draw.text((630 - (w / 2), 1700), KD, font=setFont, fill=fillColor)
+#     w, h = setFont.getsize(accu)
+#     draw.text((1040 - (w / 2), 1700), accu, font=setFont, fill=fillColor)
+#     img.save(out := BytesIO(), format='JPEG')
+#     return out.getvalue()
 
 
 @io_bound
@@ -839,62 +839,17 @@ async def fun_wows_account_id(session: aiohttp.ClientSession, account_id: str, s
     task_get_person_detail = asyncio.create_task(api_get_play_personal_data(session, account_id, server))
     task.append(task_get_person_detail)
     res = await asyncio.gather(*task)
-    _init = '_init'
-    _NA = 'N/A'
-    clan_tag = _init
-    PR = _init
-    PR_tag = _init
-    nickName = _init
-    created_at = _init
-    battles = _init
-    winRate = _init
-    damageAvg = _init
-    xpAvg = _init
-    KD = _init
-    accuRate = _init
-    for i in range(3):
-        match i:
-            case 0:
-                item = res[0]
-                if item[account_id] is None:
-                    clan_tag = 'NO CLAN DATA'
-                else:
-                    clan_id = str(item[account_id]['clan_id'])
-                    clan_details = await api_get_clan_details(session, clan_id, server)
-                    clan_tag = clan_details[clan_id]['tag']
-            case 1:
-                item = res[1]
-                shipList = item[account_id]
-                PR, PR_tag = await fun_get_gen_pr(shipList)
-            case 2:
-                item = res[2]
-                nickName = item[account_id]['nickname']
-                battles = item[account_id]['statistics']['pvp']['battles']
-                if int(battles) != 0:
-                    winRate = format(item[account_id]['statistics']['pvp']['wins'] / int(battles), '.2%')
-                    damageAvg = round(item[account_id]['statistics']['pvp']['damage_dealt'] / int(battles))
-                    xpAvg = round(item[account_id]['statistics']['pvp']['xp'] / int(battles))
-                    if int(battles) - int(item[account_id]['statistics']['pvp']['survived_wins']) != 0:
-                        KD = round(item[account_id]['statistics']['pvp']['frags'] / (
-                                int(battles) - int(item[account_id]['statistics']['pvp']['survived_battles'])), 2)
-                    else:
-                        KD = _NA
-                else:
-                    winRate = _NA
-                    damageAvg = _NA
-                    xpAvg = _NA
-                    KD = _NA
-                if int(item[account_id]['statistics']['pvp']['main_battery']['shots']) != 0:
-                    accuRate = format(item[account_id]['statistics']['pvp']['main_battery']['hits'] /
-                                      item[account_id]['statistics']['pvp']['main_battery']['shots'], '.2%')
-                else:
-                    accuRate = _NA
-                created_at = datetime.datetime.fromtimestamp(item[account_id]['created_at'])
+    clan_tag = ''
+    item = res[0]
+    if item[account_id] is None:
+        clan_tag = 'NO CLAN DATA'
+    else:
+        clan_id = str(item[account_id]['clan_id'])
+        clan_details = await api_get_clan_details(session, clan_id, server)
+        clan_tag = clan_details[clan_id]['tag']
     user = User(res[2][account_id], res[1][account_id], server, None, clan_tag)
     await user.async_init(res[1][account_id])
-    return await fun_gen_img_cv2('PR=' + str(PR), str(clan_tag), str(nickName), str(battles), str(winRate),
-                                 str(damageAvg),
-                                 str(xpAvg), str(KD), str(accuRate), str(created_at), str(PR_tag), draws, Fort)
+    return await wows_user(user)
 
 
 async def fun_wows_account_id_no_clan(session: aiohttp.ClientSession, account_id: str, server: int, clan_tag: str,
@@ -915,53 +870,9 @@ async def fun_wows_account_id_no_clan(session: aiohttp.ClientSession, account_id
     task_get_person_detail = asyncio.create_task(api_get_play_personal_data(session, account_id, server))
     task.append(task_get_person_detail)
     res = await asyncio.gather(*task)
-    _init = '_init'
-    _NA = 'N/A'
-    PR = _init
-    PR_tag = _init
-    nickName = _init
-    created_at = _init
-    battles = _init
-    winRate = _init
-    damageAvg = _init
-    xpAvg = _init
-    KD = _init
-    accuRate = _init
-    for i in range(2):
-        match i:
-            case 0:
-                item = res[0]
-                shipList = item[account_id]
-                PR, PR_tag = await fun_get_gen_pr(shipList)
-            case 1:
-                item = res[1]
-                nickName = item[account_id]['nickname']
-                battles = item[account_id]['statistics']['pvp']['battles']
-                if int(battles) != 0:
-                    winRate = format(item[account_id]['statistics']['pvp']['wins'] / int(battles), '.2%')
-                    damageAvg = round(item[account_id]['statistics']['pvp']['damage_dealt'] / int(battles))
-                    xpAvg = round(item[account_id]['statistics']['pvp']['xp'] / int(battles))
-                    if int(battles) - int(item[account_id]['statistics']['pvp']['survived_wins']) != 0:
-                        KD = round(item[account_id]['statistics']['pvp']['frags'] / (
-                                int(battles) - int(item[account_id]['statistics']['pvp']['survived_battles'])), 2)
-                    else:
-                        KD = _NA
-                else:
-                    winRate = _NA
-                    damageAvg = _NA
-                    xpAvg = _NA
-                    KD = _NA
-                if int(item[account_id]['statistics']['pvp']['main_battery']['shots']) != 0:
-                    accuRate = format(item[account_id]['statistics']['pvp']['main_battery']['hits'] /
-                                      item[account_id]['statistics']['pvp']['main_battery']['shots'], '.2%')
-                else:
-                    accuRate = _NA
-                created_at = datetime.datetime.fromtimestamp(item[account_id]['created_at'])
     user = User(res[1][account_id], res[0][account_id], server, None, clan_tag)
     await user.async_init(res[0][account_id])
-    return await fun_gen_img_cv2('PR=' + str(PR), str(clan_tag), str(nickName), str(battles), str(winRate),
-                                 str(damageAvg),
-                                 str(xpAvg), str(KD), str(accuRate), str(created_at), str(PR_tag), draws, Fort)
+    return await wows_user(user)
 
 
 async def fun_wows_nickName(session: aiohttp.ClientSession, nickName: str, server: int, draws: dict, Fort: dict):
@@ -1317,167 +1228,39 @@ async def fun_get_recent_img_auto(session: aiohttp.ClientSession, account_id: st
 async def wows_get_ship_img(session: aiohttp.ClientSession, account_id: str, server: int, ship_id: str, shipName: str,
                             draws: dict,
                             Fort: dict):
-    RE = await re_ship_check(ship_id)
-    if RE:
-        task = asyncio.create_task(reapi_get_player_ship_data(session, account_id, server, ship_id))
+    task = []
+    task_get_clan_id = asyncio.create_task(api_get_clan_id(session, account_id, server))
+    task.append(task_get_clan_id)
+    task_get_warship_detail = asyncio.create_task(api_get_player_ship_data(session, account_id, server))
+    task.append(task_get_warship_detail)
+    task_get_person_detail = asyncio.create_task(api_get_play_personal_data(session, account_id, server))
+    task.append(task_get_person_detail)
+    res = await asyncio.gather(*task)
+    clan_tag = ''
+    item = res[0]
+    if item[account_id] is None:
+        clan_tag = 'NO CLAN DATA'
     else:
-        task = asyncio.create_task(api_get_player_ship_data(session, account_id, server))
-    tasks = [
-        asyncio.create_task(api_get_clan_id(session, account_id, server)),
-        asyncio.create_task(api_get_play_personal_data(session, account_id, server)),
-        task
-    ]
-    _init = '_init'
-    _NA = 'N/A'
-    PR = _init
-    clan_tag = _init
-    PR_tag = _init
-    nickName = _init
-    battles = _init
-    winRate = _init
-    damageAvg = _init
-    xpAvg = _init
-    KD = _init
-    accuRate = _init
-    res = await asyncio.gather(*tasks)
-    for i in range(3):
-        match i:
-            case 0:
-                item = res[0]
-                if item[account_id] is None:
-                    clan_tag = '「」'
-                else:
-                    clan_id = str(item[account_id]['clan_id'])
-                    clan_details = await api_get_clan_details(session, clan_id, server)
-                    clan_tag = clan_details[clan_id]['tag']
-            case 1:
-                item = res[1]
-                nickName = item[account_id]['nickname']
-            case 2:
-                if RE:
-                    ship = res[2]
-                    ship = ship[str(account_id)]['statistics'][str(ship_id)]['pvp']
-                    PR_tag, PR = await get_re_pr(ship)
-                    battles = ship['battles_count']
-                    wins = ship['wins']
-                    frags = ship['frags']
-                    damage_dealt = ship['damage_dealt']
-                    xp = ship['exp']
-                    shots = ship['shots_by_main']
-                    hits = ship['hits_by_main']
-                    damageAvg = round(damage_dealt / battles)
-                    winRate = str(format(wins / battles, '.2%'))
-                    xpAvg = str(round(xp / battles))
-                    try:
-                        KD = str(round(frags / (battles - ship['survived']), 2))
-                    except Exception:
-                        KD = _NA
-                    try:
-                        accuRate = str(format(hits / shots, '.2%'))
-                    except Exception:
-                        accuRate = _NA
-                else:
-                    item = res[2]
-                    shipList = item[account_id]
-                    ship_ans = None
-                    for _ship in shipList:
-                        if str(_ship['ship_id']) == ship_id:
-                            ship_ans = _ship
-                    if ship_ans is None:
-                        raise Notfound('没有该船只')
-                    else:
-                        PR_tag, PR = await fun_get_ship_pr(ship_ans)
-                        ship = ship_ans['pvp']
-                        battles = ship['battles']
-                        wins = ship['wins']
-                        frags = ship['frags']
-                        damage_dealt = ship['damage_dealt']
-                        xp = ship['xp']
-                        shots = ship['main_battery']['shots']
-                        hits = ship['main_battery']['hits']
-                        damageAvg = round(damage_dealt / battles)
-                        winRate = str(format(wins / battles, '.2%'))
-                        xpAvg = str(round(xp / battles))
-                        try:
-                            KD = str(round(frags / (battles - ship['survived_battles']), 2))
-                        except Exception:
-                            KD = _NA
-                        try:
-                            accuRate = str(format(hits / shots, '.2%'))
-                        except Exception:
-                            accuRate = _NA
-    return await fun_gen_img(shipName, str(clan_tag), str(nickName), str(battles), str(winRate),
-                             str(damageAvg), str(xpAvg), str(KD), str(accuRate), "_NA", str(PR_tag), draws, Fort)
+        clan_id = str(item[account_id]['clan_id'])
+        clan_details = await api_get_clan_details(session, clan_id, server)
+        clan_tag = clan_details[clan_id]['tag']
+    user = User(res[2][account_id], res[1][account_id], server, None, clan_tag)
+    await user.async_init(res[1][account_id])
+    return await wows_ship(user, ship_id)
 
 
 async def wows_get_ship_img_me(session: aiohttp.ClientSession, account_id: str, server: int, ship_id: str,
                                shipName: str,
                                nickName: str, clan_tag, draws: dict, Fort: dict):
-    _init = '_init'
-    _NA = 'N/A'
-    PR = _init
-    PR_tag = _init
-    battles = _init
-    winRate = _init
-    damageAvg = _init
-    xpAvg = _init
-    KD = _init
-    accuRate = _init
-    RE = await re_ship_check(ship_id)
-    if RE:
-        ship = await reapi_get_player_ship_data(session, account_id, server, ship_id)
-        ship = ship[str(account_id)]['statistics'][str(ship_id)]['pvp']
-        PR_tag, PR = await get_re_pr(ship)
-        battles = ship['battles_count']
-        wins = ship['wins']
-        frags = ship['frags']
-        damage_dealt = ship['damage_dealt']
-        xp = ship['exp']
-        shots = ship['shots_by_main']
-        hits = ship['hits_by_main']
-        damageAvg = round(damage_dealt / battles)
-        winRate = str(format(wins / battles, '.2%'))
-        xpAvg = str(round(xp / battles))
-        try:
-            KD = str(round(frags / (battles - ship['survived']), 2))
-        except Exception:
-            KD = _NA
-        try:
-            accuRate = str(format(hits / shots, '.2%'))
-        except Exception:
-            accuRate = _NA
-    else:
-        item = await api_get_player_ship_data(session, account_id, server)
-        shipList = item[account_id]
-        ship_ans = None
-        for _ship in shipList:
-            if str(_ship['ship_id']) == ship_id:
-                ship_ans = _ship
-        if ship_ans is None:
-            raise Notfound('没有该船只')
-        else:
-            PR_tag, PR = await fun_get_ship_pr(ship_ans)
-            ship = ship_ans['pvp']
-            battles = ship['battles']
-            wins = ship['wins']
-            frags = ship['frags']
-            damage_dealt = ship['damage_dealt']
-            xp = ship['xp']
-            shots = ship['main_battery']['shots']
-            hits = ship['main_battery']['hits']
-            damageAvg = round(damage_dealt / battles)
-            winRate = str(format(wins / battles, '.2%'))
-            xpAvg = str(round(xp / battles))
-            try:
-                KD = str(round(frags / (battles - ship['survived_battles']), 2))
-            except Exception:
-                KD = _NA
-            try:
-                accuRate = str(format(hits / shots, '.2%'))
-            except Exception:
-                accuRate = _NA
-    return await fun_gen_img(shipName, str(clan_tag), str(nickName), str(battles), str(winRate),
-                             str(damageAvg), str(xpAvg), str(KD), str(accuRate), _NA, str(PR_tag), draws, Fort)
+    task = []
+    task_get_warship_detail = asyncio.create_task(api_get_player_ship_data(session, account_id, server))
+    task.append(task_get_warship_detail)
+    task_get_person_detail = asyncio.create_task(api_get_play_personal_data(session, account_id, server))
+    task.append(task_get_person_detail)
+    res = await asyncio.gather(*task)
+    user = User(res[1][account_id], res[0][account_id], server, None, clan_tag)
+    await user.async_init(res[0][account_id])
+    return wows_ship(user, ship_id)
 
 
 async def wows_get_ship_nickName(session: aiohttp.ClientSession, nickName: str, server: int, ship_id: str,
