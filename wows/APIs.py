@@ -584,7 +584,7 @@ async def wows_get_recent(
         """
         wows recent auto
         """
-        past_user = await dataBase.read_recent_data_auto(account_id)
+        past_user = await dataBase.read_recent_data_auto(account_id, int(user.battles))
     else:
         past_user = await dataBase.read_recent_data(account_id, date)
     recent_user = current_user - past_user

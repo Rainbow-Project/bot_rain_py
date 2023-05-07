@@ -688,6 +688,6 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                             )
                         except (APIs.APIError, APIs.NetError, APIs.Notfound) as e:
                             await app.send_group_message(group, MessageChain(e.args))
-    except APIs.Notfound as e:
-        await app.send_group_message(group, MessageChain("出现错误"))
+    except Exception as e:
+        await app.send_group_message(group, MessageChain(f'出现错误:{e}'))
         print(e)
