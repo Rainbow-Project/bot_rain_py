@@ -33,7 +33,7 @@
 
 这个代码，为无法保证没有 bug
 
-通过一种奇奇怪怪的方法完成了 Rank 数据的获取（不保证没有bug）
+~~通过一种奇奇怪怪的方法完成了 Rank 数据的获取（不保证没有bug~~
 
 如果有可以写个 Issues 或 Pull requests 也可以尝试联系 QQ: 563748846 ~~可能相应会很不及时~~
 
@@ -59,7 +59,8 @@ XP
 ## 未来要做的功能有
 
 - 找出并修复 bug
-- 如果（当然不太可能）WG 修好了一些已经坏了的 API 会尝试更新（例如rank战绩的API就是坏的）[损坏的API](https://wows-numbers.com/api/status)
+- ~~如果（当然不太可能）WG 修好了一些已经坏了的 API 会尝试更新（例如rank战绩的API就是坏的）[损坏的API](https://wows-numbers.com/api/status)~~
+- ~~经过玩家与社区的不断努力 Wargaming 已经开始着手修复 API 未来将使用这些 API 提供新功能~~
 - ~~抄其他机器人的功能~~
 
 ## 我需要做什么
