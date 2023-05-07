@@ -420,15 +420,20 @@ async def read_recent_data(account_id: str, days: int):
             return None
 
 
-async def read_recent_data_auto(account_id: str):
+async def read_recent_data_auto(account_id: str, battles: int):
     async with aiosqlite.connect("src/wows_data/user_recent_data.db") as db:
         sql_cmd = """
-        SELECT MAX(date) AS max_date 
-        FROM ships 
-        WHERE account_id = ?;
+        SELECT MAX(date)
+        FROM (
+        SELECT account_id, date, SUM(battles) AS total_battles
+        FROM ships
+        WHERE account_id = ?
+        GROUP BY account_id, date
+        HAVING total_battles <> ?
+        ) subquery;
         """
         try:
-            cursor = await db.execute(sql_cmd, (account_id,))
+            cursor = await db.execute(sql_cmd, (account_id, battles))
             rows = await cursor.fetchall()
             date = rows[0][0]
             print(date)
