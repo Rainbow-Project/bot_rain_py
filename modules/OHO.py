@@ -14,19 +14,19 @@ channel = Channel.current()
 async def gm(app: Ariadne, group: Group, message: MessageChain):
     if "饿还饿" in str(message):
         session = Ariadne.service.client_session
-        async with session.get("https://intmax.top/img/pic_src/pic/OHO.jpg") as resp:  # type: ignore
+        async with session.get("https://int-0x7fffffff.github.io/img/pic_src/pic/OHO.jpg") as resp:  # type: ignore
             img_bytes = await resp.read()
         bot_message = await app.send_message(
             group, MessageChain(Image(data_bytes=img_bytes))
         )
         await asyncio.sleep(2)
-        async with session.get("https://intmax.top/img/pic_src/pic/OHO2.jpg") as resp:  # type: ignore
+        async with session.get("https://int-0x7fffffff.github.io/img/pic_src/pic/OHO2.jpg") as resp:  # type: ignore
             img_bytes = await resp.read()
         bot_message = await app.send_message(
             group, MessageChain(Image(data_bytes=img_bytes))
         )
         await asyncio.sleep(2)
-        async with session.get("https://intmax.top/img/pic_src/pic/OHO3.png") as resp:  # type: ignore
+        async with session.get("https://int-0x7fffffff.github.io/img/pic_src/pic/OHO3.png") as resp:  # type: ignore
             img_bytes = await resp.read()
         bot_message = await app.send_message(
             group, MessageChain(Image(data_bytes=img_bytes))
