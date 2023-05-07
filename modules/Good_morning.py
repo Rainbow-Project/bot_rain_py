@@ -22,6 +22,8 @@ async def zao(app: Ariadne, group: Group, message: MessageChain):
         for x in os.listdir(path):
             audios.append(x)
         audio_random = path + random.sample(audios, 1)[0]
-        with open(audio_random, 'rb') as f:
+        with open(audio_random, "rb") as f:
             file = io.BytesIO(f.read())
-            await app.send_message(group, MessageChain(Voice(data_bytes=file.getvalue())))
+            await app.send_message(
+                group, MessageChain(Voice(data_bytes=file.getvalue()))
+            )

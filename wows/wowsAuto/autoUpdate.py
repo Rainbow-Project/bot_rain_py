@@ -9,7 +9,7 @@ from graia.ariadne import Ariadne
 from graia.saya import Saya, Channel
 from graia.scheduler import timers
 from graia.scheduler.saya import SchedulerSchema
-from modules.wows.dataBase import update
+from wows.dataBase import update
 
 saya = Saya.current()
 channel = Channel.current()

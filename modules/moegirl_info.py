@@ -17,27 +17,27 @@ channel.description("获取萌娘百科上人物介绍卡片")
 channel.author("I_love_study")
 
 
-@channel.use(ListenerSchema(
-    listening_events=[GroupMessage],
-    inline_dispatchers=[Twilight.from_command("萌娘百科 {para}")]
-))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight.from_command("萌娘百科 {para}")],
+    )
+)
 async def moegirl_search(app: Ariadne, group: Group, para: MatchResult):
     url = "https://zh.moegirl.org.cn/zh-cn/" + quote(para.result.display.strip())
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         context = await browser.new_context(device_scale_factor=2.0)
         page = await context.new_page()
-        await app.send_group_message(group, MessageChain([
-            Plain("正在加载中，请稍后")
-        ]))
+        await app.send_group_message(group, MessageChain([Plain("正在加载中，请稍后")]))
 
         try:
             # 因为萌娘有点慢所以给20s加载并且使用domcontentloaded(可能会出现加载不出来图片)
-            await page.goto(url, wait_until='domcontentloaded', timeout=20000)
+            await page.goto(url, wait_until="domcontentloaded", timeout=20000)
         except Exception:
-            await app.send_group_message(group, MessageChain([
-                Plain("错误：无法打开页面(可能是页面加载时间太久)，请稍后再试")
-            ]))
+            await app.send_group_message(
+                group, MessageChain([Plain("错误：无法打开页面(可能是页面加载时间太久)，请稍后再试")])
+            )
             await browser.close()
             return
 
@@ -53,7 +53,7 @@ async def moegirl_search(app: Ariadne, group: Group, para: MatchResult):
             return
         clip = await card.bounding_box()
         assert clip is not None
-        pic = await page.screenshot(clip=clip, type='png', full_page=True)
+        pic = await page.screenshot(clip=clip, type="png", full_page=True)
         await browser.close()
 
     await app.send_group_message(group, MessageChain(Image(data_bytes=pic)))

@@ -8,8 +8,12 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import *
-from graia.ariadne.message.parser.twilight import (FullMatch, MatchResult,
-                                                   Twilight, WildcardMatch)
+from graia.ariadne.message.parser.twilight import (
+    FullMatch,
+    MatchResult,
+    Twilight,
+    WildcardMatch,
+)
 from graia.ariadne.model import Group, Member
 from graia.saya import Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
@@ -31,7 +35,7 @@ frame_spec = [
     [22, 36, 91, 90],
     [18, 41, 95, 90],
     [22, 41, 91, 91],
-    [27, 28, 86, 91]
+    [27, 28, 86, 91],
 ]
 
 # 挤压偏移量
@@ -42,7 +46,7 @@ squish_factor = [
     (-7, 22, 8, 0),
     (-8, 30, 9, 6),
     (-3, 21, 5, 9),
-    (0, 0, 0, 0)
+    (0, 0, 0, 0),
 ]
 # 最大挤压时每一帧模板向下偏移的量
 squish_translation_factor = [0, 20, 34, 21, 0]
@@ -50,7 +54,7 @@ squish_translation_factor = [0, 20, 34, 21, 0]
 
 def make_petpet(file, squish=0):
     profile_pic = IMG.open(file)
-    hands = IMG.open(Path(__file__).parent / 'sprite.png')
+    hands = IMG.open(Path(__file__).parent / "sprite.png")
     gifs = []
     for i, spec in enumerate(frame_spec):
         # 将位置添加偏移量
@@ -59,8 +63,9 @@ def make_petpet(file, squish=0):
         hand = hands.crop((112 * i, 0, 112 * (i + 1), 112))
         reprofile = profile_pic.resize(
             (int((spec[2] - spec[0]) * 1.2), int((spec[3] - spec[1]) * 1.2)),
-            IMG.ANTIALIAS)
-        gif_frame = IMG.new('RGB', (112, 112), (255, 255, 255))
+            IMG.ANTIALIAS,
+        )
+        gif_frame = IMG.new("RGB", (112, 112), (255, 255, 255))
         gif_frame.paste(reprofile, (spec[0], spec[1]))
         gif_frame.paste(hand, (0, int(squish * squish_translation_factor[i])), hand)
         gifs.append(gif_frame)
@@ -68,14 +73,22 @@ def make_petpet(file, squish=0):
     return ret
 
 
-@channel.use(ListenerSchema(
-    listening_events=[GroupMessage],
-    inline_dispatchers=[Twilight([FullMatch("摸头"), WildcardMatch() @ "para"])]
-))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("摸头"), WildcardMatch() @ "para"])],
+    )
+)
 async def petpet(app: Ariadne, group: Group, member: Member, para: MatchResult):
-    user = para.result.getFirst(At).target if para.matched and para.result.has(At) else member.id
+    user = (
+        para.result.getFirst(At).target
+        if para.matched and para.result.has(At)
+        else member.id
+    )
     profile_url = f"http://q1.qlogo.cn/g?b=qq&nk={user}&s=640"
     async with aiohttp.request("GET", profile_url) as r:
         profile = BytesIO(await r.read())
     gif = make_petpet(profile)
-    await app.send_group_message(group, MessageChain([Image(data_bytes=gif.getvalue())]))
+    await app.send_group_message(
+        group, MessageChain([Image(data_bytes=gif.getvalue())])
+    )

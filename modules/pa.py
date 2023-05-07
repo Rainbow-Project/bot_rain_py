@@ -21,6 +21,9 @@ async def img(app: Ariadne, group: Group, message: MessageChain):
         else:
             s_pa = "2"
         async with session.get(
-                "https://intmax.top/img/pic_src/pic/paXXX.jpg".replace("XXX", s_pa)) as resp:  # type: ignore
+            "https://intmax.top/img/pic_src/pic/paXXX.jpg".replace("XXX", s_pa)
+        ) as resp:  # type: ignore
             img_bytes = await resp.read()
-        bot_message = await app.send_message(group, MessageChain(Image(data_bytes=img_bytes)))
+        bot_message = await app.send_message(
+            group, MessageChain(Image(data_bytes=img_bytes))
+        )
