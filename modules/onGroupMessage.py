@@ -39,7 +39,7 @@ async def gm(app: Ariadne, group: Group, message: MessageChain, message2: GroupM
         await app.send_message(
             group,
             MessageChain(
-                "https://intmax.top/2022/05/13/%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9F%BA%E7%A1%80%E6%8C%87"
+                "https://int-0x7fffffff.github.io/2022/05/13/%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9F%BA%E7%A1%80%E6%8C%87"
                 "%E4%BB%A4/"
             ),
         )

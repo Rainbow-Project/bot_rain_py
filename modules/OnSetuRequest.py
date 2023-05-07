@@ -19,7 +19,7 @@ async def img(app: Ariadne, group: Group, message: MessageChain):
     session = Ariadne.service.client_session
     random_int = random.randrange(1, 930)
     async with session.get(
-        "https://intmax.top/img/pic_src/setu_src/setu%20(XXX).jpg".replace(
+        "https://int-0x7fffffff.github.io/img/pic_src/setu_src/setu%20(XXX).jpg".replace(
             "XXX", str(random_int)
         )
     ) as resp:

@@ -14,7 +14,7 @@ channel = Channel.current()
 async def recall(app: Ariadne, group: Group, mem: Member):
     session = Ariadne.service.client_session
     if mem.id != 214047076:
-        async with session.get("https://intmax.top/img/pic_src/pic/Recall.jpg") as resp:  # type: ignore
+        async with session.get("https://int-0x7fffffff.github.io/img/pic_src/pic/Recall.jpg") as resp:  # type: ignore
             img_bytes = await resp.read()
         bot_message = await app.send_message(
             group, MessageChain(Image(data_bytes=img_bytes))
