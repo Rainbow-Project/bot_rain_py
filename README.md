@@ -37,7 +37,7 @@
 
 如果有可以写个 Issues 或 Pull requests 也可以尝试联系 QQ: 563748846 ~~可能相应会很不及时~~
 
-### 本项目中的 wows_pic 下的图片 未经许可不可修改
+### 本项目中的 components 下的图片 未经许可不可修改
 
 ## 图标著作权
 
@@ -49,8 +49,8 @@ K/D
 绘制工具IPAD  
 @INTMAX   
 胜率  
-XP  
 绘制工具 INKSCAPE
+[xp(GNU General Public License v2.0)](https://iconduck.com/sets/elegant-circles-icon-set)
 
 ## 她能做什么
 
@@ -60,7 +60,7 @@ XP
 
 - 找出并修复 bug
 - ~~如果（当然不太可能）WG 修好了一些已经坏了的 API 会尝试更新（例如rank战绩的API就是坏的）[损坏的API](https://wows-numbers.com/api/status)~~
-- ~~经过玩家与社区的不断努力 Wargaming 已经开始着手修复 API 未来将使用这些 API 提供新功能~~
+- 经过玩家与社区的不断努力 Wargaming 已经开始着手修复 API 未来将使用这些 API 提供新功能
 - ~~抄其他机器人的功能~~
 
 ## 我需要做什么
