@@ -2,7 +2,12 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import *
-from graia.ariadne.message.parser.twilight import Twilight, FullMatch, ElementMatch, ElementResult
+from graia.ariadne.message.parser.twilight import (
+    Twilight,
+    FullMatch,
+    ElementMatch,
+    ElementResult,
+)
 from graia.ariadne.model import Group, Member
 from graia.saya import Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
@@ -16,7 +21,7 @@ channel.name("Saucenao")
 channel.description("以图搜图")
 channel.author("I_love_study")
 
-'''              
+"""              
 去申请自己的           
            ｜        ｜
            ｜        ｜
@@ -27,21 +32,28 @@ channel.author("I_love_study")
               \    /
                \  /
                 \/                                 
-'''
+"""
 
 apikey = saucenaoApiKey
 
 
 @channel.use(
-    ListenerSchema(listening_events=[GroupMessage],
-                   inline_dispatchers=[
-                       Twilight([
-                           FullMatch("色图大雷达"),
-                           FullMatch("\n", optional=True),
-                           "img" @ ElementMatch(Image, optional=True),
-                       ]),
-                   ]))
-async def saucenao(app: Ariadne, group: Group, member: Member, img: ElementResult, source: Source):
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight(
+                [
+                    FullMatch("色图大雷达"),
+                    FullMatch("\n", optional=True),
+                    "img" @ ElementMatch(Image, optional=True),
+                ]
+            ),
+        ],
+    )
+)
+async def saucenao(
+    app: Ariadne, group: Group, member: Member, img: ElementResult, source: Source
+):
     await app.send_group_message(group, MessageChain("我正在使用色图雷达"), quote=source.id)
     async with AIOSauceNao(apikey, numres=3) as snao:
         try:
@@ -62,7 +74,9 @@ async def saucenao(app: Ariadne, group: Group, member: Member, img: ElementResul
                 time=datetime.now(),
                 message=MessageChain(
                     f"相似度：{results.similarity}%\n标题：{results.title}\n节点名：{results.index_name}\n链接：{urls}"
-                )))
+                ),
+            )
+        )
 
     if len(fwd_node_list) == 0:
         await app.send_message(group, MessageChain("未找到有价值的数据"), quote=source.id)

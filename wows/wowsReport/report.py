@@ -10,8 +10,12 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage, MessageEvent
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import Image, Quote, At
-from graia.ariadne.message.parser.twilight import (FullMatch, MatchResult,
-                                                   Twilight, WildcardMatch)
+from graia.ariadne.message.parser.twilight import (
+    FullMatch,
+    MatchResult,
+    Twilight,
+    WildcardMatch,
+)
 from graia.ariadne.model import Group
 from io import BytesIO
 from graia.saya import Channel
@@ -35,31 +39,40 @@ def pic_cut(file):
     box = (500, 150, 1500, 600)
     region = pic_report.crop(box)
     output = BytesIO()
-    region.save(output, format='jpeg')
+    region.save(output, format="jpeg")
     return output
 
 
 def get_ship_data():
     dict_temp = {}
-    with open("src/wows_data/wows_ship_v1.txt", 'r') as f:
+    with open("src/wows_data/wows_ship_v1.txt", "r") as f:
         for line in f.readlines():
             line = line.strip()
-            k = line.split(' ')[0]
-            v = line.split(' ')[1]
+            k = line.split(" ")[0]
+            v = line.split(" ")[1]
             dict_temp[k] = v
     return dict_temp
 
 
 def ocr_read(file):
-    reader = easyocr.Reader(['ch_sim'], gpu=False)
+    reader = easyocr.Reader(["ch_sim"], gpu=False)
     result = reader.readtext(file.getvalue(), detail=0)
     return result
 
 
-@channel.use(ListenerSchema(
-    listening_events=[GroupMessage],
-    inline_dispatchers=[Twilight([WildcardMatch() @ "para", FullMatch("口"), ])]
-))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[
+            Twilight(
+                [
+                    WildcardMatch() @ "para",
+                    FullMatch("口"),
+                ]
+            )
+        ],
+    )
+)
 async def report(app: Ariadne, group: Group, message: MessageChain, para: MatchResult):
     if offline:
         # await app.send_message(group, MessageChain('OCR检测开始'))
@@ -75,12 +88,11 @@ async def report(app: Ariadne, group: Group, message: MessageChain, para: MatchR
         dic_ship = get_ship_data()
         for res_sig in res:
             if res_sig in dic_ship.keys():
-                await app.send_message(group,
-                                      MessageChain(f'检测到船只 {res_sig}'))
+                await app.send_message(group, MessageChain(f"检测到船只 {res_sig}"))
                 try:
                     await app.mute_member(group, target, 3600)
                 except PermissionError:
-                    await app.send_group_message(group, MessageChain('ERROR:权限不足'))
+                    await app.send_group_message(group, MessageChain("ERROR:权限不足"))
                 break
     else:
         target = para.result.getFirst(At).target
@@ -93,16 +105,15 @@ async def report(app: Ariadne, group: Group, message: MessageChain, para: MatchR
         out = pic_cut(input)
         url: str = org_img.url
         session = Ariadne.service.client_session
-        async with session.get(API.replace('APIKEY', APIKEY).replace('PIC_URL', url)) as resp:  # type: ignore
+        async with session.get(API.replace("APIKEY", APIKEY).replace("PIC_URL", url)) as resp:  # type: ignore
             data = await resp.json()
             dic = get_ship_data()
-            val = data['ParsedResults'][0]['ParsedText']
+            val = data["ParsedResults"][0]["ParsedText"]
             for ship in dic.keys():
                 if ship in val:
-                    await app.send_message(group,
-                                          MessageChain(f'检测到船只 {ship}'))
+                    await app.send_message(group, MessageChain(f"检测到船只 {ship}"))
                     try:
                         await app.mute_member(group, target, 3600)
                     except PermissionError:
-                        await app.send_group_message(group, MessageChain('ERROR:权限不足'))
+                        await app.send_group_message(group, MessageChain("ERROR:权限不足"))
                     break

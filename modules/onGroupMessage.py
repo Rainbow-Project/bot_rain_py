@@ -18,7 +18,7 @@ async def gm(app: Ariadne, group: Group, message: MessageChain, message2: GroupM
             group,
             MessageChain(f"不要说{message.display}"),
         )
-        ''''
+        """'
                                                             ｜        ｜
                                                             ｜        ｜
                                                             ｜        ｜
@@ -28,16 +28,18 @@ async def gm(app: Ariadne, group: Group, message: MessageChain, message2: GroupM
                                                                \    /
                                                                 \  /
                                                                  \/
-         '''
+         """
     elif str(message) == "强制更新" and message2.sender.id == 563748846:
         await update()
         await app.send_message(
             group,
-            MessageChain('强制更新完成'),
+            MessageChain("强制更新完成"),
         )
     elif str(message) == "/help" and message2.sender.id == 563748846:
         await app.send_message(
             group,
-            MessageChain('https://intmax.top/2022/05/13/%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9F%BA%E7%A1%80%E6%8C%87'
-                                '%E4%BB%A4/'),
+            MessageChain(
+                "https://intmax.top/2022/05/13/%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%9F%BA%E7%A1%80%E6%8C%87"
+                "%E4%BB%A4/"
+            ),
         )

@@ -19,6 +19,9 @@ async def newMember(app: Ariadne, event: MemberJoinEvent, member: Member, group:
     await app.send_group_message(group, MessageChain(msg_string))
     url = f"https://q.qlogo.cn/g?b=qq&nk={member.id}&s=640"
     async with aiohttp.request("GET", url) as r:
-        await app.send_group_message(group,
-                                   MessageChain(
-                                       Image(data_bytes=await asyncio.to_thread(create_meme, await r.read()))))
+        await app.send_group_message(
+            group,
+            MessageChain(
+                Image(data_bytes=await asyncio.to_thread(create_meme, await r.read()))
+            ),
+        )

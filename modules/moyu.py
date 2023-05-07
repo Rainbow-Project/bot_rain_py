@@ -25,7 +25,7 @@ holiday = {
     "清明节": [date(2023, 4, 5), date(2023, 4, 5)],
     "劳动节": [date(2023, 4, 29), date(2023, 5, 3)],
     "端午节": [date(2023, 6, 22), date(2023, 6, 24)],
-    "中秋节、国庆节": [date(2023, 9, 29), date(2023, 10, 6)]
+    "中秋节、国庆节": [date(2023, 9, 29), date(2023, 10, 6)],
 }
 
 # 周末上班
@@ -40,7 +40,7 @@ weekend_but_work = {
     date(2023, 6, 25),
     # 中秋节、国庆节
     date(2023, 10, 7),
-    date(2023, 10, 8)
+    date(2023, 10, 8),
 }
 
 
@@ -83,8 +83,7 @@ def in_holiday() -> bool:
 @channel.use(SchedulerSchema(timers.crontabify("0 8 * * * 0")))
 async def moyu(app: Ariadne):
     today = date.today()
-    msg = MessageChain(
-        f"早上好，摸鱼人！今天是{today.strftime('%Y年%m月%d日')}\n")
+    msg = MessageChain(f"早上好，摸鱼人！今天是{today.strftime('%Y年%m月%d日')}\n")
 
     # 看看今天是不是周末
     if today.isoweekday() in [6, 7]:

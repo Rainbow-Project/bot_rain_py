@@ -27,41 +27,15 @@ app = Ariadne(
         WebsocketClientConfig(host="http://localhost:9333"),
     ),
 )
-img_avg = IMG.open('wows_pic/wows_id_avg.jpg')
-img_below_avg = IMG.open('wows_pic/wows_id_below_avg.jpg')
-img_god = IMG.open('wows_pic/wows_id_god.jpg')
-img_good = IMG.open('wows_pic/wows_id_good.jpg')
-img_work_hard = IMG.open('wows_pic/wows_id_need_work_hard.jpg')
-img_unknown = IMG.open('wows_pic/wows_id_unknown.jpg')
-img_very_good = IMG.open('wows_pic/wows_id_very_good.jpg')
-img_dalao = IMG.open('wows_pic/wows_id_dalao.jpg')
-
-
-img_avg_cv = cv.imread('wows_pic/wows_id_avg.jpg')
-img_below_avg_cv = cv.imread('wows_pic/wows_id_below_avg.jpg')
-img_god_cv = cv.imread('wows_pic/wows_id_god.jpg')
-img_good_cv = cv.imread('wows_pic/wows_id_good.jpg')
-img_work_hard_cv = cv.imread('wows_pic/wows_id_need_work_hard.jpg')
-img_unknown_cv = cv.imread('wows_pic/wows_id_unknown.jpg')
-img_very_good_cv = cv.imread('wows_pic/wows_id_very_good.jpg')
-img_dalao_cv = cv.imread('wows_pic/wows_id_dalao.jpg')
-
-wows_pic = {
-    'draw_avg': [img_avg, img_avg_cv],
-    'draw_below_avg': [img_below_avg, img_below_avg_cv],
-    'draw_god': [img_god, img_god_cv],
-    'draw_good': [img_good, img_good_cv],
-    'draw_work_hard': [img_work_hard, img_work_hard_cv],
-    'draw_unknown': [img_unknown, img_unknown_cv],
-    'draw_very_good': [img_very_good, img_very_good_cv],
-    'draw_dalao': [img_dalao, img_dalao_cv]
-}
-setFont = ImageFont.truetype("src/font/SourceHanSans-Heavy.otf", 50)
-setFont_big = ImageFont.truetype("src/font/SourceHanSans-Heavy.otf", 70)
-Font = {
-    'setFont': setFont,
-    'setFont_big': setFont_big,
-}
+main_data_img = cv.imread("components/recent.png")
+pr_bar_img = cv.imread("components/pr_bar.png")
+max_data_img = cv.imread("components/max_main.png")
+recent_data_img = cv.imread("components/recent.png")
+images = [main_data_img, pr_bar_img, max_data_img, recent_data_img]
+font_medium = ImageFont.truetype("src/font/SourceHanSans-Heavy.otf", 40)
+font_heavy = ImageFont.truetype("src/font/SourceHanSans-Heavy.otf", 48)
+font_medium_32 = ImageFont.truetype("src/font/SourceHanSans-Heavy.otf", 32)
+fonts = [font_medium, font_heavy, font_medium_32]
 app.create(GraiaScheduler)
 saya = app.create(Saya)
 saya.install_behaviours(
@@ -70,9 +44,9 @@ saya.install_behaviours(
 )
 
 with saya.module_context():
-    saya.mount('wows_pic', wows_pic)
-    saya.mount('Font', Font)
-    saya.mount('CoolDown', [])
+    saya.mount("wows_images", images)
+    saya.mount("Font", fonts)
+    saya.mount("CoolDown", [])
     saya.require("wows")
     for module_info in pkgutil.iter_modules(["modules"]):
         saya.require("modules." + module_info.name)

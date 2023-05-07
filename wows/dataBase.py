@@ -16,15 +16,25 @@ import aiosqlite
 
 import ApiKeys
 
+from wows.utility import User, Ship
+
 application_id = ApiKeys.wowsApikey
 
 
 async def get_user_data(account_id: str, server: int):
-    wows_account_player_personal_data_ru = 'https://api.worldofwarships.ru/wows/account/info/'
-    wows_account_player_personal_data_eu = 'https://api.worldofwarships.eu/wows/account/info/'
-    wows_account_player_personal_data_na = 'https://api.worldofwarships.com/wows/account/info/'
-    wows_account_player_personal_data_asia = 'https://api.worldofwarships.asia/wows/account/info/'
-    API = ''
+    wows_account_player_personal_data_ru = (
+        "https://api.worldofwarships.ru/wows/account/info/"
+    )
+    wows_account_player_personal_data_eu = (
+        "https://api.worldofwarships.eu/wows/account/info/"
+    )
+    wows_account_player_personal_data_na = (
+        "https://api.worldofwarships.com/wows/account/info/"
+    )
+    wows_account_player_personal_data_asia = (
+        "https://api.worldofwarships.asia/wows/account/info/"
+    )
+    API = ""
     match server:
         case 0:
             API = wows_account_player_personal_data_asia
@@ -35,15 +45,13 @@ async def get_user_data(account_id: str, server: int):
         case 3:
             API = wows_account_player_personal_data_na
 
-    params = [('application_id', application_id),
-              ('account_id', account_id)
-              ]
+    params = [("application_id", application_id), ("account_id", account_id)]
     async with aiohttp.ClientSession() as session:
         async with session.get(API, params=params) as resp:
             if 200 == resp.status:
                 data = await resp.json()
-                if data['status'] == 'ok':
-                    return data['data']
+                if data["status"] == "ok":
+                    return data["data"]
                 else:
                     print(data)
                     return {}
@@ -53,17 +61,17 @@ async def get_user_data(account_id: str, server: int):
 
 
 async def update_ship_data():
-    api = 'https://api.wows-numbers.com/personal/rating/expected/json/'
+    api = "https://api.wows-numbers.com/personal/rating/expected/json/"
     async with aiohttp.ClientSession() as session:
         async with session.get(api) as resp:
             if 200 == resp.status:
                 data = await resp.json()
-                async with aiofiles.open('src/wows_data/wows_exp.json', mode='w') as f:
+                async with aiofiles.open("src/wows_data/wows_exp.json", mode="w") as f:
                     await f.write(json.dumps(data, ensure_ascii=False, indent=4))
 
 
 async def read_user_data():
-    async with aiofiles.open('src/wows_data/user_data.json', mode='r') as f:
+    async with aiofiles.open("src/wows_data/user_data.json", mode="r") as f:
         js = await f.read()
         try:
             dic = json.loads(js)
@@ -73,11 +81,11 @@ async def read_user_data():
 
 
 async def update_user_ship_list(account_id: str, server: int):
-    wows_warship_stat_ru = 'https://api.worldofwarships.ru/wows/ships/stats/'
-    wows_warship_stat_eu = 'https://api.worldofwarships.eu/wows/ships/stats/'
-    wows_warship_stat_na = 'https://api.worldofwarships.com/wows/ships/stats/'
-    wows_warship_stat_asia = 'https://api.worldofwarships.asia/wows/ships/stats/'
-    API = ''
+    wows_warship_stat_ru = "https://api.worldofwarships.ru/wows/ships/stats/"
+    wows_warship_stat_eu = "https://api.worldofwarships.eu/wows/ships/stats/"
+    wows_warship_stat_na = "https://api.worldofwarships.com/wows/ships/stats/"
+    wows_warship_stat_asia = "https://api.worldofwarships.asia/wows/ships/stats/"
+    API = ""
     match server:
         case 0:
             API = wows_warship_stat_asia
@@ -87,31 +95,31 @@ async def update_user_ship_list(account_id: str, server: int):
             API = wows_warship_stat_eu
         case 3:
             API = wows_warship_stat_na
-    params = [('application_id', application_id),
-              ('account_id', account_id)
-              ]
+    params = [("application_id", application_id), ("account_id", account_id)]
 
     async with aiohttp.ClientSession() as session:
         async with session.get(API, params=params) as resp:
             if 200 == resp.status:
                 data = await resp.json()
-                if data['status'] == 'ok':
-                    print('sql:' + str(account_id))
-                    shipList = data['data'][account_id]
+                if data["status"] == "ok":
+                    print("sql:" + str(account_id))
+                    shipList = data["data"][account_id]
                     today = str(datetime.date.today())
                     print(account_id)
-                    key_insert = str(account_id) + '_' + today
-                    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+                    key_insert = str(account_id) + "_" + today
+                    async with aiosqlite.connect(
+                        "src/wows_data/user_recent_data.db"
+                    ) as db:
                         for ship in shipList:
-                            ship_id = ship['ship_id']
-                            battles = ship['pvp']['battles']
-                            frags = ship['pvp']['frags']
-                            XP = ship['pvp']['xp']
-                            damage = ship['pvp']['damage_dealt']
-                            wins = ship['pvp']['wins']
-                            survived = ship['pvp']['survived_battles']
-                            shots = ship['pvp']['main_battery']['shots']
-                            hits = ship['pvp']['main_battery']['hits']
+                            ship_id = ship["ship_id"]
+                            battles = ship["pvp"]["battles"]
+                            frags = ship["pvp"]["frags"]
+                            XP = ship["pvp"]["xp"]
+                            damage = ship["pvp"]["damage_dealt"]
+                            wins = ship["pvp"]["wins"]
+                            survived = ship["pvp"]["survived_battles"]
+                            shots = ship["pvp"]["main_battery"]["shots"]
+                            hits = ship["pvp"]["main_battery"]["hits"]
                             sql_cmd = """INSERT INTO ships (account_id, ship_id, date, battles, wins, shots, hit, 
                             damage, frags, survive, xp) VALUES (?,?,?,?,?,?,?,?,?,?,?)
                             ON CONFLICT (account_id, ship_id, date) DO
@@ -123,8 +131,22 @@ async def update_user_ship_list(account_id: str, server: int):
                             shots=excluded.shots,
                             hit=excluded.hit
                             ; """
-                            await db.execute(sql_cmd, (
-                                account_id, ship_id, today, battles, wins, shots, hits, damage, frags, survived, XP))
+                            await db.execute(
+                                sql_cmd,
+                                (
+                                    account_id,
+                                    ship_id,
+                                    today,
+                                    battles,
+                                    wins,
+                                    shots,
+                                    hits,
+                                    damage,
+                                    frags,
+                                    survived,
+                                    XP,
+                                ),
+                            )
                         await db.commit()
                 else:
                     print(data)
@@ -133,7 +155,7 @@ async def update_user_ship_list(account_id: str, server: int):
 
 
 async def wows_get_numbers_api():
-    async with aiofiles.open('src/wows_data/wows_exp.json', mode='r') as f:
+    async with aiofiles.open("src/wows_data/wows_exp.json", mode="r") as f:
         js = await f.read()
         try:
             dic = json.loads(js)
@@ -147,8 +169,8 @@ async def update_user_past_data():
     task = []
     for user in users.values():
         for accounts in user:
-            account_id = accounts['account_id']
-            server = accounts['server']
+            account_id = accounts["account_id"]
+            server = accounts["server"]
             task.append(asyncio.create_task(update_user_ship_list(account_id, server)))
             await asyncio.sleep(random.randrange(10, 20) / 100)
     await asyncio.gather(*task)
@@ -156,11 +178,19 @@ async def update_user_past_data():
 
 
 async def get_clan_data(account_id: str, server: int):
-    wows_clans_player_clan_data_ru = 'https://api.worldofwarships.ru/wows/clans/accountinfo/'
-    wows_clans_player_clan_data_eu = 'https://api.worldofwarships.eu/wows/clans/accountinfo/'
-    wows_clans_player_clan_data_na = 'https://api.worldofwarships.com/wows/clans/accountinfo/'
-    wows_clans_player_clan_data_asia = 'https://api.worldofwarships.asia/wows/clans/accountinfo/'
-    API = ''
+    wows_clans_player_clan_data_ru = (
+        "https://api.worldofwarships.ru/wows/clans/accountinfo/"
+    )
+    wows_clans_player_clan_data_eu = (
+        "https://api.worldofwarships.eu/wows/clans/accountinfo/"
+    )
+    wows_clans_player_clan_data_na = (
+        "https://api.worldofwarships.com/wows/clans/accountinfo/"
+    )
+    wows_clans_player_clan_data_asia = (
+        "https://api.worldofwarships.asia/wows/clans/accountinfo/"
+    )
+    API = ""
     match server:
         case 0:
             API = wows_clans_player_clan_data_asia
@@ -171,15 +201,13 @@ async def get_clan_data(account_id: str, server: int):
         case 3:
             API = wows_clans_player_clan_data_na
 
-    params = [('application_id', application_id),
-              ('account_id', account_id)
-              ]
+    params = [("application_id", application_id), ("account_id", account_id)]
     async with aiohttp.ClientSession() as session:
         async with session.get(API, params=params) as resp:
             if 200 == resp.status:
                 data = await resp.json()
-                if data['status'] == 'ok':
-                    return data['data']
+                if data["status"] == "ok":
+                    return data["data"]
                 else:
                     print(data)
                     return {}
@@ -189,11 +217,11 @@ async def get_clan_data(account_id: str, server: int):
 
 
 async def get_clan_tag(clan_id: str, server: int):
-    wows_clans_clan_details_ru = 'https://api.worldofwarships.ru/wows/clans/info/'
-    wows_clans_clan_details_eu = 'https://api.worldofwarships.eu/wows/clans/info/'
-    wows_clans_clan_details_na = 'https://api.worldofwarships.com/wows/clans/info/'
-    wows_clans_clan_details_asia = 'https://api.worldofwarships.asia/wows/clans/info/'
-    API = ''
+    wows_clans_clan_details_ru = "https://api.worldofwarships.ru/wows/clans/info/"
+    wows_clans_clan_details_eu = "https://api.worldofwarships.eu/wows/clans/info/"
+    wows_clans_clan_details_na = "https://api.worldofwarships.com/wows/clans/info/"
+    wows_clans_clan_details_asia = "https://api.worldofwarships.asia/wows/clans/info/"
+    API = ""
     match server:
         case 0:
             API = wows_clans_clan_details_asia
@@ -204,15 +232,13 @@ async def get_clan_tag(clan_id: str, server: int):
         case 3:
             API = wows_clans_clan_details_na
 
-    params = [('application_id', application_id),
-              ('clan_id', clan_id)
-              ]
+    params = [("application_id", application_id), ("clan_id", clan_id)]
     async with aiohttp.ClientSession() as session:
         async with session.get(API, params=params) as resp:
             if 200 == resp.status:
                 data = await resp.json()
-                if data['status'] == 'ok':
-                    return data['data']
+                if data["status"] == "ok":
+                    return data["data"]
                 else:
                     print(data)
                     return {}
@@ -224,38 +250,40 @@ async def get_clan_tag(clan_id: str, server: int):
 async def update_task(accounts: list, sender_id: int):
     tmp_list = []
     for account in accounts:
-        account_id = account['account_id']
-        server = account['server']
+        account_id = account["account_id"]
+        server = account["server"]
         item = await get_clan_data(account_id, server)
         if item != {}:
             if str(account_id) in item.keys() and item[str(account_id)] is not None:
-                nickName = item[str(account_id)]['account_name']
+                nickName = item[str(account_id)]["account_name"]
                 if account_id not in item.keys():
-                    clan_tag = 'NO CLAN DATA'
+                    clan_tag = "NO CLAN DATA"
                 else:
-                    clan_id = str(item[account_id]['clan_id'])
+                    clan_id = str(item[account_id]["clan_id"])
                     clan_details = await get_clan_tag(clan_id, server)
                     if clan_details != {}:
-                        clan_tag = clan_details[clan_id]['tag']
+                        clan_tag = clan_details[clan_id]["tag"]
                     else:
-                        clan_tag = 'NO CLAN DATA'
-                tmp_list.append({
-                    'account_id': account_id,
-                    'server': server,
-                    'clan_tag': clan_tag,
-                    'nickName': nickName
-                })
+                        clan_tag = "NO CLAN DATA"
+                tmp_list.append(
+                    {
+                        "account_id": account_id,
+                        "server": server,
+                        "clan_tag": clan_tag,
+                        "nickName": nickName,
+                    }
+                )
             else:
-                account['clan_tag'] = 'NO CLAN DATA'
+                account["clan_tag"] = "NO CLAN DATA"
                 item = await get_user_data(account_id, server)
                 if item == {}:
                     pass
                 else:
-                    account['nickName'] = item[account_id]['nickname']
+                    account["nickName"] = item[account_id]["nickname"]
                 tmp_list.append(account)
         else:
             tmp_list.append(account)
-    print('json' + str(sender_id))
+    print("json" + str(sender_id))
     return [sender_id, tmp_list]
 
 
@@ -267,7 +295,7 @@ async def add_user(sender_id: int, user_add: dict):
         if len(tmp_list) < 6:
             add_stat = True
             for account in tmp_list:
-                if account['account_id'] == user_add['account_id']:
+                if account["account_id"] == user_add["account_id"]:
                     add_stat = False
                     break
             if add_stat:
@@ -279,7 +307,7 @@ async def add_user(sender_id: int, user_add: dict):
             return 1
     else:
         old_data[sender_id] = [user_add]
-    async with aiofiles.open('src/wows_data/user_data.json', mode='w') as f:
+    async with aiofiles.open("src/wows_data/user_data.json", mode="w") as f:
         await f.write(json.dumps(old_data, ensure_ascii=False, indent=4))
     return 0
 
@@ -296,17 +324,17 @@ async def update_user_detail():
         sender_id = item[0]
         tmp_list = item[1]
         user_detail[sender_id] = tmp_list
-    async with aiofiles.open('src/wows_data/user_data.json', mode='w') as f:
+    async with aiofiles.open("src/wows_data/user_data.json", mode="w") as f:
         await f.write(json.dumps(user_detail, ensure_ascii=False, indent=4))
-    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+    async with aiosqlite.connect("src/wows_data/user_recent_data.db") as db:
         insert_task = []
         for qid, accounts in user_detail.items():
             for account in accounts:
-                account_id = account['account_id']
-                server = account['server']
-                clan_tag = account['clan_tag']
-                nickName = account['nickName']
-                if clan_tag == 'NO CLAN DATA':
+                account_id = account["account_id"]
+                server = account["server"]
+                clan_tag = account["clan_tag"]
+                nickName = account["nickName"]
+                if clan_tag == "NO CLAN DATA":
                     clan_tag = None
                 sql_cmd = """
                 INSERT INTO users (account_id, server, nickName, clan_tag)
@@ -318,22 +346,36 @@ async def update_user_detail():
                            clan_tag=excluded.clan_tag
                 ;
                 """
-                insert_task.append(asyncio.create_task(db.execute(sql_cmd, (account_id, server, nickName, clan_tag))))
+                insert_task.append(
+                    asyncio.create_task(
+                        db.execute(sql_cmd, (account_id, server, nickName, clan_tag))
+                    )
+                )
         await asyncio.gather(*insert_task)
         await db.commit()
     return
 
 
 async def read_recent_data(account_id: str, days: int):
-    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+    async with aiosqlite.connect("src/wows_data/user_recent_data.db") as db:
         date_cmp = str(datetime.date.today() - datetime.timedelta(days=days))
-        shipList = {}
+        ship_list = []
         sql_cmd = """
         SELECT ship_id, battles, frags, xp, damage, wins, survive,shots, hit
         FROM ships
         WHERE account_id = ?
         AND date = ?
         """
+        user = User()
+        user.battles = 0
+        user.xp = 0
+        user.wins = 0
+        user.frags = 0
+        user.shots = 0
+        user.damage_dealt = 0
+        user.hits = 0
+        user.survived_battles = 0
+        user.date = date_cmp
         try:
             cursor = await db.execute(sql_cmd, (account_id, date_cmp))
             rows = await cursor.fetchall()
@@ -347,28 +389,39 @@ async def read_recent_data(account_id: str, days: int):
                 survived = row[6]
                 shots = row[7]
                 hits = row[8]
-                shipList[str(ship_id)] = {
-                    'pvp': {
-                        'battles': battles,
-                        'frags': frags,
-                        'damage_dealt': damage,
-                        'wins': wins,
-                        'xp': xp,
-                        'survived_battles': survived,
-                        'main_battery': {
-                            'shots': shots,
-                            'hits': hits
-                        }
+                user.battles += battles
+                user.xp += xp
+                user.wins += wins
+                user.frags += frags
+                user.shots += shots
+                user.hits += hits
+                user.damage_dealt += damage
+                user.survived_battles += survived
+                ship_list.append(
+                    {
+                        "pvp": {
+                            "battles": battles,
+                            "frags": frags,
+                            "damage_dealt": damage,
+                            "wins": wins,
+                            "xp": xp,
+                            "survived_battles": survived,
+                            "main_battery": {"shots": shots, "hits": hits},
+                        },
+                        "ship_id": ship_id,
+                        "last_battle_time": 0,
                     }
-                }
-            return shipList
+                )
+            user.update_displays()
+            await user.async_init(ship_list)
+            return user
         except Exception as e:
             print(e)
-            return {}
+            return None
 
 
 async def read_recent_data_auto(account_id: str):
-    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+    async with aiosqlite.connect("src/wows_data/user_recent_data.db") as db:
         sql_cmd = """
         SELECT MAX(date) AS max_date 
         FROM ships 
@@ -382,13 +435,23 @@ async def read_recent_data_auto(account_id: str):
         except Exception as e:
             print(e)
             return {}
-        shipList = {}
+        ship_list = []
         sql_cmd = """
         SELECT ship_id, battles, frags, xp, damage, wins, survive,shots, hit
         FROM ships
         WHERE account_id = ?
         AND date = ?
         """
+        user = User()
+        user.battles = 0
+        user.xp = 0
+        user.wins = 0
+        user.frags = 0
+        user.shots = 0
+        user.damage_dealt = 0
+        user.hits = 0
+        user.survived_battles = 0
+        user.date = date
         try:
             cursor = await db.execute(sql_cmd, (account_id, date))
             rows = await cursor.fetchall()
@@ -402,28 +465,40 @@ async def read_recent_data_auto(account_id: str):
                 survived = row[6]
                 shots = row[7]
                 hits = row[8]
-                shipList[str(ship_id)] = {
-                    'pvp': {
-                        'battles': battles,
-                        'frags': frags,
-                        'damage_dealt': damage,
-                        'wins': wins,
-                        'xp': xp,
-                        'survived_battles': survived,
-                        'main_battery': {
-                            'shots': shots,
-                            'hits': hits
-                        }
+                user.battles += battles
+                user.xp += xp
+                user.wins += wins
+                user.frags += frags
+                user.shots += shots
+                user.hits += hits
+                user.damage_dealt += damage
+                user.survived_battles += survived
+                ship_list.append(
+                    {
+                        "pvp": {
+                            "battles": battles,
+                            "frags": frags,
+                            "damage_dealt": damage,
+                            "wins": wins,
+                            "xp": xp,
+                            "survived_battles": survived,
+                            "main_battery": {"shots": shots, "hits": hits},
+                        },
+                        "ship_id": ship_id,
+                        "last_battle_time": 0,
                     }
-                }
-            return shipList, date
+                )
+            user.update_displays()
+            await user.async_init(ship_list)
+            return user
         except Exception as e:
             print(e)
-            return {}, None
+            return None
+
 
 async def remove():
     ddl = str(datetime.date.today() - datetime.timedelta(days=30))
-    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+    async with aiosqlite.connect("src/wows_data/user_recent_data.db") as db:
         await db.execute("""DELETE FROM ships where date < '{}'""".format(ddl))
         await db.commit()
 
@@ -464,7 +539,7 @@ async def table_check() -> None:
         FOREIGN KEY (account_id) REFERENCES users(account_id) ON DELETE CASCADE
     );
     """
-    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+    async with aiosqlite.connect("src/wows_data/user_recent_data.db") as db:
         cur = await db.execute("SELECT name _id FROM sqlite_master WHERE type ='table'")
         tables = await cur.fetchall()
         await db.execute(pr_on)
@@ -486,17 +561,16 @@ async def update():
         asyncio.create_task(update_ship_data()),
     ]
     await asyncio.gather(*task)
-    await update_res()
     return
 
 
 async def read_ship_dic():
-    async with aiofiles.open('src/wows_data/wows_ship_list.json', 'r') as f:
+    async with aiofiles.open("src/wows_data/wows_ship_list.json", "r") as f:
         js = await f.read()
         json_dic = json.loads(js)
         data_name = {}
         for ship_id, ship in json_dic.items():
-            data_name[ship['name']] = ship_id
+            data_name[ship["name"]] = ship_id
         return data_name
 
 
@@ -513,7 +587,7 @@ async def remove_user(sender_id: int, user_remove: str):
             else:
                 new_accounts.append(account)
         user_dic[str(sender_id)] = new_accounts
-    async with aiofiles.open('src/wows_data/user_data.json', mode='w') as f:
+    async with aiofiles.open("src/wows_data/user_data.json", mode="w") as f:
         await f.write(json.dumps(user_dic, ensure_ascii=False, indent=4))
     cnt = 0
     for user in user_dic.values():
@@ -524,7 +598,7 @@ async def remove_user(sender_id: int, user_remove: str):
         if cnt == 1:
             break
     if cnt == 0:
-        async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
+        async with aiosqlite.connect("src/wows_data/user_recent_data.db") as db:
             pr_on = """
             PRAGMA foreign_keys = ON;
             """
@@ -533,79 +607,3 @@ async def remove_user(sender_id: int, user_remove: str):
             await db.execute(sql_cmd, (int(user_remove),))
             await db.commit()
     return
-
-
-async def update_res():
-    REs = []
-    tasks = []
-    async with aiofiles.open('src/wows_data/wows_ship_list.json', 'r') as f:
-        js = await f.read()
-        ships = json.loads(js)
-    for ship_id, ship in ships.items():
-        if ship['RE']:
-            REs.append(ship_id)
-    users = await read_user_data()
-    async with aiosqlite.connect('src/wows_data/user_recent_data.db') as db:
-        for qid, accounts in users.items():
-            for account in accounts:
-                account_id = account['account_id']
-                server = account['server']
-                tasks.append(asyncio.create_task(update_account_re(account_id, REs, server, db)))
-        await asyncio.gather(*tasks)
-        await db.commit()
-
-
-async def update_account_re(account_id: str, REs: list, server: int, db):
-    match server:
-        case 0:
-            s = 'asia'
-        case 1:
-            s = 'ru'
-        case 2:
-            s = 'eu'
-        case 3:
-            s = 'com'
-    today = str(datetime.date.today())
-    for ship_id in REs:
-        API = 'https://vortex.worldofwarships.{}/api/accounts/{}/ships/{}/pvp/'.format(s, account_id, ship_id)
-        async with aiohttp.ClientSession() as session:
-            async with session.get(API) as resp:
-                if 200 == resp.status:
-                    data = await resp.json()
-                    if data['status'] == 'ok':
-                        if data['data'][str(account_id)]['statistics'] != {} and data['data'][str(account_id)]['statistics'][str(ship_id)]['pvp'] != {}:
-                            try:
-                                print('RE ship {} ,user {}'.format(ship_id, account_id))
-                                ship = data['data'][str(account_id)]['statistics'][str(ship_id)]['pvp']
-                                battles = ship['battles_count']
-                                frags = ship['frags']
-                                XP = ship['premium_exp']
-                                damage = ship['damage_dealt']
-                                wins = ship['wins']
-                                survived = ship['survived']
-                                shots = ship['shots_by_main']
-                                hits = ship['hits_by_main']
-                                sql_cmd = """INSERT INTO ships (account_id, ship_id, date, battles, wins, shots, hit, 
-                                damage, frags, survive, xp) VALUES (?,?,?,?,?,?,?,?,?,?,?)
-                                ON CONFLICT (account_id, ship_id, date) DO
-                                UPDATE SET account_id=excluded.account_id,
-                                ship_id=excluded.ship_id,
-                                date=excluded.date,
-                                battles=excluded.battles,
-                                wins=excluded.wins,
-                                shots=excluded.shots,
-                                hit=excluded.hit
-                                ; """
-                                await db.execute(sql_cmd, (
-                                    account_id, ship_id, today, battles, wins, shots, hits, damage, frags, survived,
-                                    XP))
-                            except Exception as e:
-                                print(e)
-                                print(account_id, ship_id)
-                                print(data['data'][str(account_id)]['statistics'][str(ship_id)]['pvp'])
-                        else:
-                            print('No ship')
-                    else:
-                        print(data)
-                else:
-                    print(resp.status)

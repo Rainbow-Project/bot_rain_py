@@ -10,8 +10,12 @@ from graia.ariadne.app import Ariadne
 from graia.ariadne.event.message import GroupMessage
 from graia.ariadne.message.chain import MessageChain
 from graia.ariadne.message.element import *
-from graia.ariadne.message.parser.twilight import (FullMatch, MatchResult,
-                                                   Twilight, WildcardMatch)
+from graia.ariadne.message.parser.twilight import (
+    FullMatch,
+    MatchResult,
+    Twilight,
+    WildcardMatch,
+)
 from graia.ariadne.model import Group, Member
 from graia.saya import Channel
 from graia.saya.builtins.broadcast.schema import ListenerSchema
@@ -26,30 +30,39 @@ channel.author("IMTMAX")
 
 async def throw(file, squish=0):
     avatar = IMG.open(file)
-    mask = IMG.new('L', avatar.size, 0)
+    mask = IMG.new("L", avatar.size, 0)
     draw = ImageDraw.Draw(mask)
     offset = 1
-    draw.ellipse((offset, offset, avatar.size[0] - offset, avatar.size[1] - offset),
-                 fill=255)
+    draw.ellipse(
+        (offset, offset, avatar.size[0] - offset, avatar.size[1] - offset), fill=255
+    )
     mask = mask.filter(ImageFilter.GaussianBlur(0))
     avatar.putalpha(mask)
     avatar = avatar.rotate(random.randint(1, 360), IMG.BICUBIC)
     avatar = avatar.resize((143, 143), IMG.ANTIALIAS)
-    throw = IMG.open(Path(__file__).parent / 'throw.png')
+    throw = IMG.open(Path(__file__).parent / "throw.png")
     throw.paste(avatar, (15, 178), mask=avatar)
-    throw = throw.convert('RGB')
-    throw.save(output := BytesIO(), format='jpeg')
+    throw = throw.convert("RGB")
+    throw.save(output := BytesIO(), format="jpeg")
     return output
 
 
-@channel.use(ListenerSchema(
-    listening_events=[GroupMessage],
-    inline_dispatchers=[Twilight([FullMatch("丢"), WildcardMatch() @ "para"])]
-))
+@channel.use(
+    ListenerSchema(
+        listening_events=[GroupMessage],
+        inline_dispatchers=[Twilight([FullMatch("丢"), WildcardMatch() @ "para"])],
+    )
+)
 async def throw_main(app: Ariadne, group: Group, member: Member, para: MatchResult):
-    user = para.result.getFirst(At).target if para.matched and para.result.has(At) else member.id
+    user = (
+        para.result.getFirst(At).target
+        if para.matched and para.result.has(At)
+        else member.id
+    )
     profile_url = f"http://q1.qlogo.cn/g?b=qq&nk={user}&s=640"
     async with aiohttp.request("GET", profile_url) as r:
         profile = BytesIO(await r.read())
     pic = await throw(profile)
-    await app.send_group_message(group, MessageChain([Image(data_bytes=pic.getvalue())]))
+    await app.send_group_message(
+        group, MessageChain([Image(data_bytes=pic.getvalue())])
+    )

@@ -16,16 +16,14 @@ async def gm(app: Ariadne, group: Group, message: MessageChain, message2: GroupM
         current_directory = os.getcwd()
         os.chdir(current_directory)
         try:
-            subprocess.check_call(['git', 'pull'])
+            subprocess.check_call(["git", "pull"])
         except subprocess.CalledProcessError as error:
             await app.send_message(
-            group,
-            MessageChain(str(error)),
-        )
+                group,
+                MessageChain(str(error)),
+            )
         await app.send_message(
             group,
-            MessageChain('尝试重启程序'),
+            MessageChain("尝试重启程序"),
         )
-        os.execvp('poetry', ['poetry', 'run', 'python', 'main.py'])
-
-
+        os.execvp("poetry", ["poetry", "run", "python", "main.py"])

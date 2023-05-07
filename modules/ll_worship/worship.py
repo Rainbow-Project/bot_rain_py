@@ -27,10 +27,13 @@ async def ll_worship(app: Ariadne, group: Group, member: Member, message: Messag
     else:
         avatar = await member.getAvatar()
 
-    await app.send_group_message(group, MessageChain(
-        f"{member.name} 膜拜了你！" if message[At] else "你膜拜了自己！",
-        Image(data_bytes=await asyncio.to_thread(create_meme, avatar))
-    ))
+    await app.send_group_message(
+        group,
+        MessageChain(
+            f"{member.name} 膜拜了你！" if message[At] else "你膜拜了自己！",
+            Image(data_bytes=await asyncio.to_thread(create_meme, avatar)),
+        ),
+    )
 
 
 def find_coeffs(source_coords, target_coords):

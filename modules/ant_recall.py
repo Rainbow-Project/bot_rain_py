@@ -16,4 +16,6 @@ async def recall(app: Ariadne, group: Group, mem: Member):
     if mem.id != 214047076:
         async with session.get("https://intmax.top/img/pic_src/pic/Recall.jpg") as resp:  # type: ignore
             img_bytes = await resp.read()
-        bot_message = await app.send_message(group, MessageChain(Image(data_bytes=img_bytes)))
+        bot_message = await app.send_message(
+            group, MessageChain(Image(data_bytes=img_bytes))
+        )
