@@ -50,6 +50,7 @@ K/D
 @INTMAX   
 胜率  
 绘制工具 INKSCAPE
+
 [xp(GNU General Public License v2.0)](https://iconduck.com/sets/elegant-circles-icon-set)
 
 ## 她能做什么
