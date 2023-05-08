@@ -28,7 +28,7 @@ app = Ariadne(
         WebsocketClientConfig(host=host),
     ),
 )
-main_data_img = cv.imread('components/recent.png')
+main_data_img = cv.imread('components/main_data.png')
 pr_bar_img = cv.imread('components/pr_bar.png')
 max_data_img = cv.imread('components/max_main.png')
 recent_data_img = cv.imread('components/recent.png')
