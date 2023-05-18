@@ -691,3 +691,4 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
     except Exception as e:
         await app.send_group_message(group, MessageChain(f'出现错误:{e}'))
         print(e)
+        raise(e)

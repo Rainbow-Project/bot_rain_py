@@ -305,6 +305,7 @@ class User:
             for ship_now in self.ship_list:
                 ship_past = old_ship_map.get(str(ship_now.ship_id), None)
                 if ship_past is None:
+                    new_user.ship_list.append(ship_now)
                     continue
                 else:
                     if ship_now.battles == ship_past.battles:
