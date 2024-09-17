@@ -718,8 +718,8 @@ async def wows_recent(user: User, wows_images: list, fonts: list):
     font_heavy = fonts[1]
 
     len_ship_list = len(user.ship_list)
-    if len_ship_list > 20:
-        len_ship_list = 20
+    if len_ship_list > 50:
+        len_ship_list = 50
     img = np.full((1064 + (len_ship_list * 84), 1242, 3), 255, dtype=np.uint8)
     img[336 : 336 + 120, :] = pr_bar_img
     img[477 : 477 + 421, :] = main_data_img
