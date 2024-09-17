@@ -660,3 +660,17 @@ async def remove_user(sender_id: int, user_remove: str):
             print(e)
         finally:
             await conn.close()
+
+async def get_user_battles_since(account_id: int, server: int, start_time: datetime, ship_ids: list[int]):
+    query = """
+    SELECT account_id, ship_id, last_battle_time, battles, damage_dealt, wins, xp, frags, survived_battles, shots, hits
+    FROM recents
+    WHERE account_id = $1 AND server = $2 AND last_battle_time >= $3 AND ship_id = ANY($4)
+    """
+    start_time = datetime.datetime.combine(start_time, datetime.time(2, 32, 0))
+    conn = await asyncpg.connect(pgsql_connect_url)
+    try:
+        results = await conn.fetch(query, int(account_id), server, start_time, ship_ids)
+    finally:
+        await conn.close()
+    return results

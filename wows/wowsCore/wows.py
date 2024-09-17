@@ -245,7 +245,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
             case 2:
                 """
                 当指令长度为2时
-                会出现wows me recent 和 wows asia exboom
+                会出现wows me/@ recent 和 wows asia exboom 和新的 wows me/@ recents 
                 wows me rank
                 wows exboom rank
                 """
@@ -384,6 +384,68 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                                         group, MessageChain("由于超时放弃移除数据")
                                     )
                                     raise e
+                    case 'recents':
+                        if _cmd[0] == "me":
+                            (
+                                stat_code,
+                                account_id,
+                                server,
+                                clan_tag,
+                                nickName,
+                            ) = await fun_wait_me(app, group, member)
+                            if stat_code == 1:
+                                try:
+                                    img = await APIs.wows_get_recents(
+                                        session,
+                                        account_id,
+                                        server,
+                                        clan_tag,
+                                        None,
+                                        wows_images,
+                                        Fonts,
+                                    )
+                                    await app.send_group_message(
+                                        group, MessageChain(Image(data_bytes=img))
+                                    )
+                                except (
+                                    APIs.APIError,
+                                    APIs.NetError,
+                                    APIs.Notfound,
+                                ) as e:
+                                    await app.send_group_message(
+                                        group, MessageChain(e.args)
+                                    )
+                        else:
+                            target = _cmd[0][1:]
+                            (
+                                stat_code,
+                                account_id,
+                                server,
+                                clan_tag,
+                                nickName,
+                            ) = await fun_wait_target(app, group, member, int(target))
+                            if stat_code == 1:
+                                try:
+                                    img = await APIs.wows_get_recents(
+                                        session,
+                                        account_id,
+                                        server,
+                                        clan_tag,
+                                        None,
+                                        wows_images,
+                                        Fonts,
+                                    )
+                                    await app.send_group_message(
+                                        group, MessageChain(Image(data_bytes=img))
+                                    )
+                                except (
+                                    APIs.APIError,
+                                    APIs.NetError,
+                                    APIs.Notfound,
+                                ) as e:
+                                    await app.send_group_message(
+                                        group, MessageChain(e.args)
+                                    )
                     case _:
                         if _cmd[0].lower() in serverList:
                             match _cmd[0].lower():
@@ -687,5 +749,7 @@ async def wows(app: Ariadne, group: Group, para: MatchResult, member: Member):
                             await app.send_group_message(group, MessageChain(e.args))
     except Exception as e:
         await app.send_group_message(group, MessageChain(f'出现错误:{e}'))
-        print(e)
+        print(e.with_traceback())
         raise(e)
+    finally:
+        pass

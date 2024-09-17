@@ -6,6 +6,7 @@ import cv2 as cv
 import numpy as np
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
+from collections import defaultdict
 
 
 class Ship:
@@ -184,6 +185,7 @@ class User:
     # 船表
     ship_list = None  # 玩家船只列表
     ship_dic = None
+    recent_battles = None
 
     # PR
     pr = None  # pr 数值
@@ -280,6 +282,39 @@ class User:
         # PR
         self.pr = Pr()  # pr 数值
         self.pr.init_pr_user(self.ship_list)
+
+    async def init_recents(self, past_user, recent_user, db_respons):
+        recent_ships_dic = defaultdict(list)
+        expected_data = await wows_get_numbers_api()
+        for record in db_respons:
+            ship = Ship()
+            ship.ship_id = record['ship_id']
+            ship.last_battle_time = record['last_battle_time']
+            ship.battles = record['battles']
+            ship.damage_dealt = record['damage_dealt']
+            ship.wins = record['wins']
+            ship.xp = record['xp']
+            ship.frags = record['frags']
+            ship.survived_battles = record['survived_battles']
+            ship.shots = record['shots']
+            ship.hits = record['hits']
+            recent_ships_dic[str(ship.ship_id)].append(ship)
+        for ships in recent_ships_dic.values():
+            ships.sort()
+        recent_battles = []
+        for ship_id, ships in recent_ships_dic.items():
+            for index, ship_record in enumerate(ships):
+                if index == 0:
+                    single_battle = ship_record - past_user.ship_dic[ship_id]
+                else:
+                    single_battle = ship_record - ships[index - 1]
+                if single_battle.battles != 0:
+                    single_battle.ship_name = past_user.ship_dic[ship_id].ship_name
+                    single_battle.pr.init_pr_ship(single_battle, expected_data)
+                    recent_battles.append(single_battle)
+        recent_battles.sort(reverse=True)
+        recent_user.recent_battles = recent_battles
+        return recent_user
 
     def __sub__(self, other):
         # other = self
@@ -701,7 +736,7 @@ async def wows_ship(user: User, ship_id: str, wows_images: list, fonts: list):
     # img.save("TEST.PNG")
 
 
-async def wows_recent(user: User, wows_images: list, fonts: list):
+async def wows_recent(user: User, wows_images: list, fonts: list, recents:bool=False):
     main_data_img = wows_images[-1].copy()
     pr_bar_img = wows_images[1].copy()
     color_bg = user.pr.color_background[::-1]
@@ -716,6 +751,9 @@ async def wows_recent(user: User, wows_images: list, fonts: list):
 
     font_medium = fonts[-1]
     font_heavy = fonts[1]
+
+    if recents:
+        user.ship_list = user.recent_battles
 
     len_ship_list = len(user.ship_list)
     if len_ship_list > 50:

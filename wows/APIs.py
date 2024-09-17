@@ -596,6 +596,46 @@ async def wows_get_recent(
     return await wows_recent(recent_user, draws, Fonts)
 
 
+async def wows_get_recents(
+    session: aiohttp.ClientSession,
+    account_id: str,
+    server: int,
+    clan_tag: str,
+    date: int,
+    draws: list,
+    Fonts: list,
+):
+    async with asyncio.TaskGroup() as tg:
+        task_get_warship_detail = tg.create_task(
+            api_get_player_ship_data(session, account_id, server)
+        )
+        task_get_person_detail = tg.create_task(
+            api_get_play_personal_data(session, account_id, server)
+        )
+    
+    res = [task_get_warship_detail.result(), task_get_person_detail.result()]
+
+    user = User()
+    user.init_user(res[1][account_id], res[0][account_id], server, None, clan_tag)
+    await user.async_init(res[0][account_id])
+    
+    current_user = user
+    if date is None:
+        # wows recent auto
+        past_user = await dataBase.read_recent_data_auto(account_id, int(user.battles))
+    else:
+        past_user = await dataBase.read_recent_data(account_id, date)
+    
+    recent_user = current_user - past_user
+    ship_changed_id = [int(ship.ship_id) for ship in recent_user.ship_list]
+    db_respons = await dataBase.get_user_battles_since(account_id, server, recent_user.date, ship_changed_id)
+    
+    recent_user = await current_user.init_recents(past_user, recent_user, db_respons)
+    await recent_user.init_pr_sub()
+    
+    return await wows_recent(recent_user, draws, Fonts, True)
+
+
 async def wows_rank_me(
     session: aiohttp.ClientSession,
     nick_name: str,
