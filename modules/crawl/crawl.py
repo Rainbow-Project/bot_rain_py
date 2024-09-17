@@ -23,11 +23,6 @@ from PIL import Image as IMG, ImageFilter, ImageDraw
 
 channel = Channel.current()
 
-channel.name("throw")
-channel.description("发送'爬@某人'制作爬.jpg")
-channel.author("IMTMAX")
-
-
 async def crawl(file, squish=0):
     avatar = IMG.open(file)
     mask = IMG.new("L", avatar.size, 0)

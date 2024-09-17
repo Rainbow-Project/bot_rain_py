@@ -9,11 +9,6 @@ from graia.saya.builtins.broadcast.schema import ListenerSchema
 
 channel = Channel.current()
 
-channel.name("BanMe")
-channel.description("发送'禁言我'禁言(前提是有权限)")
-channel.author("INT_MAX")
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],

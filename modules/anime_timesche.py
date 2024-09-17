@@ -20,11 +20,6 @@ from PIL import ImageDraw, ImageFont
 
 channel = Channel.current()
 
-channel.name("AnimeTimeSchedule")
-channel.description("发送anime/anime tomorrow/anime yesterday获取昨/今/明的番剧时刻表")
-channel.author("I_love_study")
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],

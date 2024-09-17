@@ -17,11 +17,6 @@ from PIL import Image as IMG, ImageFont, ImageDraw
 
 channel = Channel.current()
 
-channel.name("Birthday_searcher")
-channel.description("coming soon")
-channel.author("I_love_study")
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],

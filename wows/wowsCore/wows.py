@@ -29,9 +29,6 @@ from wows import APIs
 saya = Saya.current()
 channel = Channel.current()
 interrupt = InterruptControl(saya.broadcast)
-channel.name("wows_helper")
-channel.description("发送wows指令来进行查询")
-channel.author("IntMax")
 wows_images = saya.access("wows_images")
 Fonts = saya.access("Font")
 
