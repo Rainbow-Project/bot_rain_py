@@ -34,6 +34,7 @@ PixivPy-Async = "^1.2.14"
 freetype-py = "^2.3.0"
 graia-ariadne = {extras = ["full"], version = "^0.11.7"}
 asyncpg = "^0.29.0"
+opencv-python-headless = "^4.10.0.84"
 
 [tool.poetry.dev-dependencies]
 
