@@ -30,11 +30,6 @@ from PIL import Image as IMG, ImageFilter, ImageDraw
 
 channel = Channel.current()
 
-channel.name("Noob ")
-channel.description("发送'不如菜@某人'制作菜.jpg")
-channel.author("IMT_MAX")
-
-
 async def Noob(file, squish=0):
     avatar = IMG.open(file)
     mask = IMG.new("L", avatar.size, 0)

@@ -21,11 +21,6 @@ from PIL import Image as IMG
 
 channel = Channel.current()
 
-channel.name("support")
-channel.description("发送'精神支柱@某人'制作精神支柱.jpg")
-channel.author("IMT_MAX")
-
-
 async def support(file, squish=0):
     avatar = IMG.open(file).convert("RGBA")
     support = IMG.open(Path(__file__).parent / "support.png")

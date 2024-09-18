@@ -12,10 +12,6 @@ from urllib.parse import quote
 from playwright.async_api import async_playwright
 
 channel = Channel.current()
-channel.name("MoegirlInfo")
-channel.description("获取萌娘百科上人物介绍卡片")
-channel.author("I_love_study")
-
 
 @channel.use(
     ListenerSchema(

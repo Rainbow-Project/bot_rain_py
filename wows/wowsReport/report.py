@@ -24,8 +24,7 @@ from PIL import Image as IMG, ImageFilter, ImageDraw
 from ApiKeys import ocrApiKey
 
 offline = False
-if offline:
-    import easyocr
+
 channel = Channel.current()
 
 APIKEY = ocrApiKey
@@ -53,13 +52,6 @@ def get_ship_data():
             dict_temp[k] = v
     return dict_temp
 
-
-def ocr_read(file):
-    reader = easyocr.Reader(["ch_sim"], gpu=False)
-    result = reader.readtext(file.getvalue(), detail=0)
-    return result
-
-
 @channel.use(
     ListenerSchema(
         listening_events=[GroupMessage],
@@ -75,25 +67,7 @@ def ocr_read(file):
 )
 async def report(app: Ariadne, group: Group, message: MessageChain, para: MatchResult):
     if offline:
-        # await app.send_message(group, MessageChain('OCR检测开始'))
-        target = para.result.getFirst(At).target
-        org_element: Quote = message[1]
-        message_id = org_element.id
-        event: MessageEvent = await app.getMessageFromId(message_id)
-        msg_chain = event.messageChain
-        org_img = msg_chain.get(Image)[0]
-        input = BytesIO(await org_img.get_bytes())
-        out = pic_cut(input)
-        res = ocr_read(file=input)
-        dic_ship = get_ship_data()
-        for res_sig in res:
-            if res_sig in dic_ship.keys():
-                await app.send_message(group, MessageChain(f"检测到船只 {res_sig}"))
-                try:
-                    await app.mute_member(group, target, 3600)
-                except PermissionError:
-                    await app.send_group_message(group, MessageChain("ERROR:权限不足"))
-                break
+        pass
     else:
         target = para.result.getFirst(At).target
         org_element: Quote = message[1]

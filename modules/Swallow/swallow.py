@@ -23,11 +23,6 @@ from PIL import Image as IMG, ImageFilter, ImageDraw
 
 channel = Channel.current()
 
-channel.name("throw")
-channel.description("发送'吞@某人'制作吞.gif")
-channel.author("IMTMAX")
-
-
 async def swallow(file, squish=0):
     avatar = IMG.open(file)
     frame_locs = [

@@ -21,10 +21,6 @@ from PIL import Image as IMG
 
 channel = Channel.current()
 
-channel.name("petpet")
-channel.description("发送'摸头@某人'制作摸头GIF")
-channel.author("IMTMAX")
-
 # 头像每一帧时的位置
 
 # 每一个 tuple 内分别是:

@@ -23,11 +23,6 @@ from PIL import Image as IMG, ImageFilter, ImageDraw
 
 channel = Channel.current()
 
-channel.name("Audacious")
-channel.description("发送'不如大胆@某人'制作不如大胆.jpg")
-channel.author("IMT_MAX")
-
-
 async def Audacious_fun(file1, file2):
     avatar = IMG.open(file1)
     avatar2 = IMG.open(file2)

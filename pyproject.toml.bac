@@ -6,6 +6,7 @@ authors = ["intmax"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
+graia-ariadne = "^0.8.1"
 prettytable = ">=2.5.0"
 pycryptodome = ">=3.12.0"
 qrcode = ">=7.3.1"
@@ -23,17 +24,17 @@ aiofile = "^3.7.4"
 imageio = "^2.16.1"
 lxml = "^4.9.1"
 saucenao-api = {git = "https://github.com/Int-0X7FFFFFFF/saucenao_api.git"}
+easyocr = "^1.4.2"
 bs4 = "^0.0.1"
 html2image = "^2.0.1"
 pyOpenSSL = "^22.0.0"
 rich = "^12.5.1"
 aiofiles = "^0.8.0"
 line-profiler-pycharm = "^1.1.0"
+aiosqlite = "^0.17.0"
 pyminizip = "^0.2.6"
 PixivPy-Async = "^1.2.14"
 freetype-py = "^2.3.0"
-graia-ariadne = {extras = ["full"], version = "^0.11.7"}
-asyncpg = "^0.29.0"
 
 [tool.poetry.dev-dependencies]
 

@@ -382,18 +382,17 @@ async def fun_wows_account_id(
     :param server: 服务器 0-3 依次是 亚服 毛服 欧服 美服
     :return img: 图片一张
     """
-    task = []
-    task_get_clan_id = asyncio.create_task(api_get_clan_id(session, account_id, server))
-    task.append(task_get_clan_id)
-    task_get_warship_detail = asyncio.create_task(
-        api_get_player_ship_data(session, account_id, server)
-    )
-    task.append(task_get_warship_detail)
-    task_get_person_detail = asyncio.create_task(
-        api_get_play_personal_data(session, account_id, server)
-    )
-    task.append(task_get_person_detail)
-    res = await asyncio.gather(*task)
+    async with asyncio.TaskGroup() as tg:
+        task_get_clan_id = tg.create_task(api_get_clan_id(session, account_id, server))
+        task_get_warship_detail = tg.create_task(
+            api_get_player_ship_data(session, account_id, server)
+        )
+        task_get_person_detail = tg.create_task(
+            api_get_play_personal_data(session, account_id, server)
+        )
+    
+    res = [task_get_clan_id.result(), task_get_warship_detail.result(), task_get_person_detail.result()]
+    
     clan_tag = ""
     item = res[0]
     if item[account_id] is None:
@@ -402,11 +401,12 @@ async def fun_wows_account_id(
         clan_id = str(item[account_id]["clan_id"])
         clan_details = await api_get_clan_details(session, clan_id, server)
         clan_tag = clan_details[clan_id]["tag"]
+    
     user = User()
     user.init_user(res[2][account_id], res[1][account_id], server, None, clan_tag)
     await user.async_init(res[1][account_id])
+    
     return await wows_user(user, draws, Fort)
-
 
 async def fun_wows_account_id_no_clan(
     session: aiohttp.ClientSession,
@@ -419,26 +419,27 @@ async def fun_wows_account_id_no_clan(
     """
     根据 account_id 获取玩家概览图
     :param clan_tag:
-    :param Fort:
+    :param Font:
     :param draws:
     :param session: aiohttp 的 ClientSession
     :param account_id: 用户的 account_id
     :param server: 服务器 0-3 依次是 亚服 毛服 欧服 美服
     :return img: 图片一张
     """
-    task = []
-    task_get_warship_detail = asyncio.create_task(
-        api_get_player_ship_data(session, account_id, server)
-    )
-    task.append(task_get_warship_detail)
-    task_get_person_detail = asyncio.create_task(
-        api_get_play_personal_data(session, account_id, server)
-    )
-    task.append(task_get_person_detail)
-    res = await asyncio.gather(*task)
+    async with asyncio.TaskGroup() as tg:
+        task_get_warship_detail = tg.create_task(
+            api_get_player_ship_data(session, account_id, server)
+        )
+        task_get_person_detail = tg.create_task(
+            api_get_play_personal_data(session, account_id, server)
+        )
+    
+    res = [task_get_warship_detail.result(), task_get_person_detail.result()]
+
     user = User()
     user.init_user(res[1][account_id], res[0][account_id], server, None, clan_tag)
     await user.async_init(res[0][account_id])
+    
     return await wows_user(user, draws, Font)
 
 
@@ -481,18 +482,17 @@ async def wows_get_ship_img(
     draws: dict,
     Fort: dict,
 ):
-    task = []
-    task_get_clan_id = asyncio.create_task(api_get_clan_id(session, account_id, server))
-    task.append(task_get_clan_id)
-    task_get_warship_detail = asyncio.create_task(
-        api_get_player_ship_data(session, account_id, server)
-    )
-    task.append(task_get_warship_detail)
-    task_get_person_detail = asyncio.create_task(
-        api_get_play_personal_data(session, account_id, server)
-    )
-    task.append(task_get_person_detail)
-    res = await asyncio.gather(*task)
+    async with asyncio.TaskGroup() as tg:
+        task_get_clan_id = tg.create_task(api_get_clan_id(session, account_id, server))
+        task_get_warship_detail = tg.create_task(
+            api_get_player_ship_data(session, account_id, server)
+        )
+        task_get_person_detail = tg.create_task(
+            api_get_play_personal_data(session, account_id, server)
+        )
+    
+    res = [task_get_clan_id.result(), task_get_warship_detail.result(), task_get_person_detail.result()]
+
     clan_tag = ""
     item = res[0]
     if item[account_id] is None:
@@ -501,9 +501,11 @@ async def wows_get_ship_img(
         clan_id = str(item[account_id]["clan_id"])
         clan_details = await api_get_clan_details(session, clan_id, server)
         clan_tag = clan_details[clan_id]["tag"]
+    
     user = User()
     user.init_user(res[2][account_id], res[1][account_id], server, None, clan_tag)
     await user.async_init(res[1][account_id])
+    
     return await wows_ship(user, ship_id, draws, Fort)
 
 
@@ -514,23 +516,24 @@ async def wows_get_ship_img_me(
     ship_id: str,
     shipName: str,
     nickName: str,
-    clan_tag,
+    clan_tag: str,
     draws: dict,
     Fort: dict,
 ):
-    task = []
-    task_get_warship_detail = asyncio.create_task(
-        api_get_player_ship_data(session, account_id, server)
-    )
-    task.append(task_get_warship_detail)
-    task_get_person_detail = asyncio.create_task(
-        api_get_play_personal_data(session, account_id, server)
-    )
-    task.append(task_get_person_detail)
-    res = await asyncio.gather(*task)
+    async with asyncio.TaskGroup() as tg:
+        task_get_warship_detail = tg.create_task(
+            api_get_player_ship_data(session, account_id, server)
+        )
+        task_get_person_detail = tg.create_task(
+            api_get_play_personal_data(session, account_id, server)
+        )
+    
+    res = [task_get_warship_detail.result(), task_get_person_detail.result()]
+
     user = User()
     user.init_user(res[1][account_id], res[0][account_id], server, None, clan_tag)
     await user.async_init(res[0][account_id])
+    
     return await wows_ship(user, ship_id, draws, Fort)
 
 
@@ -566,30 +569,71 @@ async def wows_get_recent(
     draws: list,
     Fonts: list,
 ):
-    task = []
-    task_get_warship_detail = asyncio.create_task(
-        api_get_player_ship_data(session, account_id, server)
-    )
-    task.append(task_get_warship_detail)
-    task_get_person_detail = asyncio.create_task(
-        api_get_play_personal_data(session, account_id, server)
-    )
-    task.append(task_get_person_detail)
-    res = await asyncio.gather(*task)
+    async with asyncio.TaskGroup() as tg:
+        task_get_warship_detail = tg.create_task(
+            api_get_player_ship_data(session, account_id, server)
+        )
+        task_get_person_detail = tg.create_task(
+            api_get_play_personal_data(session, account_id, server)
+        )
+    
+    res = [task_get_warship_detail.result(), task_get_person_detail.result()]
+
     user = User()
     user.init_user(res[1][account_id], res[0][account_id], server, None, clan_tag)
     await user.async_init(res[0][account_id])
+    
     current_user = user
     if date is None:
-        """
-        wows recent auto
-        """
+        # wows recent auto
         past_user = await dataBase.read_recent_data_auto(account_id, int(user.battles))
     else:
         past_user = await dataBase.read_recent_data(account_id, date)
+    
     recent_user = current_user - past_user
     await recent_user.init_pr_sub()
+    
     return await wows_recent(recent_user, draws, Fonts)
+
+
+async def wows_get_recents(
+    session: aiohttp.ClientSession,
+    account_id: str,
+    server: int,
+    clan_tag: str,
+    date: int,
+    draws: list,
+    Fonts: list,
+):
+    async with asyncio.TaskGroup() as tg:
+        task_get_warship_detail = tg.create_task(
+            api_get_player_ship_data(session, account_id, server)
+        )
+        task_get_person_detail = tg.create_task(
+            api_get_play_personal_data(session, account_id, server)
+        )
+    
+    res = [task_get_warship_detail.result(), task_get_person_detail.result()]
+
+    user = User()
+    user.init_user(res[1][account_id], res[0][account_id], server, None, clan_tag)
+    await user.async_init(res[0][account_id])
+    
+    current_user = user
+    if date is None:
+        # wows recent auto
+        past_user = await dataBase.read_recent_data_auto(account_id, int(user.battles))
+    else:
+        past_user = await dataBase.read_recent_data(account_id, date)
+    
+    recent_user = current_user - past_user
+    ship_changed_id = [int(ship.ship_id) for ship in recent_user.ship_list]
+    db_respons = await dataBase.get_user_battles_since(account_id, server, recent_user.date, ship_changed_id)
+    
+    recent_user = await current_user.init_recents(past_user, recent_user, db_respons)
+    await recent_user.init_pr_sub()
+    
+    return await wows_recent(recent_user, draws, Fonts, True)
 
 
 async def wows_rank_me(
@@ -601,24 +645,27 @@ async def wows_rank_me(
     draws: list,
     Fonts: list,
 ):
-    task = []
-    task_get_rank_ships = asyncio.create_task(
-        api_get_rank_ships(session, account_id, server)
-    )
-    task_get_rank_stat = asyncio.create_task(
-        api_get_rank_stat(session, account_id, server)
-    )
-    task = [task_get_rank_ships, task_get_rank_stat]
-    res = await asyncio.gather(*task)
-    ships_res = res[0]
-    stat_res = res[1]
-    if stat_res[account_id] is None and stat_res[account_id]["seasons"] is None:
+    async with asyncio.TaskGroup() as tg:
+        task_get_rank_ships = tg.create_task(
+            api_get_rank_ships(session, account_id, server)
+        )
+        task_get_rank_stat = tg.create_task(
+            api_get_rank_stat(session, account_id, server)
+        )
+    
+    ships_res = task_get_rank_ships.result()
+    stat_res = task_get_rank_stat.result()
+
+    if stat_res[account_id] is None or stat_res[account_id]["seasons"] is None:
         raise Notfound("找不到数据")
+    
     seasons = [int(i) for i in stat_res[account_id]["seasons"].keys()]
     season_id = max(seasons)
-    season_stat = stat_res[account_id]["seasons"][f"{season_id}"]
+    season_stat = stat_res[account_id]["seasons"].get(f"{season_id}", None)
+    
     if season_stat is None:
         raise Notfound("找不到数据")
+    
     user_dic = {
         "account_id": account_id,
         "nickname": nick_name,
@@ -646,48 +693,33 @@ async def wows_rank_me(
             }
         },
     }
+    
     for week in season_stat.values():
         if week is not None:
             for rank in week.values():
                 if rank is not None:
                     user_dic["statistics"]["pvp"]["battles"] += rank["battles"]
-                    user_dic["statistics"]["pvp"]["damage_dealt"] += rank[
-                        "damage_dealt"
-                    ]
+                    user_dic["statistics"]["pvp"]["damage_dealt"] += rank["damage_dealt"]
                     user_dic["statistics"]["pvp"]["wins"] += rank["wins"]
                     user_dic["statistics"]["pvp"]["xp"] += rank["xp"]
                     user_dic["statistics"]["pvp"]["frags"] += rank["frags"]
-                    user_dic["statistics"]["pvp"]["survived_battles"] += rank[
-                        "survived_battles"
-                    ]
-                    user_dic["statistics"]["pvp"]["max_damage_dealt"] = max(
-                        rank["max_damage_dealt"],
-                        user_dic["statistics"]["pvp"]["max_damage_dealt"],
-                    )
-                    user_dic["statistics"]["pvp"]["max_frags_battle"] = max(
-                        rank["max_frags_battle"],
-                        user_dic["statistics"]["pvp"]["max_frags_battle"],
-                    )
-                    user_dic["statistics"]["pvp"]["max_planes_killed"] = max(
-                        rank["max_planes_killed"],
-                        user_dic["statistics"]["pvp"]["max_planes_killed"],
-                    )
-                    user_dic["statistics"]["pvp"]["max_xp"] = max(
-                        rank["max_xp"],
-                        user_dic["statistics"]["pvp"]["max_xp"],
-                    )
-                    user_dic["statistics"]["pvp"]["main_battery"]["shots"] += rank[
-                        "main_battery"
-                    ]["shots"]
-                    user_dic["statistics"]["pvp"]["main_battery"]["hits"] += rank[
-                        "main_battery"
-                    ]["hits"]
+                    user_dic["statistics"]["pvp"]["survived_battles"] += rank["survived_battles"]
+                    user_dic["statistics"]["pvp"]["max_damage_dealt"] = max(rank["max_damage_dealt"], user_dic["statistics"]["pvp"]["max_damage_dealt"])
+                    user_dic["statistics"]["pvp"]["max_frags_battle"] = max(rank["max_frags_battle"], user_dic["statistics"]["pvp"]["max_frags_battle"])
+                    user_dic["statistics"]["pvp"]["max_planes_killed"] = max(rank["max_planes_killed"], user_dic["statistics"]["pvp"]["max_planes_killed"])
+                    user_dic["statistics"]["pvp"]["max_xp"] = max(rank["max_xp"], user_dic["statistics"]["pvp"]["max_xp"])
+                    user_dic["statistics"]["pvp"]["main_battery"]["shots"] += rank["main_battery"]["shots"]
+                    user_dic["statistics"]["pvp"]["main_battery"]["hits"] += rank["main_battery"]["hits"]
+    
     if user_dic["statistics"]["pvp"]["battles"] == 0:
         raise Notfound("场数为0")
+    
     user = User()
     user.season_id = str(season_id)
+    
     if ships_res[account_id] is None:
         raise Notfound("没有船只数据")
+    
     user.init_user(user_dic, None, server, None, clan_tag)
 
     def ship_generator():
@@ -715,51 +747,32 @@ async def wows_rank_me(
                     "max_ships_spotted": 0,
                 },
             }
-            if str(season_id) not in ship["seasons"].keys():
+            if str(season_id) not in ship["seasons"]:
                 continue
-            else:
-                season_stat_ship = ship["seasons"][f"{season_id}"]
-                for week in season_stat_ship.values():
-                    if week is not None:
-                        for rank in week.values():
-                            if rank is not None:
-                                ship_dic["pvp"]["battles"] += rank["battles"]
-                                ship_dic["pvp"]["damage_dealt"] += rank["damage_dealt"]
-                                ship_dic["pvp"]["wins"] += rank["wins"]
-                                ship_dic["pvp"]["xp"] += rank["xp"]
-                                ship_dic["pvp"]["frags"] += rank["frags"]
-                                ship_dic["pvp"]["survived_battles"] += rank[
-                                    "survived_battles"
-                                ]
-                                ship_dic["pvp"]["max_damage_dealt"] = max(
-                                    rank["max_damage_dealt"],
-                                    ship_dic["pvp"]["max_damage_dealt"],
-                                )
-                                ship_dic["pvp"]["max_frags_battle"] = max(
-                                    rank["max_frags_battle"],
-                                    ship_dic["pvp"]["max_frags_battle"],
-                                )
-                                ship_dic["pvp"]["max_planes_killed"] = max(
-                                    rank["max_planes_killed"],
-                                    ship_dic["pvp"]["max_planes_killed"],
-                                )
-                                ship_dic["pvp"]["max_xp"] = max(
-                                    rank["max_xp"],
-                                    ship_dic["pvp"]["max_xp"],
-                                )
-                                ship_dic["pvp"]["main_battery"]["shots"] += rank[
-                                    "main_battery"
-                                ]["shots"]
-                                ship_dic["pvp"]["main_battery"]["hits"] += rank[
-                                    "main_battery"
-                                ]["hits"]
+            season_stat_ship = ship["seasons"][f"{season_id}"]
+            for week in season_stat_ship.values():
+                if week is not None:
+                    for rank in week.values():
+                        if rank is not None:
+                            ship_dic["pvp"]["battles"] += rank["battles"]
+                            ship_dic["pvp"]["damage_dealt"] += rank["damage_dealt"]
+                            ship_dic["pvp"]["wins"] += rank["wins"]
+                            ship_dic["pvp"]["xp"] += rank["xp"]
+                            ship_dic["pvp"]["frags"] += rank["frags"]
+                            ship_dic["pvp"]["survived_battles"] += rank["survived_battles"]
+                            ship_dic["pvp"]["max_damage_dealt"] = max(rank["max_damage_dealt"], ship_dic["pvp"]["max_damage_dealt"])
+                            ship_dic["pvp"]["max_frags_battle"] = max(rank["max_frags_battle"], ship_dic["pvp"]["max_frags_battle"])
+                            ship_dic["pvp"]["max_planes_killed"] = max(rank["max_planes_killed"], ship_dic["pvp"]["max_planes_killed"])
+                            ship_dic["pvp"]["max_xp"] = max(rank["max_xp"], ship_dic["pvp"]["max_xp"])
+                            ship_dic["pvp"]["main_battery"]["shots"] += rank["main_battery"]["shots"]
+                            ship_dic["pvp"]["main_battery"]["hits"] += rank["main_battery"]["hits"]
             if ship_dic["pvp"]["battles"] != 0:
                 yield ship_dic
 
     ship_list = [i for i in ship_generator()]
     await user.async_init(ship_list)
+    
     return await wows_rank(user, draws, Fonts)
-
 
 async def wows_rank_account_id(
     session: aiohttp.ClientSession,

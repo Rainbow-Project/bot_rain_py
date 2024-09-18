@@ -17,10 +17,6 @@ from ApiKeys import saucenaoApiKey
 
 channel = Channel.current()
 
-channel.name("Saucenao")
-channel.description("以图搜图")
-channel.author("I_love_study")
-
 """              
 去申请自己的           
            ｜        ｜
